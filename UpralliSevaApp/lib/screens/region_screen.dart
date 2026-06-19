@@ -208,64 +208,92 @@ class _RegionScreenState extends State<RegionScreen> {
       ),
       body: region.families.isEmpty
           ? const Center(child: Text('ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ'))
-          : ListView.separated(
+          : ReorderableListView.builder(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
+              buildDefaultDragHandles: false,
               itemCount: region.families.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              onReorder: _reorder,
               itemBuilder: (context, i) {
                 final f = region.families[i];
-                return Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 13,
-                              backgroundColor: kPrimary.withOpacity(.12),
-                              child: Text('${i + 1}',
-                                  style: const TextStyle(fontSize: 12, color: kPrimaryDark, fontWeight: FontWeight.bold)),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                f.n.trim().isEmpty ? '— ಹೆಸರು ಸೇರಿಸಿ —' : f.n,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                    color: f.n.trim().isEmpty ? Colors.black38 : kInk),
+                return Padding(
+                  key: ObjectKey(f),
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 13,
+                                backgroundColor: kPrimary.withOpacity(.12),
+                                child: Text('${i + 1}',
+                                    style: const TextStyle(fontSize: 12, color: kPrimaryDark, fontWeight: FontWeight.bold)),
                               ),
-                            ),
-                            // ✎ ತಿದ್ದು — ಪಾಪ್‌ಅಪ್‌ನಲ್ಲಿ ಮಾತ್ರ ಬದಲಾವಣೆ (ಆಕಸ್ಮಿಕ ತಿದ್ದುಪಡಿ ಇಲ್ಲ)
-                            Material(
-                              color: kPrimary.withOpacity(.10),
-                              borderRadius: BorderRadius.circular(9),
-                              child: InkWell(
-                                borderRadius: BorderRadius.circular(9),
-                                onTap: () => _editFamily(i),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(7),
-                                  child: Icon(Icons.edit, size: 18, color: kPrimaryDark),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  f.n.trim().isEmpty ? '— ಹೆಸರು ಸೇರಿಸಿ —' : f.n,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                      color: f.n.trim().isEmpty ? Colors.black38 : kInk),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 6,
-                          children: List.generate(
-                              cols.length, (ci) => _poojaTag(cols[ci], f.isOn(ci))),
-                        ),
-                      ],
+                              // ✎ ತಿದ್ದು — ಪಾಪ್‌ಅಪ್‌ನಲ್ಲಿ ಮಾತ್ರ ಬದಲಾವಣೆ (ಆಕಸ್ಮಿಕ ತಿದ್ದುಪಡಿ ಇಲ್ಲ)
+                              Material(
+                                color: kPrimary.withOpacity(.10),
+                                borderRadius: BorderRadius.circular(9),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(9),
+                                  onTap: () => _editFamily(i),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(7),
+                                    child: Icon(Icons.edit, size: 18, color: kPrimaryDark),
+                                  ),
+                                ),
+                              ),
+                              // ⠿ ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ
+                              ReorderableDragStartListener(
+                                index: i,
+                                child: const Padding(
+                                  padding: EdgeInsets.only(left: 4),
+                                  child: Padding(
+                                    padding: EdgeInsets.all(6),
+                                    child: Icon(Icons.drag_handle, size: 22, color: Colors.black38),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: List.generate(
+                                cols.length, (ci) => _poojaTag(cols[ci], f.isOn(ci))),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
               },
             ),
     );
+  }
+
+  /// ಮಾಗಣೆಯೊಳಗೆ ಸಾಲು ಎಳೆದು ಕ್ರಮ ಬದಲಾವಣೆ
+  void _reorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex -= 1;
+      final m = region.families.removeAt(oldIndex);
+      region.families.insert(newIndex, m);
+    });
+    _dirty = true;
+    _save();
+    _snack('↕ ಕ್ರಮ ಬದಲಾಯಿಸಲಾಗಿದೆ', true);
   }
 }

@@ -141,6 +141,10 @@
   /* ಸಾಲು ಕ್ಲಿಕ್ ಮಾಡಿ ತಿದ್ದುಪಡಿ (ಆಕಸ್ಮಿಕ ಬದಲಾವಣೆ ಇಲ್ಲ) */
   tr.editrow{ cursor:pointer; }
   tr.editrow:hover td{ background:#fff7e8; }
+  tr.editrow.dragover td{ border-top:2px solid var(--accent); background:#fff2dd; }
+  .draghandle{ cursor:grab; color:#b5bac6; font-size:15px; padding:0 8px; user-select:none; }
+  .draghandle:active{ cursor:grabbing; }
+  .c-del{ white-space:nowrap; }
 
   /* ತಿದ್ದುಪಡಿ ಪಾಪ್‌ಅಪ್‌ನ ಪೂಜಾ ಚಿಪ್‌ಗಳು */
   .edit-poojas{ display:flex; flex-wrap:wrap; gap:8px; }
@@ -688,11 +692,14 @@
       } else {
         r.families.forEach((f,fi)=>{
           const ck = checks(f.c);
-          html += `<tr class="editrow" onclick="editRow(${ri},${fi})" title="ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ">
+          html += `<tr class="editrow" ondragover="rowDragOver(event)" ondrop="rowDrop(event,${ri},${fi})" onclick="editRow(${ri},${fi})" title="ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ">
             <td class="c-no">${fi+1}</td>
             <td class="c-name"><div>${esc(f.n)}</div></td>
             ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" ${on?"checked":""} disabled></td>`).join("")}
-            <td class="c-del no-print edit-only"><button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="event.stopPropagation();delRow(${ri},${fi})">✕</button></td>
+            <td class="c-del no-print edit-only">
+              <span class="draghandle" draggable="true" title="ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ" ondragstart="rowDragStart(event,${ri},${fi})" ondragend="rowDragEnd(event)" onclick="event.stopPropagation()">⠿</span>
+              <button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="event.stopPropagation();delRow(${ri},${fi})">✕</button>
+            </td>
           </tr>`;
         });
       }
@@ -867,6 +874,33 @@
 
   /* ===================== ಸಾಲು/ಮಾಗಣೆ ಕ್ರಿಯೆಗಳು ===================== */
   function addRow(ri){ state.regions[ri].families.push({n:"",c:"00000"}); notifyAction("➕ ಹೊಸ ಸಾಲು ಸೇರಿಸಲಾಗಿದೆ","ok"); save(); render(); }
+  /* ಮಾಗಣೆಯೊಳಗೆ ಸಾಲು ಎಳೆದು ಕ್ರಮ ಬದಲಾವಣೆ */
+  let _dragRI=null,_dragFI=null;
+  function rowDragStart(e,ri,fi){
+    e.stopPropagation(); _dragRI=ri; _dragFI=fi;
+    if(e.dataTransfer){ e.dataTransfer.effectAllowed='move'; try{ e.dataTransfer.setData('text/plain',String(fi)); }catch(_){ } }
+  }
+  function rowDragEnd(){ _dragRI=null; _dragFI=null; document.querySelectorAll('tr.dragover').forEach(t=>t.classList.remove('dragover')); }
+  function rowDragOver(e){
+    if(_dragRI===null) return;
+    e.preventDefault(); if(e.dataTransfer) e.dataTransfer.dropEffect='move';
+    const tr=e.currentTarget;
+    document.querySelectorAll('tr.dragover').forEach(t=>{ if(t!==tr) t.classList.remove('dragover'); });
+    tr.classList.add('dragover');
+  }
+  function rowDrop(e,ri,fi){
+    if(_dragRI===null) return;
+    e.preventDefault(); e.stopPropagation();
+    if(_dragRI===ri && _dragFI!==fi){
+      const fam=state.regions[ri].families;
+      const [m]=fam.splice(_dragFI,1);
+      fam.splice(fi,0,m);
+      notifyAction("↕ ಕ್ರಮ ಬದಲಾಯಿಸಲಾಗಿದೆ");
+      save(); render();
+    }
+    _dragRI=null; _dragFI=null;
+  }
+
   async function delRow(ri,fi){
     const r=state.regions[ri]; if(!r) return;
     const f=r.families[fi]; if(!f) return;

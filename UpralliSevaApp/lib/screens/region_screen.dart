@@ -22,44 +22,119 @@ class _RegionScreenState extends State<RegionScreen> {
   Region get region => widget.data.regions[widget.regionIndex];
   List<String> get cols => widget.data.columns;
 
-  void _toggle(Family f, int ci) {
-    final now = !f.isOn(ci);
-    setState(() => f.setOn(ci, now));
-    final col = ci < cols.length ? cols[ci] : '';
-    final person = f.n.split(',').first.trim();
-    _snack(
-      now ? '✓ $col ಸೇರಿಸಲಾಗಿದೆ${person.isNotEmpty ? ' — $person' : ''}'
-          : '✗ $col ತೆಗೆಯಲಾಗಿದೆ${person.isNotEmpty ? ' — $person' : ''}',
-      now,
-    );
-    _scheduleSave();
-  }
-
   void _scheduleSave() {
     _dirty = true;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 600), _save);
   }
 
-  bool _pendingNameSnack = false;
-
   Future<void> _save() async {
     if (!_dirty) return;
     _dirty = false;
     try {
       await firestoreService.saveYear(widget.data);
-      if (_pendingNameSnack && mounted) {
-        _pendingNameSnack = false;
-        _snack('✓ ಹೆಸರು ಉಳಿಸಲಾಗಿದೆ', true);
-      }
     } catch (e) {
       if (mounted) _snack('⚠ ಉಳಿಯಲಿಲ್ಲ — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ', false);
     }
   }
 
-  void _addRow() {
+  /// ಸಂಪಾದನೆ ಪಾಪ್‌ಅಪ್ — ಹೆಸರು + ಪೂಜೆಗಳು ಬದಲಾಯಿಸಿ → ನವೀಕರಿಸಿ / ರದ್ದು
+  Future<bool> _editFamily(int i) async {
+    final f = region.families[i];
+    final nameCtrl = TextEditingController(text: f.n);
+    final sel = List<bool>.generate(cols.length, (ci) => f.isOn(ci));
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setLocal) => AlertDialog(
+          title: Text('ತಿದ್ದುಪಡಿ — ಕ್ರ. ${i + 1}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: nameCtrl,
+                  minLines: 1,
+                  maxLines: 3,
+                  decoration: const InputDecoration(
+                    labelText: 'ಹೆಸರು / ವಿಳಾಸ',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text('ಪೂಜೆಗಳು', style: TextStyle(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: List.generate(cols.length, (ci) => FilterChip(
+                        label: Text(cols[ci]),
+                        selected: sel[ci],
+                        showCheckmark: true,
+                        selectedColor: kPrimary.withOpacity(.2),
+                        onSelected: (v) => setLocal(() => sel[ci] = v),
+                      )),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('ರದ್ದು')),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('ನವೀಕರಿಸಿ')),
+          ],
+        ),
+      ),
+    );
+    if (ok == true) {
+      setState(() {
+        f.n = nameCtrl.text.trim();
+        for (var ci = 0; ci < cols.length; ci++) f.setOn(ci, sel[ci]);
+      });
+      _dirty = true;
+      await _save();
+      if (mounted) _snack('✓ ನವೀಕರಿಸಲಾಗಿದೆ', true);
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _addRow() async {
     setState(() => region.families.add(Family(n: '', c: '00000')));
-    _scheduleSave();
+    final idx = region.families.length - 1;
+    await _editFamily(idx);
+    // ಖಾಲಿ ಸಾಲು (ರದ್ದು ಮಾಡಿದರೆ) ತೆಗೆದುಹಾಕು
+    if (idx < region.families.length) {
+      final f = region.families[idx];
+      if (f.n.trim().isEmpty && f.count == 0) {
+        setState(() => region.families.removeAt(idx));
+      }
+    }
+  }
+
+  /// ಓದಲು-ಮಾತ್ರ ಪೂಜಾ ಟ್ಯಾಗ್ (ಸ್ಪರ್ಶಿಸಲಾಗದು)
+  Widget _poojaTag(String label, bool on) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: on ? kPrimary.withOpacity(.14) : Colors.white,
+        border: Border.all(color: on ? kPrimary.withOpacity(.5) : kCardLine),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(on ? Icons.check_circle : Icons.circle_outlined,
+              size: 14, color: on ? kPrimaryDark : Colors.black26),
+          const SizedBox(width: 5),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 12.5,
+                  color: on ? kPrimaryDark : Colors.black54,
+                  fontWeight: on ? FontWeight.w700 : FontWeight.normal)),
+        ],
+      ),
+    );
   }
 
   void _snack(String m, bool ok) {
@@ -146,7 +221,6 @@ class _RegionScreenState extends State<RegionScreen> {
               itemBuilder: (context, i) {
                 final f = region.families[i];
                 return Card(
-                  elevation: 1,
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -156,45 +230,41 @@ class _RegionScreenState extends State<RegionScreen> {
                           children: [
                             CircleAvatar(
                               radius: 13,
-                              backgroundColor: Colors.black12,
+                              backgroundColor: kPrimary.withOpacity(.12),
                               child: Text('${i + 1}',
-                                  style: const TextStyle(fontSize: 12)),
+                                  style: const TextStyle(fontSize: 12, color: kPrimaryDark, fontWeight: FontWeight.bold)),
                             ),
                             const SizedBox(width: 10),
                             Expanded(
-                              child: TextFormField(
-                                initialValue: f.n,
-                                decoration: const InputDecoration(
-                                  isDense: true,
-                                  border: UnderlineInputBorder(),
-                                  hintText: 'ಹೆಸರು / ವಿಳಾಸ ಸಂಪಾದಿಸಿ',
-                                  suffixIcon: Icon(Icons.edit, size: 16, color: Colors.black38),
+                              child: Text(
+                                f.n.trim().isEmpty ? '— ಹೆಸರು ಸೇರಿಸಿ —' : f.n,
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 15,
+                                    color: f.n.trim().isEmpty ? Colors.black38 : kInk),
+                              ),
+                            ),
+                            // ✎ ತಿದ್ದು — ಪಾಪ್‌ಅಪ್‌ನಲ್ಲಿ ಮಾತ್ರ ಬದಲಾವಣೆ (ಆಕಸ್ಮಿಕ ತಿದ್ದುಪಡಿ ಇಲ್ಲ)
+                            Material(
+                              color: kPrimary.withOpacity(.10),
+                              borderRadius: BorderRadius.circular(9),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(9),
+                                onTap: () => _editFamily(i),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(7),
+                                  child: Icon(Icons.edit, size: 18, color: kPrimaryDark),
                                 ),
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600, fontSize: 15),
-                                onChanged: (v) {
-                                  f.n = v;
-                                  _pendingNameSnack = true;
-                                  _scheduleSave();
-                                },
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 10),
                         Wrap(
                           spacing: 8,
-                          runSpacing: 4,
-                          children: List.generate(cols.length, (ci) {
-                            final on = f.isOn(ci);
-                            return FilterChip(
-                              label: Text(cols[ci]),
-                              selected: on,
-                              showCheckmark: true,
-                              selectedColor: kAccent.withOpacity(.20),
-                              onSelected: (_) => _toggle(f, ci),
-                            );
-                          }),
+                          runSpacing: 6,
+                          children: List.generate(
+                              cols.length, (ci) => _poojaTag(cols[ci], f.isOn(ci))),
                         ),
                       ],
                     ),

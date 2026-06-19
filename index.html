@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ಪೂಜಾ ದಾಖಲೆ 2024</title>
+
+<!-- ಕನ್ನಡ ಫಾಂಟ್ (ಸ್ಥಳೀಯ — ಇಂಟರ್ನೆಟ್ ಬೇಕಿಲ್ಲ) -->
+<link href="assets/kannada-font.css" rel="stylesheet">
+
+<style>
+  :root{
+    --ink:#1a1a1a; --line:#000; --muted:#666; --accent:#0b6; --bg:#eef0f2;
+    --reg-bg:#dfe7ef;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{
+    font-family:"Noto Sans Kannada", system-ui, sans-serif;
+    color:var(--ink); background:var(--bg);
+    font-size:13px; line-height:1.35;
+  }
+
+  /* ---------- ಮೇಲಿನ ಟೂಲ್‌ಬಾರ್ (ಮುದ್ರಣದಲ್ಲಿ ಕಾಣಿಸುವುದಿಲ್ಲ) ---------- */
+  .toolbar{
+    position:sticky; top:0; z-index:50;
+    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+    padding:10px 14px; background:#fff; border-bottom:2px solid #cdd3da;
+    box-shadow:0 2px 6px rgba(0,0,0,.06);
+  }
+  .toolbar h1{ font-size:15px; margin:0 12px 0 0; font-weight:700; }
+  .toolbar .spacer{ flex:1; }
+  button.tb{
+    font-family:inherit; font-size:13px; cursor:pointer;
+    border:1px solid #b9c1ca; background:#f7f9fb; color:#222;
+    padding:7px 12px; border-radius:7px;
+  }
+  button.tb:hover{ background:#eef3f8; }
+  button.tb.primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
+  button.tb.primary:hover{ filter:brightness(1.05); }
+  button.tb.warn{ color:#a40000; border-color:#e2b3b3; }
+  .hint{ font-size:11.5px; color:var(--muted); }
+  .jump{ font-family:inherit; font-size:12.5px; padding:6px 8px; border:1px solid #b9c1ca; border-radius:7px; max-width:230px; }
+
+  /* ---------- A4 ಹಾಳೆ ---------- */
+  #sheet{
+    width:210mm; min-height:297mm;
+    margin:16px auto; padding:12mm 10mm;
+    background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12);
+  }
+  .doc-title{ text-align:center; font-weight:700; font-size:15px; margin:0 0 10px; padding-bottom:8px; border-bottom:2px solid var(--line); }
+  .legend{ text-align:center; font-size:11px; color:#333; margin:-4px 0 14px; }
+  .legend b{ font-weight:600; }
+
+  .region{ margin:0 0 16px; border:1.5px solid var(--line); }
+  .region-head{
+    display:flex; align-items:center; gap:8px;
+    background:var(--reg-bg); padding:6px 8px; border-bottom:1.5px solid var(--line);
+  }
+  .region-head .no{ font-weight:700; min-width:26px; }
+  .region-head .rname{ font-weight:700; font-size:13.5px; flex:1; }
+  .region-head .rphone{ font-size:12px; white-space:nowrap; }
+  .region-head .rphone::before{ content:"ಮೊ: "; color:#444; }
+
+  table{ width:100%; border-collapse:collapse; }
+  th,td{ border:1px solid var(--line); padding:3px 5px; vertical-align:top; }
+  thead th{ background:#f0f0f0; font-size:11px; font-weight:600; text-align:center; }
+  th.c-no,td.c-no{ width:30px; text-align:center; }
+  th.c-name{ text-align:left; }
+  th.c-chk,td.c-chk{ width:34px; text-align:center; }
+  td.c-name{ text-align:left; }
+  td.c-name [contenteditable]{ outline:none; min-height:1em; display:block; }
+  td.c-name [contenteditable]:focus{ background:#fff7cc; }
+
+  /* ಚೆಕ್‌ಬಾಕ್ಸ್ — ಗುರುತಿಸಿದರೆ ಬಾಕ್ಸ್ ಇಲ್ಲದೆ ಬರೀ ✓ ತೋರಿಸು */
+  input[type=checkbox]{
+    -webkit-appearance:none; appearance:none;
+    width:16px; height:16px; margin:0; cursor:pointer;
+    border:none; background:transparent; outline:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-size:15px; line-height:1; color:#111;
+  }
+  input[type=checkbox]:checked::after{ content:"✓"; }
+  input[type=checkbox]:hover{ background:#eee; border-radius:3px; }
+
+  /* ಸಾಲು ಅಳಿಸುವ ಗುಂಡಿ */
+  td.c-del{ width:26px; text-align:center; }
+  .rowdel{ border:none; background:transparent; color:#b00; cursor:pointer; font-size:15px; line-height:1; }
+  .rowctrl{ padding:5px 8px; background:#f5f7f9; }
+  .rowctrl button{ font-family:inherit; font-size:12px; cursor:pointer; border:1px dashed #9aa6b2; background:#fff; padding:4px 9px; border-radius:6px; }
+  .empty-note{ padding:8px; font-size:12px; color:#999; font-style:italic; }
+
+  /* ---------- ಮುದ್ರಣ / PDF ---------- */
+  @page{ size:A4; margin:10mm; }
+  @media print{
+    body{ background:#fff; }
+    .toolbar{ display:none !important; }
+    #sheet{ width:auto; margin:0; padding:0; box-shadow:none; }
+    .region{ break-inside:auto; }
+    thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
+    tr{ break-inside:avoid; }
+    .no-print{ display:none !important; }
+  }
+  /* PDF ರಫ್ತು ಮಾಡುವಾಗ ಸಂಪಾದನಾ ನಿಯಂತ್ರಣ ಮರೆಮಾಡಲು */
+  body.exporting .no-print{ display:none !important; }
+  body.exporting td.c-del{ display:none; }
+</style>
+</head>
+<body>
+
+  <div class="toolbar no-print">
+    <h1>ಪೂಜಾ ದಾಖಲೆ 2024</h1>
+    <select class="jump" id="jump" title="ಮಾಗಣೆಗೆ ಹೋಗಿ"></select>
+    <span class="spacer"></span>
+    <span class="hint" id="status"></span>
+    <button class="tb" onclick="addRegion()">+ ಮಾಗಣೆ</button>
+    <button class="tb" onclick="exportJSON()">JSON ಉಳಿಸು</button>
+    <button class="tb" onclick="document.getElementById('imp').click()">JSON ತೆರೆ</button>
+    <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(this)">
+    <button class="tb warn" onclick="resetAll()">ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
+    <button class="tb" onclick="window.print()">ಮುದ್ರಣ (Ctrl+P)</button>
+    <button class="tb primary" onclick="downloadPDF(this)">PDF ಡೌನ್‌ಲೋಡ್</button>
+  </div>
+
+  <div id="sheet"></div>
+
+  <script src="data.js"></script>
+  <script>
+  /* ===================== ಸ್ಥಿತಿ (state) ===================== */
+  const LS_KEY = "poojaRecord2024";
+  let state = load();
+
+  function load(){
+    try{
+      const saved = localStorage.getItem(LS_KEY);
+      if(saved) return JSON.parse(saved);
+    }catch(e){}
+    return structuredClone(window.SEED);
+  }
+  let saveTimer=null;
+  function save(){
+    clearTimeout(saveTimer);
+    saveTimer=setTimeout(()=>{
+      try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); flash("✓ ಉಳಿಸಲಾಗಿದೆ"); }
+      catch(e){ flash("⚠ ಉಳಿಸಲಾಗಲಿಲ್ಲ"); }
+    },350);
+  }
+  function flash(msg){ const s=document.getElementById('status'); s.textContent=msg; }
+
+  /* ===================== ಸಹಾಯಕಗಳು ===================== */
+  const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const checks = c => { const a=[]; const s=(c||"").padEnd(5,"0"); for(let i=0;i<5;i++) a.push(s[i]==="1"); return a; };
+
+  /* ===================== ರೆಂಡರ್ ===================== */
+  function render(){
+    const cols = state.columns;
+    let total = state.regions.reduce((n,r)=>n+r.families.length,0);
+
+    let html = `
+      <div class="doc-title" contenteditable data-t="title">${esc(state.title)}</div>
+      <div class="legend no-print">
+        ಕಾಲಂಗಳು: <b>${cols.map(esc).join(" · ")}</b>
+        &nbsp;|&nbsp; ✓ = ಪೂಜೆ ಮಾಡಿಸಿದ್ದಾರೆ &nbsp;|&nbsp; ${state.regions.length} ಮಾಗಣೆ · ${total} ಹೆಸರು
+      </div>`;
+
+    state.regions.forEach((r,ri)=>{
+      html += `<div class="region" id="reg-${ri}">
+        <div class="region-head">
+          <span class="no" contenteditable data-r="${ri}" data-f="no">${esc(r.no)}</span>
+          <span class="rname" contenteditable data-r="${ri}" data-f="name">${esc(r.name)}</span>
+          <span class="rphone" contenteditable data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
+          <button class="tb warn no-print" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th class="c-no">ಕ್ರ.</th>
+            <th class="c-name">ಹೆಸರು / ವಿಳಾಸ</th>
+            ${cols.map(c=>`<th class="c-chk">${esc(c)}</th>`).join("")}
+            <th class="c-del no-print"></th>
+          </tr></thead>
+          <tbody>`;
+
+      if(r.families.length===0){
+        html += `<tr><td class="empty-note" colspan="${cols.length+3}">— ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ. ಕೆಳಗಿನ “+ ಹೆಸರು ಸೇರಿಸಿ” ಒತ್ತಿ —</td></tr>`;
+      } else {
+        r.families.forEach((f,fi)=>{
+          const ck = checks(f.c);
+          html += `<tr>
+            <td class="c-no">${fi+1}</td>
+            <td class="c-name"><div contenteditable data-r="${ri}" data-f="${fi}" data-k="n">${esc(f.n)}</div></td>
+            ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" data-r="${ri}" data-f="${fi}" data-c="${ci}" ${on?"checked":""}></td>`).join("")}
+            <td class="c-del no-print"><button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="delRow(${ri},${fi})">✕</button></td>
+          </tr>`;
+        });
+      }
+
+      html += `</tbody></table>
+        <div class="rowctrl no-print"><button onclick="addRow(${ri})">+ ಹೆಸರು ಸೇರಿಸಿ</button></div>
+      </div>`;
+    });
+
+    document.getElementById('sheet').innerHTML = html;
+    buildJump();
+  }
+
+  function buildJump(){
+    const sel=document.getElementById('jump');
+    sel.innerHTML = `<option value="">— ಮಾಗಣೆಗೆ ಹೋಗಿ —</option>` +
+      state.regions.map((r,i)=>`<option value="reg-${i}">${esc(r.no)}. ${esc(r.name)} (${r.families.length})</option>`).join("");
+    sel.onchange=()=>{ if(sel.value) document.getElementById(sel.value).scrollIntoView({behavior:"smooth",block:"start"}); };
+  }
+
+  /* ===================== ಸಂಪಾದನೆ (events) ===================== */
+  const sheet=document.getElementById('sheet');
+
+  // contenteditable ಪಠ್ಯ
+  sheet.addEventListener('input', e=>{
+    const el=e.target;
+    if(el.dataset.t==="title"){ state.title=el.textContent; save(); return; }
+    if(el.dataset.r===undefined) return;
+    const ri=+el.dataset.r;
+    if(el.dataset.k==="n"){ state.regions[ri].families[+el.dataset.f].n=el.textContent; }
+    else if(el.dataset.f==="no"){ state.regions[ri].no=el.textContent; }
+    else if(el.dataset.f==="name"){ state.regions[ri].name=el.textContent; }
+    else if(el.dataset.f==="phone"){ state.regions[ri].phone=el.textContent; }
+    save();
+  });
+
+  // ಚೆಕ್‌ಬಾಕ್ಸ್
+  sheet.addEventListener('change', e=>{
+    if(e.target.type!=="checkbox") return;
+    const ri=+e.target.dataset.r, fi=+e.target.dataset.f, ci=+e.target.dataset.c;
+    const fam=state.regions[ri].families[fi];
+    const arr=checks(fam.c); arr[ci]=e.target.checked;
+    fam.c=arr.map(b=>b?"1":"0").join("");
+    save();
+  });
+
+  /* ===================== ಸಾಲು/ಮಾಗಣೆ ಕ್ರಿಯೆಗಳು ===================== */
+  function addRow(ri){ state.regions[ri].families.push({n:"",c:"00000"}); save(); render(); }
+  function delRow(ri,fi){ state.regions[ri].families.splice(fi,1); save(); render(); }
+  function delRegion(ri){
+    if(!confirm(`“${state.regions[ri].name}” ಮಾಗಣೆಯನ್ನು ಅಳಿಸಬೇಕೆ?`)) return;
+    state.regions.splice(ri,1); save(); render();
+  }
+  function addRegion(){
+    const no = state.regions.length? (parseInt(state.regions[state.regions.length-1].no)||state.regions.length)+1 : 1;
+    state.regions.push({no:no, name:"ಹೊಸ ಮಾಗಣೆ", phone:"", families:[]});
+    save(); render();
+    document.getElementById('reg-'+(state.regions.length-1)).scrollIntoView({behavior:"smooth"});
+  }
+
+  /* ===================== ರಫ್ತು / ಆಮದು / ಮರುಹೊಂದಿಸು ===================== */
+  function exportJSON(){
+    const blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download="pooja-dakhale-2024.json"; a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function importJSON(input){
+    const file=input.files[0]; if(!file) return;
+    const rd=new FileReader();
+    rd.onload=()=>{ try{ state=JSON.parse(rd.result); save(); render(); flash("✓ ಆಮದಾಯಿತು"); }
+      catch(e){ alert("ಸರಿಯಾದ JSON ಕಡತವಲ್ಲ"); } input.value=""; };
+    rd.readAsText(file);
+  }
+  function resetAll(){
+    if(!confirm("ಎಲ್ಲ ಬದಲಾವಣೆಗಳನ್ನು ಅಳಿಸಿ ಮೂಲ ದತ್ತಾಂಶಕ್ಕೆ ಮರಳಬೇಕೆ?")) return;
+    localStorage.removeItem(LS_KEY); state=structuredClone(window.SEED); render(); flash("ಮೂಲಕ್ಕೆ ಮರಳಿದೆ");
+  }
+
+  /* ===================== PDF ಡೌನ್‌ಲೋಡ್ (html2pdf) ===================== */
+  function ensureLib(){
+    return new Promise((res,rej)=>{
+      if(window.html2pdf) return res();
+      const s=document.createElement('script');
+      s.src="assets/html2pdf.bundle.min.js";
+      s.onload=res; s.onerror=()=>rej(new Error("ಲೈಬ್ರರಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ"));
+      document.head.appendChild(s);
+    });
+  }
+  async function downloadPDF(btn){
+    btn.disabled=true; const old=btn.textContent; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…";
+    try{
+      await ensureLib();
+      if(document.fonts && document.fonts.ready) await document.fonts.ready;
+      document.body.classList.add('exporting');
+      const opt={
+        margin:[8,8,10,8],
+        filename:"pooja-dakhale-2024.pdf",
+        image:{type:"jpeg",quality:0.97},
+        html2canvas:{scale:2,useCORS:true,letterRendering:true},
+        jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
+        pagebreak:{mode:["css","legacy"],avoid:["tr",".region-head"]}
+      };
+      await window.html2pdf().set(opt).from(document.getElementById('sheet')).save();
+    }catch(err){ alert("PDF ತಯಾರಿಸಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → Save as PDF ಬಳಸಿ."); }
+    finally{ document.body.classList.remove('exporting'); btn.disabled=false; btn.textContent=old; }
+  }
+
+  /* ===================== ಆರಂಭ ===================== */
+  render();
+  </script>
+</body>
+</html>

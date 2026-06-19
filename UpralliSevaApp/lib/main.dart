@@ -10,11 +10,13 @@ import 'screens/home_screen.dart';
 final authService = AuthService();
 final firestoreService = FirestoreService();
 
-// ಬ್ರ್ಯಾಂಡ್ ಬಣ್ಣಗಳು (ಕೇಸರಿ / saffron — ದೇವಸ್ಥಾನ ಶೈಲಿ)
+// ಬ್ರ್ಯಾಂಡ್ ಬಣ್ಣಗಳು — ಕೇಸರಿ ಆ್ಯಕ್ಸೆಂಟ್ + ತಟಸ್ಥ ವೃತ್ತಿಪರ ಹಿನ್ನೆಲೆ
 const kPrimary = Color(0xFFE9730C);
-const kPrimaryDark = Color(0xFFC85D00);
+const kPrimaryDark = Color(0xFFC25E00);
 const kAccent = kPrimary; // ಹಳೆಯ ಉಲ್ಲೇಖಗಳ ಹೊಂದಾಣಿಕೆಗೆ
-const kBg = Color(0xFFFBF6EF);
+const kBg = Color(0xFFF4F5F7);
+const kInk = Color(0xFF1F2430);
+const kCardLine = Color(0xFFECECF1);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +45,10 @@ class PoojaApp extends StatelessWidget {
         cardTheme: CardThemeData(
           elevation: 0,
           color: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: kCardLine),
+          ),
           margin: EdgeInsets.zero,
         ),
         snackBarTheme: const SnackBarThemeData(

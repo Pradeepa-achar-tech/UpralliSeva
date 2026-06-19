@@ -43,4 +43,8 @@ class FirestoreService {
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
+
+  Future<void> deleteYear(int year) async {
+    await _pooja.doc('$year').delete();
+  }
 }

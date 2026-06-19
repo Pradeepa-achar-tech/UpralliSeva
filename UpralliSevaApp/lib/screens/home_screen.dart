@@ -14,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<int> _years = [];
   int _year = DateTime.now().year;
-  bool _loadingYears = true;
 
   @override
   void initState() {
@@ -30,11 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
         _years = years;
         if (years.isNotEmpty && !years.contains(_year)) _year = years.first;
         if (!_years.contains(_year)) _years = [_year, ..._years]..sort((a, b) => b - a);
-        _loadingYears = false;
       });
-    } catch (_) {
-      if (mounted) setState(() => _loadingYears = false);
-    }
+    } catch (_) {/* ignore */}
   }
 
   Future<void> _newYear() async {
@@ -59,7 +55,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
     if (picked == null || picked < 2000 || picked > 2100) return;
-
     if (_years.contains(picked)) {
       setState(() => _year = picked);
       return;
@@ -75,6 +70,34 @@ class _HomeScreenState extends State<HomeScreen> {
     await _loadYears();
     if (mounted) setState(() => _year = picked);
     _snack('ವರ್ಷ $picked ರಚಿಸಲಾಗಿದೆ');
+  }
+
+  Future<void> _deleteYear() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('ವರ್ಷ $_year ಅಳಿಸಿ'),
+        content: Text('$_year ವರ್ಷದ ಎಲ್ಲ ದತ್ತಾಂಶವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಬೇಕೆ? ಇದನ್ನು ಹಿಂಪಡೆಯಲಾಗದು.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('ರದ್ದು')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade600),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('ಅಳಿಸಿ'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await firestoreService.deleteYear(_year);
+      _snack('ವರ್ಷ $_year ಅಳಿಸಲಾಗಿದೆ');
+      final remaining = (await firestoreService.listYears())..remove(_year);
+      await _loadYears();
+      if (mounted && remaining.isNotEmpty) setState(() => _year = remaining.first);
+    } catch (e) {
+      _snack('ಅಳಿಸಲಾಗಲಿಲ್ಲ: $e');
+    }
   }
 
   Future<void> _sharePdf({bool whatsapp = false}) async {
@@ -106,30 +129,130 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [kPrimary, kPrimaryDark],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        titleSpacing: 12,
+        title: Row(
           children: [
-            _header(),
+            Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
+              child: Image.asset('assets/icon/app_icon.png', width: 26, height: 26),
+            ),
+            const SizedBox(width: 10),
+            const Flexible(
+              child: Text('ಉಪ್ರಳ್ಳಿ ಸೇವೆ',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+              tooltip: 'WhatsApp',
+              onPressed: () => _sharePdf(whatsapp: true),
+              icon: const FaIcon(FontAwesomeIcons.whatsapp, size: 20)),
+          IconButton(
+              tooltip: 'PDF', onPressed: () => _sharePdf(), icon: const Icon(Icons.picture_as_pdf)),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (v) {
+              if (v == 'new') _newYear();
+              if (v == 'delete') _deleteYear();
+              if (v == 'logout') authService.signOut();
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'new', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('ಹೊಸ ವರ್ಷ'))),
+              PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete_outline, color: Colors.red), title: Text('ಈ ವರ್ಷ ಅಳಿಸಿ'))),
+              PopupMenuItem(value: 'logout', child: ListTile(leading: Icon(Icons.logout), title: Text('ಲಾಗ್‌ಔಟ್'))),
+            ],
+          ),
+        ],
+      ),
+      body: StreamBuilder<PoojaData?>(
+        stream: firestoreService.watchYear(_year),
+        builder: (context, snap) {
+          if (snap.hasError) {
+            return _message(Icons.cloud_off, 'ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ದೋಷ', 'ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ.');
+          }
+          if (snap.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final data = snap.data;
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(child: _yearBar()),
+              if (data == null)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _message(Icons.inbox_outlined, '$_year ವರ್ಷದ ದತ್ತಾಂಶ ಇಲ್ಲ',
+                      'ಮೇಲಿನ ವರ್ಷ ಬದಲಿಸಿ ಅಥವಾ “ಹೊಸ ವರ್ಷ” ಸೇರಿಸಿ.'),
+                )
+              else ...[
+                SliverToBoxAdapter(child: _stats(data)),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+                  sliver: SliverList.separated(
+                    itemCount: data.regions.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (context, i) => _regionCard(data, i),
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  // ---------- ವರ್ಷ ಆಯ್ಕೆ ಪಟ್ಟಿ ----------
+  Widget _yearBar() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 14, 12, 8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 8, offset: const Offset(0, 2))],
+        ),
+        child: Row(
+          children: [
+            const Icon(Icons.event, color: kPrimary, size: 20),
+            const SizedBox(width: 8),
+            const Text('ವರ್ಷ', style: TextStyle(fontWeight: FontWeight.w600)),
+            const SizedBox(width: 10),
             Expanded(
-              child: StreamBuilder<PoojaData?>(
-                stream: firestoreService.watchYear(_year),
-                builder: (context, snap) {
-                  if (snap.hasError) {
-                    return _message(Icons.cloud_off, 'ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ದೋಷ',
-                        'ಇಂಟರ್ನೆಟ್ ಪರಿಶೀಲಿಸಿ, ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.');
-                  }
-                  if (snap.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  final data = snap.data;
-                  if (data == null) {
-                    return _message(Icons.inbox_outlined, '$_year ವರ್ಷದ ದತ್ತಾಂಶ ಇಲ್ಲ',
-                        'ಮೇಲಿನ ವರ್ಷ ಬದಲಿಸಿ ಅಥವಾ “ಹೊಸ ವರ್ಷ” ಸೇರಿಸಿ.');
-                  }
-                  return _content(data);
-                },
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<int>(
+                  isExpanded: true,
+                  value: _years.contains(_year) ? _year : null,
+                  hint: Text('$_year'),
+                  items: _years.map((y) => DropdownMenuItem(value: y, child: Text('$y'))).toList(),
+                  onChanged: (y) {
+                    if (y != null) setState(() => _year = y);
+                  },
+                ),
               ),
+            ),
+            TextButton.icon(
+              onPressed: _newYear,
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('ಹೊಸ'),
+              style: TextButton.styleFrom(foregroundColor: kPrimaryDark),
             ),
           ],
         ),
@@ -137,122 +260,57 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ---------- ಮೇಲಿನ ಹೆಡರ್ (gradient + ವರ್ಷ + ಕ್ರಿಯೆಗಳು) ----------
-  Widget _header() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [kPrimary, kPrimaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
-            child: Image.asset('assets/icon/app_icon.png', width: 26, height: 26),
-          ),
-          const SizedBox(width: 8),
-          const Text('ಉಪ್ರಳ್ಳಿ ಸೇವೆ',
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 10),
-          _yearChip(),
-          const Spacer(),
-          IconButton(
-              tooltip: 'WhatsApp',
-              onPressed: () => _sharePdf(whatsapp: true),
-              icon: const FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white, size: 20)),
-          IconButton(
-              tooltip: 'PDF',
-              onPressed: () => _sharePdf(),
-              icon: const Icon(Icons.picture_as_pdf, color: Colors.white)),
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert, color: Colors.white),
-            onSelected: (v) {
-              if (v == 'new') _newYear();
-              if (v == 'logout') authService.signOut();
-            },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'new', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('ಹೊಸ ವರ್ಷ'))),
-              PopupMenuItem(value: 'logout', child: ListTile(leading: Icon(Icons.logout), title: Text('ಲಾಗ್‌ಔಟ್'))),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _yearChip() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-      decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(20)),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
-          value: _years.contains(_year) ? _year : null,
-          hint: Text('$_year', style: const TextStyle(color: Colors.white)),
-          dropdownColor: Colors.white,
-          iconEnabledColor: Colors.white,
-          style: const TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600),
-          items: _years
-              .map((y) => DropdownMenuItem(
-                    value: y,
-                    child: Text('$y', style: const TextStyle(color: Colors.black87)),
-                  ))
-              .toList(),
-          onChanged: (y) {
-            if (y != null) setState(() => _year = y);
-          },
-        ),
-      ),
-    );
-  }
-
-  // ---------- ವಿಷಯ: ಅಂಕಿಅಂಶ + ಮಾಗಣೆ ಪಟ್ಟಿ ----------
-  Widget _content(PoojaData data) {
+  // ---------- ಅಂಕಿಅಂಶ ----------
+  Widget _stats(PoojaData data) {
     final regions = data.regions;
     final totalNames = regions.fold<int>(0, (n, r) => n + r.families.length);
-    final doneNames =
-        regions.fold<int>(0, (n, r) => n + r.families.where((f) => f.count > 0).length);
-
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(12, 14, 12, 24),
-      children: [
-        Row(
-          children: [
-            _stat('${regions.length}', 'ಮಾಗಣೆ', Icons.location_city),
-            const SizedBox(width: 10),
-            _stat('$totalNames', 'ಹೆಸರು', Icons.groups),
-            const SizedBox(width: 10),
-            _stat('$doneNames', 'ಗುರುತಿಸಲಾಗಿದೆ', Icons.task_alt),
-          ],
-        ),
-        const SizedBox(height: 16),
-        ...List.generate(regions.length, (i) => Padding(
-              padding: const EdgeInsets.only(bottom: 10),
-              child: _regionCard(data, i),
-            )),
-      ],
+    final doneNames = regions.fold<int>(0, (n, r) => n + r.families.where((f) => f.count > 0).length);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+      child: Row(
+        children: [
+          _stat('${regions.length}', 'ಮಾಗಣೆ', Icons.location_city),
+          const SizedBox(width: 10),
+          _stat('$totalNames', 'ಹೆಸರು', Icons.groups),
+          const SizedBox(width: 10),
+          _stat('$doneNames', 'ಗುರುತಿಸಲಾಗಿದೆ', Icons.task_alt),
+        ],
+      ),
     );
   }
 
   Widget _stat(String value, String label, IconData icon) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+        padding: const EdgeInsets.fromLTRB(14, 12, 10, 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(.05), blurRadius: 8, offset: const Offset(0, 2))],
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: kCardLine),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 6, offset: const Offset(0, 1))],
         ),
-        child: Column(
+        child: Row(
           children: [
-            Icon(icon, color: kPrimary, size: 22),
-            const SizedBox(height: 6),
-            Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-            Text(label, style: const TextStyle(fontSize: 11, color: Colors.black54)),
+            Container(width: 3, height: 38, decoration: BoxDecoration(color: kPrimary, borderRadius: BorderRadius.circular(3))),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(value,
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: kInk)),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 10.5, color: Colors.black54, fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -290,7 +348,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     ClipRRect(
                       borderRadius: BorderRadius.circular(6),
                       child: LinearProgressIndicator(
@@ -300,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         valueColor: const AlwaysStoppedAnimation(kPrimary),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 5),
                     Text('$done / $total ಗುರುತಿಸಲಾಗಿದೆ',
                         style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ],
@@ -328,11 +386,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 6),
             Text(sub, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black54)),
             const SizedBox(height: 18),
-            FilledButton.icon(
-              onPressed: _newYear,
-              icon: const Icon(Icons.add),
-              label: const Text('ಹೊಸ ವರ್ಷ'),
-            ),
+            FilledButton.icon(onPressed: _newYear, icon: const Icon(Icons.add), label: const Text('ಹೊಸ ವರ್ಷ')),
           ],
         ),
       ),

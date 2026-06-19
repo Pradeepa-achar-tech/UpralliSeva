@@ -1,7 +1,7 @@
 name: upralliseva_app
 description: ಪೂಜಾ ದಾಖಲೆ — Upralli Seva (Android app, shares Firestore with the web app)
 publish_to: "none"
-version: 1.0.2+3
+version: 1.0.3+4
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

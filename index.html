@@ -13,9 +13,10 @@
 
 <style>
   :root{
-    --ink:#1f1a14; --line:#000; --muted:#8a7e70;
-    --accent:#e9730c; --accent-dark:#c85d00; --accent-soft:#fff2e6;
-    --bg:#f4f1ec; --reg-bg:#fbe7d2;
+    --ink:#1f2430; --line:#000; --muted:#6b7280;
+    --accent:#e9730c; --accent-dark:#c25e00; --accent-soft:#fff3e8;
+    --bg:#f4f5f7; --reg-bg:#f7f8fa; --card-line:#ececf1;
+    --side1:#2a2e3a; --side2:#1b1e27;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; }
@@ -29,35 +30,46 @@
   #app{ display:flex; min-height:100vh; align-items:stretch; }
 
   #sidebar{
-    width:250px; flex-shrink:0; position:sticky; top:0; align-self:flex-start;
+    width:248px; flex-shrink:0; position:sticky; top:0; align-self:flex-start;
     height:100vh; overflow-y:auto;
-    background:linear-gradient(160deg,var(--accent),var(--accent-dark));
-    color:#fff; padding:18px 14px; display:flex; flex-direction:column; gap:18px;
-    box-shadow:2px 0 14px rgba(0,0,0,.12);
+    background:linear-gradient(180deg,var(--side1),var(--side2));
+    color:#cdd1dc; padding:18px 14px; display:flex; flex-direction:column; gap:20px;
+    box-shadow:2px 0 18px rgba(0,0,0,.10);
   }
-  #sidebar .brand{ display:flex; align-items:center; gap:10px; }
+  #sidebar .brand{ display:flex; align-items:center; gap:10px; padding-bottom:4px; }
   #sidebar .brand img{ width:40px; height:40px; border-radius:10px; background:#fff; padding:3px; object-fit:contain; }
-  #sidebar .brand span{ font-weight:800; font-size:17px; letter-spacing:.2px; }
+  #sidebar .brand span{ font-weight:800; font-size:17px; letter-spacing:.2px; color:#fff; }
   .side-group{ display:flex; flex-direction:column; gap:8px; }
-  .side-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; opacity:.85; font-weight:700; }
-  .side-actions{ border-top:1px solid rgba(255,255,255,.22); padding-top:14px; }
-  .side-foot{ margin-top:auto; border-top:1px solid rgba(255,255,255,.22); padding-top:12px; display:flex; flex-direction:column; gap:8px; }
-  .side-foot .hint{ color:#fff; opacity:.9; min-height:1em; }
-  #sidebar .jump{ width:100%; max-width:none; }
-  #sidebar button.tb{ width:100%; text-align:left; }
+  .side-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.7px; color:#7e859a; font-weight:700; }
+  .side-actions{ border-top:1px solid rgba(255,255,255,.09); padding-top:16px; }
+  .side-foot{ margin-top:auto; border-top:1px solid rgba(255,255,255,.09); padding-top:14px; display:flex; flex-direction:column; gap:8px; }
+  .side-foot .hint{ color:#9aa0b3; opacity:.95; min-height:1em; }
 
+  /* ಸೈಡ್‌ಬಾರ್ — ಗಾಢ ಥೀಮ್ ಬಟನ್‌ಗಳು */
+  #sidebar .jump{ width:100%; max-width:none; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#eef0f5; }
+  #sidebar button.tb{
+    width:100%; text-align:left;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:#dfe2ea;
+  }
+  #sidebar button.tb:hover{ background:rgba(255,255,255,.13); }
+  #sidebar button.tb.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  #sidebar button.tb.primary:hover{ filter:brightness(1.05); }
+  #sidebar button.tb.warn{ background:rgba(255,90,90,.12); border-color:rgba(255,120,120,.32); color:#ff9d9d; }
+
+  /* ಸಾಮಾನ್ಯ ಬಟನ್ (ಮೋಡಲ್/ವಿಷಯ) — ತಟಸ್ಥ */
   button.tb{
     font-family:inherit; font-size:13px; cursor:pointer;
-    border:1px solid rgba(255,255,255,.55); background:rgba(255,255,255,.95); color:#8a4000;
+    border:1px solid #d7d9e0; background:#fff; color:#2a2f3a;
     padding:9px 13px; border-radius:9px; font-weight:600;
   }
-  button.tb:hover{ background:#fff; }
-  button.tb.primary{ background:#fff; border-color:#fff; color:var(--accent-dark); font-weight:700; }
-  button.tb.warn{ color:#a40000; background:rgba(255,255,255,.95); }
+  button.tb:hover{ background:#f5f6f8; }
+  button.tb.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+  button.tb.primary:hover{ filter:brightness(1.03); }
+  button.tb.warn{ color:#c0392b; border-color:#e7c6c2; background:#fff; }
   .hint{ font-size:11.5px; }
-  .jump{ font-family:inherit; font-size:13px; padding:8px 9px; border:1px solid rgba(255,255,255,.65); border-radius:9px; background:#fff; color:#333; }
+  .jump{ font-family:inherit; font-size:13px; padding:8px 9px; border:1px solid #d7d9e0; border-radius:9px; background:#fff; color:#333; }
 
-  .content{ flex:1; min-width:0; padding:18px; }
+  .content{ flex:1; min-width:0; padding:22px 24px; }
   .topbar{ display:none; }   /* ಡೆಸ್ಕ್‌ಟಾಪ್‌ನಲ್ಲಿ ಮರೆ; ಮೊಬೈಲ್‌ನಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ */
   .sb-backdrop{ display:none; }
 
@@ -72,13 +84,15 @@
   .legend b{ font-weight:600; }
 
   /* ---------- ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಅಂಕಿಅಂಶ ಕಾರ್ಡ್‌ಗಳು (ಮುದ್ರಣದಲ್ಲಿ ಕಾಣಿಸದು) ---------- */
-  .dash{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 16px; }
+  .dash{ display:flex; flex-wrap:wrap; gap:12px; margin:0 0 18px; }
   .dash .card{
-    flex:1; min-width:110px; background:#fff; border:1px solid #efe2d2;
-    border-radius:14px; padding:12px 14px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+    flex:1; min-width:120px; background:#fff; border:1px solid var(--card-line);
+    border-radius:14px; padding:14px 16px; box-shadow:0 1px 3px rgba(16,24,40,.05);
+    position:relative;
   }
-  .dash .card .v{ font-size:22px; font-weight:800; color:var(--accent-dark); line-height:1.1; }
-  .dash .card .l{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .dash .card::before{ content:""; position:absolute; left:0; top:14px; bottom:14px; width:3px; border-radius:3px; background:var(--accent); }
+  .dash .card .v{ font-size:24px; font-weight:800; color:var(--ink); line-height:1.1; }
+  .dash .card .l{ font-size:11.5px; color:var(--muted); margin-top:3px; font-weight:600; }
   @media print{ .dash{ display:none !important; } }
 
   .region{ margin:0 0 16px; border:1.5px solid var(--line); }
@@ -88,10 +102,13 @@
   }
   /* ಪರದೆಯಲ್ಲಿ ಆಧುನಿಕ ಕಾರ್ಡ್ ಶೈಲಿ (ಮುದ್ರಣ ಕಪ್ಪು ಗಡಿ ಉಳಿಯುತ್ತದೆ) */
   @media screen{
-    #sheet{ border-radius:16px; }
-    .region{ border:1px solid #eddfce; border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.05); }
-    .region-head{ background:var(--accent-soft); border-bottom:1px solid #f3dcc3; }
-    thead th{ background:#faf3ea !important; }
+    #sheet{ border-radius:16px; border:1px solid var(--card-line); }
+    .region{ border:1px solid var(--card-line); border-radius:14px; overflow:hidden; box-shadow:0 1px 3px rgba(16,24,40,.05); }
+    .region-head{ background:#fbfbfd; border-bottom:1px solid var(--card-line); }
+    .region-head .no{ display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:24px; padding:0 6px; border-radius:7px; background:var(--accent-soft); color:var(--accent-dark); font-size:12px; }
+    .region-head .rname{ color:var(--ink); }
+    thead th{ background:#f7f8fa !important; color:#48506a; }
+    td.c-name [contenteditable]:focus{ background:#fff7e8; }
   }
   .region-head .no{ font-weight:700; min-width:26px; }
   .region-head .rname{ font-weight:700; font-size:13.5px; flex:1; }
@@ -331,6 +348,7 @@
         <button class="tb edit-only" onclick="document.getElementById('imp').click()">⬆ JSON ತೆರೆ</button>
         <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(this)">
         <button class="tb warn edit-only" onclick="resetAll()">↺ ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
+        <button class="tb warn edit-only" onclick="deleteYear()">🗑 ಈ ವರ್ಷ ಅಳಿಸಿ</button>
       </div>
 
       <div class="side-foot">
@@ -676,6 +694,18 @@
   async function resetAll(){
     if(!(await uiConfirm(currentYear+" ವರ್ಷದ ಎಲ್ಲ ಪೂಜಾ ಆಯ್ಕೆಗಳನ್ನು ಅಳಿಸಿ ಪೂರ್ವಭರ್ತಿ ಪಟ್ಟಿಗೆ ಮರಳಬೇಕೆ?", "ಮೂಲಕ್ಕೆ ಮರಳಿ"))) return;
     state=yearTemplate(currentYear); save(); render(); flash("ಪೂರ್ವಭರ್ತಿ ಪಟ್ಟಿಗೆ ಮರಳಿದೆ");
+  }
+  async function deleteYear(){
+    if(!(CLOUD && canEdit && db)){ uiAlert("ಲಾಗಿನ್ ಆಗಿರಬೇಕು.", "ದೋಷ"); return; }
+    const y = currentYear;
+    if(!(await uiConfirm(y+" ವರ್ಷದ ಎಲ್ಲ ದತ್ತಾಂಶವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಬೇಕೆ? ಇದನ್ನು ಹಿಂಪಡೆಯಲಾಗದು.", "ವರ್ಷ "+y+" ಅಳಿಸಿ"))) return;
+    try{ await db.collection("pooja").doc(String(y)).delete(); }
+    catch(e){ toast("⚠ ಅಳಿಸಲಾಗಲಿಲ್ಲ: "+(e.code||e.message), "warn", 4000); return; }
+    try{ localStorage.removeItem("poojaRecord_"+y); }catch(e){}
+    toast("🗑 ವರ್ಷ "+y+" ಅಳಿಸಲಾಗಿದೆ", "ok");
+    let years=[];
+    try{ const snap=await db.collection("pooja").get(); years=snap.docs.map(d=>parseInt(d.id,10)).filter(Boolean).filter(x=>x!==y).sort((a,b)=>b-a); }catch(e){}
+    switchToYear(years.length ? years[0] : (seedYear() || (y-1)));
   }
 
   /* ===================== PDF ಡೌನ್‌ಲೋಡ್ (ಬ್ರೌಸರ್‌ನ ಸ್ವಂತ ಮುದ್ರಣ) =====================

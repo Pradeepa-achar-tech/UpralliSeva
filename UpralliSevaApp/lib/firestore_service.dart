@@ -7,14 +7,23 @@ class FirestoreService {
 
   CollectionReference<Map<String, dynamic>> get _pooja => _db.collection('pooja');
 
+  /// ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಸಂಪಾದಕರು (ವೆಬ್‌ನ ALLOWED_EDITORS ಗೆ ಹೊಂದುವಂತೆ)
+  static const List<String> _bootstrapEditors = ['thanthrajnaani@gmail.com'];
+
   /// whitelist ಪರಿಶೀಲನೆ — editors ಸಂಗ್ರಹದಲ್ಲಿ ಇಮೇಲ್ ದಾಖಲೆ ಇದೆಯೇ?
+  /// ತಣ್ಣನೆ ಆರಂಭದಲ್ಲಿ ಟೋಕನ್ ಸಿದ್ಧವಾಗುವ ಮುನ್ನ ಓದಿದರೆ ದೋಷ ಬರಬಹುದು — ಮರುಪ್ರಯತ್ನ.
   Future<bool> isEditor(String email) async {
-    try {
-      final d = await _db.collection('editors').doc(email.toLowerCase()).get();
-      return d.exists;
-    } catch (_) {
-      return false;
+    final e = email.toLowerCase();
+    if (_bootstrapEditors.contains(e)) return true;
+    for (var i = 0; i < 4; i++) {
+      try {
+        final d = await _db.collection('editors').doc(e).get();
+        return d.exists;
+      } catch (_) {
+        await Future.delayed(const Duration(milliseconds: 500));
+      }
     }
+    return false;
   }
 
   /// ಕ್ಲೌಡ್‌ನಲ್ಲಿರುವ ಎಲ್ಲ ವರ್ಷಗಳು (ಇಳಿಕೆ ಕ್ರಮ).

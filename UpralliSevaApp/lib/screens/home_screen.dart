@@ -26,9 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final years = await firestoreService.listYears();
       if (!mounted) return;
       setState(() {
-        _years = years;
-        if (years.isNotEmpty && !years.contains(_year)) _year = years.first;
-        if (!_years.contains(_year)) _years = [_year, ..._years]..sort((a, b) => b - a);
+        // dropdown = ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇರುವ ವರ್ಷಗಳು ಮಾತ್ರ (ಅಳಿಸಿದ ವರ್ಷ ಮರಳಿ ಬರದಂತೆ)
+        _years = [...years]..sort((a, b) => b - a);
+        if (_years.isEmpty) {
+          _years = [_year];                                   // ಏನೂ ಇಲ್ಲ — ಪ್ರಸ್ತುತ ತೋರಿಸು
+        } else if (!_years.contains(_year)) {
+          _year = _years.first;                               // ಅಳಿಸಿದ/ಅಮಾನ್ಯ → ಇರುವ ವರ್ಷಕ್ಕೆ
+        }
       });
     } catch (_) {/* ignore */}
   }

@@ -1,0 +1,4 @@
+🔐 Keep these safe (critical — back them up)
+Keystore: UpralliSevaApp/android/upralli-release.jks
+Password (store & key): UpralliSeva2025Key · alias: upralli
+Stored in android/key.properties (git-ignored).

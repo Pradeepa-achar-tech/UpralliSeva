@@ -39,11 +39,17 @@ class _RegionScreenState extends State<RegionScreen> {
     _debounce = Timer(const Duration(milliseconds: 600), _save);
   }
 
+  bool _pendingNameSnack = false;
+
   Future<void> _save() async {
     if (!_dirty) return;
     _dirty = false;
     try {
       await firestoreService.saveYear(widget.data);
+      if (_pendingNameSnack && mounted) {
+        _pendingNameSnack = false;
+        _snack('✓ ಹೆಸರು ಉಳಿಸಲಾಗಿದೆ', true);
+      }
     } catch (e) {
       if (mounted) _snack('⚠ ಉಳಿಯಲಿಲ್ಲ — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ', false);
     }
@@ -115,13 +121,15 @@ class _RegionScreenState extends State<RegionScreen> {
                                 initialValue: f.n,
                                 decoration: const InputDecoration(
                                   isDense: true,
-                                  border: InputBorder.none,
-                                  hintText: 'ಹೆಸರು / ವಿಳಾಸ',
+                                  border: UnderlineInputBorder(),
+                                  hintText: 'ಹೆಸರು / ವಿಳಾಸ ಸಂಪಾದಿಸಿ',
+                                  suffixIcon: Icon(Icons.edit, size: 16, color: Colors.black38),
                                 ),
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w600, fontSize: 15),
                                 onChanged: (v) {
                                   f.n = v;
+                                  _pendingNameSnack = true;
                                   _scheduleSave();
                                 },
                               ),

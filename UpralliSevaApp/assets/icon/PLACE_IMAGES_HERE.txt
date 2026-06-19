@@ -1,0 +1,19 @@
+Save the two logo images here, with these EXACT names:
+
+  app_icon.png   ← launcher icon (use the WHITE-background image, square, ideally 1024x1024)
+  splash.png     ← app-launch splash (the WHITE-background image works on white splash)
+
+Tip: both can be the same white-background "UPRALLI SEVA" image.
+(The black-background version is for dark themes / other uses.)
+
+After saving the two PNGs, from the UpralliSevaApp folder run:
+
+  flutter pub get
+  dart run flutter_launcher_icons
+  dart run flutter_native_splash:create
+
+Then rebuild:
+
+  flutter build apk --debug      (or --release)
+
+You can delete this .txt afterwards.

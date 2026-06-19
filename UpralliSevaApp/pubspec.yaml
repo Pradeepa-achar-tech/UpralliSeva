@@ -1,7 +1,7 @@
 name: upralliseva_app
 description: ಪೂಜಾ ದಾಖಲೆ — Upralli Seva (Android app, shares Firestore with the web app)
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.1+2
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -20,6 +20,8 @@ dependencies:
 
 dev_dependencies:
   flutter_lints: ^4.0.0
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.1
 
 flutter:
   uses-material-design: true
@@ -27,3 +29,21 @@ flutter:
     - family: NotoSansKannada
       fonts:
         - asset: assets/fonts/NotoSansKannada-Regular.ttf
+
+# ===== ಆ್ಯಪ್ ಲಾಂಚರ್ ಐಕಾನ್ (logo) =====
+# ಚಿತ್ರ: assets/icon/app_icon.png (1024x1024, ಬಿಳಿ ಹಿನ್ನೆಲೆಯ logo)
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 23
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/app_icon.png"
+
+# ===== ಆ್ಯಪ್ ಆರಂಭದ ಪರದೆ (splash) =====
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/icon/splash.png
+  android_12:
+    color: "#FFFFFF"
+    image: assets/icon/splash.png

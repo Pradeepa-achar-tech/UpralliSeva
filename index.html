@@ -113,6 +113,17 @@
   /* ಲಾಗಿನ್ ಆಗದಿದ್ದರೆ ಸಂಪಾದನಾ ನಿಯಂತ್ರಣಗಳನ್ನು ಮರೆಮಾಡು (ವೀಕ್ಷಣೆ ಮಾತ್ರ) */
   body:not(.editing) .edit-only{ display:none !important; }
 
+  /* ಲಾಗಿನ್ ಆದಾಗ — ಹೆಸರು/ಮಾಗಣೆ ಸಂಪಾದಿಸಬಹುದು ಎಂದು ತೋರಿಸಲು ಸೂಚನೆ (ಮುದ್ರಣದಲ್ಲಿ ಕಾಣಿಸದು) */
+  body.editing td.c-name [contenteditable]{
+    cursor:text; border-bottom:1px dashed #b9c6d3; padding-bottom:1px;
+  }
+  body.editing td.c-name [contenteditable]:hover{ background:#f1f7ff; }
+  body.editing .region-head [contenteditable]{ cursor:text; }
+  body.editing .region-head .rname:hover{ background:#eef4fb; border-radius:3px; }
+  @media print{
+    td.c-name [contenteditable]{ border-bottom:none !important; }
+  }
+
   /* ---------- ಲಾಗಿನ್ ಪರದೆ ---------- */
   #login{
     position:fixed; inset:0; z-index:100;
@@ -301,6 +312,7 @@
   let canEdit = false;            // ಲಾಗಿನ್ + whitelist ಆದಾಗ ಮಾತ್ರ true
   let docExists = undefined;      // ಆಯ್ದ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಇದೆಯೇ
   let lastRemoteJSON = null;      // ನಮ್ಮದೇ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಬಿಟ್ಟುಬಿಡಲು
+  let dirty = false;              // ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ ಇದೆಯೇ (ರಿಮೋಟ್ ಮೇಲ್ಬರಹ ತಡೆಯಲು)
   let state = loadLocalYear() || yearTemplate(currentYear);
 
   const lsKey = () => "poojaRecord_" + currentYear;
@@ -330,11 +342,12 @@
 
   let saveTimer=null;
   function save(){
+    dirty = true;                                  // ಸ್ಥಳೀಯ ಬದಲಾವಣೆ ಇದೆ
     saveLocalYear();                               // ಯಾವಾಗಲೂ ಸ್ಥಳೀಯ ಪ್ರತಿ
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>{
       if(CLOUD && canEdit && auth.currentUser) pushNow();
-      else { flash("✓ ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ"); saveResult(true); }
+      else { dirty=false; flash("✓ ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ"); saveResult(true); }
     },500);
   }
   /* state → Firestore ರಚನಾತ್ಮಕ ದಾಖಲೆ (native fields/objects, JSON string ಅಲ್ಲ) */
@@ -368,8 +381,8 @@
     const doc = toDoc();
     lastRemoteJSON = sigOf(doc);                    // ನಮ್ಮ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು
     DOC.set(Object.assign({}, doc, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }))
-      .then(()=>{ flash("✓ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
-      .catch(err=>{ flash("⚠ ಕ್ಲೌಡ್ ಉಳಿಸಲಾಗಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });
+      .then(()=>{ dirty=false; flash("✓ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
+      .catch(err=>{ dirty=false; flash("⚠ ಕ್ಲೌಡ್ ಉಳಿಸಲಾಗಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });
   }
   function flash(msg){ const s=document.getElementById('status'); s.textContent=msg; }
 
@@ -517,16 +530,16 @@
   /* ===================== ಸಂಪಾದನೆ (events) ===================== */
   const sheet=document.getElementById('sheet');
 
-  // contenteditable ಪಠ್ಯ
+  // contenteditable ಪಠ್ಯ (ಹೆಸರು, ಮಾಗಣೆ ಹೆಸರು, ದೂರವಾಣಿ, ಶೀರ್ಷಿಕೆ) — ಸ್ವಯಂ ಉಳಿತಾಯ
   sheet.addEventListener('input', e=>{
     const el=e.target;
-    if(el.dataset.t==="title"){ state.title=el.textContent; save(); return; }
+    if(el.dataset.t==="title"){ state.title=el.textContent; pendingSaveMsg="✏ ಶೀರ್ಷಿಕೆ"; save(); return; }
     if(el.dataset.r===undefined) return;
     const ri=+el.dataset.r;
-    if(el.dataset.k==="n"){ state.regions[ri].families[+el.dataset.f].n=el.textContent; }
-    else if(el.dataset.f==="no"){ state.regions[ri].no=el.textContent; }
-    else if(el.dataset.f==="name"){ state.regions[ri].name=el.textContent; }
-    else if(el.dataset.f==="phone"){ state.regions[ri].phone=el.textContent; }
+    if(el.dataset.k==="n"){ state.regions[ri].families[+el.dataset.f].n=el.textContent; pendingSaveMsg="✏ ಹೆಸರು ಬದಲಾವಣೆ"; }
+    else if(el.dataset.f==="no"){ state.regions[ri].no=el.textContent; pendingSaveMsg="✏ ಮಾಗಣೆ ಸಂಖ್ಯೆ"; }
+    else if(el.dataset.f==="name"){ state.regions[ri].name=el.textContent; pendingSaveMsg="✏ ಮಾಗಣೆ ಹೆಸರು"; }
+    else if(el.dataset.f==="phone"){ state.regions[ri].phone=el.textContent; pendingSaveMsg="✏ ದೂರವಾಣಿ"; }
     save();
   });
 
@@ -686,13 +699,16 @@
         render();
         return;
       }
+      // ನಮ್ಮಲ್ಲಿ ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ (dirty) ಇದ್ದರೆ — ರಿಮೋಟ್ ದತ್ತಾಂಶ ತರಬೇಡ
+      // (ಇಲ್ಲದಿದ್ದರೆ ಬರೆಯುತ್ತಿರುವ ಹೆಸರು ಮೇಲೆ ಬರೆಯಲ್ಪಡುತ್ತದೆ).
+      if(dirty || isEditingNow()) return;
       const incoming = fromDoc(snap.data());        // ರಚನಾತ್ಮಕ ದಾಖಲೆ → state
       const sig = sigOf(incoming);
       if(sig !== lastRemoteJSON){
         lastRemoteJSON = sig;
         state = incoming;
         saveLocalYear();
-        if(!isEditingNow()) render();   // ಬರೆಯುತ್ತಿರುವಾಗ ಕರ್ಸರ್ ಕಳೆದುಹೋಗದಂತೆ
+        render();
       }
     }, err=>flash("⚠ ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ದೋಷ: "+(err.code||err.message)));
   }

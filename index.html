@@ -720,9 +720,26 @@
     const m=document.getElementById('rmenu');
     if(m && m.classList.contains('open') && !m.contains(e.target) && !(e.target.classList&&e.target.classList.contains('rmenu-btn'))) closeRMenu();
   });
-  function shareRegionWA(ri){
-    toast("PDF ಉಳಿಸಿ → WhatsApp ನಲ್ಲಿ ಲಗತ್ತಿಸಿ ಕಳುಹಿಸಿ", "info", 3500);
-    shareRegion(ri);
+  /* ಮಾಗಣೆ ವಿವರ ಪಠ್ಯ (WhatsApp ಸಂದೇಶಕ್ಕೆ) */
+  function regionText(ri){
+    const r=state.regions[ri]; if(!r) return "";
+    const cols=state.columns;
+    const lines=["*ಉಪ್ರಳ್ಳಿ ಸೇವೆ — "+currentYear+"*", (r.no!=null?r.no+". ":"")+(r.name||""), ""];
+    r.families.forEach((f,i)=>{
+      const ck=checks(f.c);
+      const done=cols.filter((c,ci)=>ck[ci]).join(", ");
+      lines.push((i+1)+". "+(f.n||"")+(done?" — "+done:""));
+    });
+    return lines.join("\n");
+  }
+  /* WhatsApp ಗೆ ನೇರ ಹಂಚಿಕೆ (ಪಠ್ಯ) — ಬ್ರೌಸರ್‌ನಿಂದ PDF ಲಗತ್ತಿಸಲಾಗದು */
+  async function shareRegionWA(ri){
+    const text=regionText(ri);
+    if(navigator.share){
+      try{ await navigator.share({ title:"ಉಪ್ರಳ್ಳಿ ಸೇವೆ", text }); return; }
+      catch(e){ if(e && e.name==="AbortError") return; }
+    }
+    window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
   }
 
   /* ಒಂದೇ ಮಾಗಣೆಯನ್ನು PDF ಆಗಿ ಮುದ್ರಿಸಿ (ಬೇರೆ ಮಾಗಣೆ ಮರೆ). blank=true → ✓ ಇಲ್ಲದ ಖಾಲಿ ಅರ್ಜಿ */

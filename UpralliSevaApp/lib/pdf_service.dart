@@ -14,7 +14,7 @@ class PdfService {
     return pw.Font.ttf(d);
   }
 
-  static Future<Uint8List> build(PoojaData data) async {
+  static Future<Uint8List> build(PoojaData data, {bool blank = false}) async {
     final font = await _loadFont();
     final doc = pw.Document(theme: pw.ThemeData.withFont(base: font, bold: font));
 
@@ -32,7 +32,7 @@ class PdfService {
       widgets.add(pw.Text('${r.no ?? ''}  ${r.name}',
           style: pw.TextStyle(fontSize: 11, fontWeight: pw.FontWeight.bold)));
       widgets.add(pw.SizedBox(height: 3));
-      widgets.add(_table(r, data.columns));
+      widgets.add(_table(r, data.columns, blank));
     }
 
     doc.addPage(pw.MultiPage(
@@ -43,7 +43,7 @@ class PdfService {
     return doc.save();
   }
 
-  static pw.Widget _table(Region r, List<String> cols) {
+  static pw.Widget _table(Region r, List<String> cols, bool blank) {
     final headers = <String>['ಕ್ರ.', 'ಹೆಸರು / ವಿಳಾಸ', ...cols];
     return pw.Table(
       border: pw.TableBorder.all(width: .5),
@@ -54,6 +54,7 @@ class PdfService {
       },
       children: [
         pw.TableRow(
+          repeat: true, // ಉಕ್ಕಿದ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು ಪುನರಾವರ್ತನೆ
           decoration: const pw.BoxDecoration(color: PdfColors.grey300),
           children: headers.map((h) => _cell(h, bold: true, center: true)).toList(),
         ),
@@ -63,7 +64,7 @@ class PdfService {
               _cell('${i + 1}', center: true),
               _cell(r.families[i].n),
               for (var ci = 0; ci < cols.length; ci++)
-                _cell(r.families[i].isOn(ci) ? '✓' : '', center: true),
+                _cell((!blank && r.families[i].isOn(ci)) ? '✓' : '', center: true),
             ],
           ),
       ],
@@ -83,19 +84,19 @@ class PdfService {
   static const MethodChannel _channel = MethodChannel('app/share');
 
   /// ಸಾಮಾನ್ಯ ಹಂಚಿಕೆ (ಆ್ಯಂಡ್ರಾಯ್ಡ್ share sheet — WhatsApp ಸಹ ಇರುತ್ತದೆ).
-  static Future<void> share(PoojaData data) async {
-    final bytes = await build(data);
+  static Future<void> share(PoojaData data, {bool blank = false}) async {
+    final bytes = await build(data, blank: blank);
     await Printing.sharePdf(bytes: bytes, filename: 'pooja-dakhale-${data.year}.pdf');
   }
 
-  static Future<void> printDoc(PoojaData data) async {
-    await Printing.layoutPdf(onLayout: (_) async => build(data));
+  static Future<void> printDoc(PoojaData data, {bool blank = false}) async {
+    await Printing.layoutPdf(onLayout: (_) async => build(data, blank: blank));
   }
 
   /// WhatsApp ಗೆ ನೇರ ಹಂಚಿಕೆ. WhatsApp ಇಲ್ಲದಿದ್ದರೆ ಸಾಮಾನ್ಯ share sheet ಗೆ ಮರಳುತ್ತದೆ.
   /// ಹಿಂತಿರುಗಿಸುತ್ತದೆ: true = WhatsApp ತೆರೆಯಿತು, false = fallback ಬಳಸಲಾಯಿತು.
-  static Future<bool> shareWhatsApp(PoojaData data) async {
-    final bytes = await build(data);
+  static Future<bool> shareWhatsApp(PoojaData data, {bool blank = false}) async {
+    final bytes = await build(data, blank: blank);
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/pooja-dakhale-${data.year}.pdf');
     await file.writeAsBytes(bytes);

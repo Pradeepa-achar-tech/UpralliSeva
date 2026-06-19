@@ -229,6 +229,13 @@
     body.print-one .region:not(.print-target){ display:none !important; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಎಲ್ಲ ✓ ಗುರುತು ಮರೆ (ಖಾಲಿ ಪೆಟ್ಟಿಗೆಗಳು) */
     body.blank-print input[type=checkbox]:checked::after{ content:"" !important; }
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಮೊದಲನೆಯ ಹೊರತು ಪ್ರತಿ ಮಾಗಣೆ ಹೊಸ ಪುಟದಲ್ಲಿ ಆರಂಭ
+       (ಒಂದೇ ಪುಟದಲ್ಲಿ ಎರಡು ಮಾಗಣೆ ಬರಬಾರದು) */
+    body.blank-print:not(.print-one) .region ~ .region{ break-before:page; page-break-before:always; }
+    body.blank-print .region{ break-inside:auto; page-break-inside:auto; }
+    /* ಮಾಗಣೆ ತಲೆಬರಹ ಮೊದಲ ಸಾಲಿನೊಂದಿಗೆ ಒಟ್ಟಿಗೆ; ಉಕ್ಕಿದ ಪುಟದಲ್ಲೂ ಕಾಲಂ ಶೀರ್ಷಿಕೆ */
+    body.blank-print .region-head{ break-after:avoid; page-break-after:avoid; }
+    body.blank-print thead{ display:table-header-group; }
   }
 
   /* ---------- ಸುಂದರ ಮಾಗಣೆ dropdown (custom) ---------- */
@@ -701,6 +708,7 @@
     const m=document.getElementById('rmenu');
     m.innerHTML =
       `<button onclick="closeRMenu();shareRegion(${ri})">📄 PDF ಡೌನ್‌ಲೋಡ್</button>`+
+      `<button onclick="closeRMenu();shareRegion(${ri},true)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>`+
       `<button onclick="closeRMenu();shareRegionWA(${ri})">🟢 WhatsApp ಹಂಚಿಕೆ</button>`;
     const r=ev.currentTarget.getBoundingClientRect();
     m.style.top=(r.bottom+5)+'px';
@@ -717,14 +725,15 @@
     shareRegion(ri);
   }
 
-  /* ಒಂದೇ ಮಾಗಣೆಯನ್ನು PDF ಆಗಿ ಮುದ್ರಿಸಿ/ಹಂಚಿಕೊಳ್ಳಿ (ಬೇರೆ ಮಾಗಣೆ ಮರೆ) */
-  function shareRegion(ri){
+  /* ಒಂದೇ ಮಾಗಣೆಯನ್ನು PDF ಆಗಿ ಮುದ್ರಿಸಿ (ಬೇರೆ ಮಾಗಣೆ ಮರೆ). blank=true → ✓ ಇಲ್ಲದ ಖಾಲಿ ಅರ್ಜಿ */
+  function shareRegion(ri, blank){
     const target=document.getElementById('reg-'+ri);
     if(!target) return;
     if(!openRegions.has(ri)) toggleRegion(ri);     // ಮುಚ್ಚಿದ್ದರೆ ತೆರೆ
     target.classList.add('print-target');
     document.body.classList.add('print-one');
-    const cleanup=()=>{ document.body.classList.remove('print-one'); target.classList.remove('print-target'); window.removeEventListener('afterprint',cleanup); };
+    if(blank) document.body.classList.add('blank-print');
+    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print'); target.classList.remove('print-target'); window.removeEventListener('afterprint',cleanup); };
     window.addEventListener('afterprint', cleanup);
     const go=()=>window.print();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();

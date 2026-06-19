@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../main.dart';
 import '../models.dart';
 import '../pdf_service.dart';
@@ -186,7 +185,6 @@ class _RegionScreenState extends State<RegionScreen> {
               try {
                 if (v == 'pdf') await PdfService.share(single);
                 if (v == 'blank') await PdfService.share(single, blank: true);
-                if (v == 'wa') await PdfService.shareWhatsApp(single);
               } catch (e) {
                 _snack('ಹಂಚಿಕೆ ವಿಫಲ: $e', false);
               }
@@ -198,11 +196,6 @@ class _RegionScreenState extends State<RegionScreen> {
               PopupMenuItem(
                   value: 'blank',
                   child: ListTile(leading: Icon(Icons.description_outlined), title: Text('ಖಾಲಿ ಅರ್ಜಿ PDF'))),
-              PopupMenuItem(
-                  value: 'wa',
-                  child: ListTile(
-                      leading: FaIcon(FontAwesomeIcons.whatsapp, color: Color(0xFF25D366)),
-                      title: Text('WhatsApp ಹಂಚಿಕೆ'))),
             ],
           ),
         ],

@@ -384,7 +384,7 @@
   <!-- ---------- ಟೋಸ್ಟ್ (ಸ್ಪಷ್ಟ ಸೂಚನೆ — ಸೇರಿಸಿದ/ತೆಗೆದ/ಉಳಿಸಿದ) ---------- -->
   <div id="toast" class="no-print"></div>
 
-  <!-- ---------- ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF / WhatsApp) ---------- -->
+  <!-- ---------- ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF) ---------- -->
   <div id="rmenu" class="rmenu no-print"></div>
 
   <!-- ---------- ಸಾಲು ತಿದ್ದುಪಡಿ ಪಾಪ್‌ಅಪ್ ---------- -->
@@ -671,7 +671,7 @@
           <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
           <span class="rcount no-print">${r.families.length}</span>
           <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
-          <button class="rmenu-btn no-print" title="ಆಯ್ಕೆಗಳು (PDF / WhatsApp)" onclick="regionMenu(event,${ri})">⋮</button>
+          <button class="rmenu-btn no-print" title="ಆಯ್ಕೆಗಳು (PDF)" onclick="regionMenu(event,${ri})">⋮</button>
           <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
         </div>
         <div class="tbl"><table>
@@ -726,14 +726,13 @@
     else { openRegions.add(ri); el.classList.remove('collapsed'); }
   }
 
-  /* ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF / WhatsApp) */
+  /* ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF) */
   function regionMenu(ev, ri){
     ev.stopPropagation();
     const m=document.getElementById('rmenu');
     m.innerHTML =
       `<button onclick="closeRMenu();shareRegion(${ri})">📄 PDF ಡೌನ್‌ಲೋಡ್</button>`+
-      `<button onclick="closeRMenu();shareRegion(${ri},true)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>`+
-      `<button onclick="closeRMenu();shareRegionWA(${ri})">🟢 WhatsApp ಹಂಚಿಕೆ</button>`;
+      `<button onclick="closeRMenu();shareRegion(${ri},true)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>`;
     const r=ev.currentTarget.getBoundingClientRect();
     m.style.top=(r.bottom+5)+'px';
     m.style.left=Math.max(8, Math.min(r.right-200, window.innerWidth-208))+'px';
@@ -744,28 +743,6 @@
     const m=document.getElementById('rmenu');
     if(m && m.classList.contains('open') && !m.contains(e.target) && !(e.target.classList&&e.target.classList.contains('rmenu-btn'))) closeRMenu();
   });
-  /* ಮಾಗಣೆ ವಿವರ ಪಠ್ಯ (WhatsApp ಸಂದೇಶಕ್ಕೆ) */
-  function regionText(ri){
-    const r=state.regions[ri]; if(!r) return "";
-    const cols=state.columns;
-    const lines=["*ಉಪ್ರಳ್ಳಿ ಸೇವೆ — "+currentYear+"*", (r.no!=null?r.no+". ":"")+(r.name||""), ""];
-    r.families.forEach((f,i)=>{
-      const ck=checks(f.c);
-      const done=cols.filter((c,ci)=>ck[ci]).join(", ");
-      lines.push((i+1)+". "+(f.n||"")+(done?" — "+done:""));
-    });
-    return lines.join("\n");
-  }
-  /* WhatsApp ಗೆ ನೇರ ಹಂಚಿಕೆ (ಪಠ್ಯ) — ಬ್ರೌಸರ್‌ನಿಂದ PDF ಲಗತ್ತಿಸಲಾಗದು */
-  async function shareRegionWA(ri){
-    const text=regionText(ri);
-    if(navigator.share){
-      try{ await navigator.share({ title:"ಉಪ್ರಳ್ಳಿ ಸೇವೆ", text }); return; }
-      catch(e){ if(e && e.name==="AbortError") return; }
-    }
-    window.open("https://wa.me/?text="+encodeURIComponent(text), "_blank");
-  }
-
   /* ಒಂದೇ ಮಾಗಣೆಯನ್ನು PDF ಆಗಿ ಮುದ್ರಿಸಿ (ಬೇರೆ ಮಾಗಣೆ ಮರೆ). blank=true → ✓ ಇಲ್ಲದ ಖಾಲಿ ಅರ್ಜಿ */
   function shareRegion(ri, blank){
     const target=document.getElementById('reg-'+ri);

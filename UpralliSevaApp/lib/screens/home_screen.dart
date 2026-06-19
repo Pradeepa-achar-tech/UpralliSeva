@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../main.dart';
 import '../models.dart';
 import '../pdf_service.dart';
@@ -104,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _sharePdf({bool whatsapp = false}) async {
+  Future<void> _sharePdf() async {
     _snack('PDF ತಯಾರಿಸಲಾಗುತ್ತಿದೆ…');
     try {
       final data = await firestoreService.getYearOnce(_year);
@@ -112,12 +111,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _snack('$_year ವರ್ಷದ ದತ್ತಾಂಶ ಇಲ್ಲ');
         return;
       }
-      if (whatsapp) {
-        final direct = await PdfService.shareWhatsApp(data);
-        if (!direct) _snack('WhatsApp ಸಿಗಲಿಲ್ಲ — ಸಾಮಾನ್ಯ ಹಂಚಿಕೆ ತೆರೆಯಲಾಗಿದೆ');
-      } else {
-        await PdfService.share(data);
-      }
+      await PdfService.share(data);
     } catch (e) {
       _snack('ಹಂಚಿಕೆ ವಿಫಲ: $e');
     }
@@ -164,10 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
-          IconButton(
-              tooltip: 'WhatsApp',
-              onPressed: () => _sharePdf(whatsapp: true),
-              icon: const FaIcon(FontAwesomeIcons.whatsapp, size: 20)),
           IconButton(
               tooltip: 'PDF', onPressed: () => _sharePdf(), icon: const Icon(Icons.picture_as_pdf)),
           PopupMenuButton<String>(

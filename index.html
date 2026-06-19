@@ -47,6 +47,8 @@
 
   /* ಸೈಡ್‌ಬಾರ್ — ಗಾಢ ಥೀಮ್ ಬಟನ್‌ಗಳು */
   #sidebar .jump{ width:100%; max-width:none; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#eef0f5; }
+  /* ತೆರೆದ dropdown ಆಯ್ಕೆಗಳು ಬಿಳಿ ಹಿನ್ನೆಲೆಯ ಮೇಲೆ ಗಾಢ ಪಠ್ಯ (ಇಲ್ಲದಿದ್ದರೆ ಬಿಳಿ-ಮೇಲೆ-ಬಿಳಿ) */
+  #sidebar .jump option{ color:#1f2430; background:#fff; }
   #sidebar button.tb{
     width:100%; text-align:left;
     background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:#dfe2ea;
@@ -205,6 +207,39 @@
   /* ಟೇಬಲ್ ಸುತ್ತುವಿಕೆ — ಸಣ್ಣ ಪರದೆಯಲ್ಲಿ ಅಡ್ಡ ಸ್ಕ್ರಾಲ್ */
   .tbl{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 
+  /* ಮಾಗಣೆ ತೆರೆ/ಮುಚ್ಚು */
+  .rtoggle{
+    border:none; background:transparent; cursor:pointer; font-size:13px;
+    color:var(--accent-dark); width:24px; height:24px; line-height:1; padding:0;
+    flex-shrink:0; border-radius:6px; transition:transform .15s, background .15s;
+  }
+  .rtoggle:hover{ background:var(--accent-soft); }
+  .region.collapsed .rtoggle{ transform:rotate(-90deg); }
+  .region.collapsed .tbl, .region.collapsed .rowctrl{ display:none; }
+  .rcount{ font-size:11px; background:var(--accent-soft); color:var(--accent-dark); padding:1px 9px; border-radius:10px; white-space:nowrap; font-weight:700; }
+  @media print{ .region.collapsed .tbl{ display:block !important; } }
+
+  /* ---------- ಸುಂದರ ಮಾಗಣೆ dropdown (custom) ---------- */
+  .mpick{ position:relative; }
+  .mpick-btn{ display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; }
+  .mpick-caret{ opacity:.7; transition:transform .15s; }
+  .mpick.open .mpick-caret{ transform:rotate(180deg); }
+  .mpick-panel{
+    display:none; position:fixed; z-index:120;
+    background:#fff; color:var(--ink);
+    border:1px solid var(--card-line); border-radius:12px;
+    box-shadow:0 16px 40px rgba(16,24,40,.28);
+    max-height:min(60vh,420px); overflow-y:auto; padding:6px;
+  }
+  .mpick.open .mpick-panel{ display:block; animation:modalpop .12s ease; }
+  .mpick-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 11px; border-radius:9px; cursor:pointer; font-size:13px; color:var(--ink);
+  }
+  .mpick-item:hover{ background:var(--accent-soft); color:var(--accent-dark); }
+  .mpick-badge{ background:#eef0f4; color:#56607a; font-size:11px; font-weight:700; padding:1px 9px; border-radius:9px; flex-shrink:0; }
+  @media print{ .mpick{ display:none !important; } }
+
   /* ================= ರೆಸ್ಪಾನ್ಸಿವ್ (ಪರದೆ ಮಾತ್ರ; ಮುದ್ರಣ A4 ಉಳಿಯುತ್ತದೆ) ================= */
   @media screen and (max-width: 1100px){
     #sheet{ width:100%; max-width:100%; padding:14px 12px; }
@@ -221,7 +256,7 @@
     .content{ padding:0 0 18px; }
     .topbar{
       display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:40;
-      background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+      background:linear-gradient(135deg,var(--side1),var(--side2));
       color:#fff; padding:10px 12px; margin-bottom:12px;
       box-shadow:0 2px 10px rgba(0,0,0,.18);
     }
@@ -336,7 +371,13 @@
 
       <div class="side-group">
         <label class="side-label">ಮಾಗಣೆಗೆ ಹೋಗಿ</label>
-        <select class="jump" id="jump" title="ಮಾಗಣೆಗೆ ಹೋಗಿ"></select>
+        <div class="mpick" id="mpick">
+          <button class="tb mpick-btn" type="button" onclick="toggleMpick()">
+            <span id="mpickLabel">— ಮಾಗಣೆ ಆಯ್ಕೆಮಾಡಿ —</span>
+            <span class="mpick-caret">▾</span>
+          </button>
+          <div class="mpick-panel" id="mpickPanel"></div>
+        </div>
       </div>
 
       <div class="side-group side-actions">
@@ -344,9 +385,6 @@
         <button class="tb primary" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb" onclick="window.print()">🖨 ಮುದ್ರಣ (Ctrl+P)</button>
         <button class="tb edit-only" onclick="addRegion()">＋ ಮಾಗಣೆ</button>
-        <button class="tb" onclick="exportJSON()">⬇ JSON ಉಳಿಸು</button>
-        <button class="tb edit-only" onclick="document.getElementById('imp').click()">⬆ JSON ತೆರೆ</button>
-        <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(this)">
         <button class="tb warn edit-only" onclick="resetAll()">↺ ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
         <button class="tb warn edit-only" onclick="deleteYear()">🗑 ಈ ವರ್ಷ ಅಳಿಸಿ</button>
       </div>
@@ -411,6 +449,7 @@
   let docExists = undefined;      // ಆಯ್ದ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಇದೆಯೇ
   let lastRemoteJSON = null;      // ನಮ್ಮದೇ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಬಿಟ್ಟುಬಿಡಲು
   let dirty = false;              // ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ ಇದೆಯೇ (ರಿಮೋಟ್ ಮೇಲ್ಬರಹ ತಡೆಯಲು)
+  let openRegions = new Set([0]); // ತೆರೆದಿರುವ ಮಾಗಣೆಗಳು (ಮೊದಲನೆಯದು ಪೂರ್ವನಿಯೋಜಿತ)
   let state = loadLocalYear() || yearTemplate(currentYear);
 
   const lsKey = () => "poojaRecord_" + currentYear;
@@ -567,7 +606,7 @@
       <div class="dash no-print">
         <div class="card"><div class="v">${state.regions.length}</div><div class="l">ಮಾಗಣೆ</div></div>
         <div class="card"><div class="v">${total}</div><div class="l">ಹೆಸರು</div></div>
-        <div class="card"><div class="v">${done}</div><div class="l">ಗುರುತಿಸಲಾಗಿದೆ</div></div>
+        <div class="card"><div class="v">${done}</div><div class="l">ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ</div></div>
         <div class="card"><div class="v">${currentYear}</div><div class="l">ವರ್ಷ</div></div>
       </div>
       <div class="doc-title" ${ce} data-t="title">${esc(state.title)}</div>
@@ -577,10 +616,13 @@
       </div>`;
 
     state.regions.forEach((r,ri)=>{
-      html += `<div class="region" id="reg-${ri}">
+      const open = openRegions.has(ri);
+      html += `<div class="region ${open?'':'collapsed'}" id="reg-${ri}">
         <div class="region-head">
+          <button class="rtoggle no-print" onclick="toggleRegion(${ri})" title="ತೆರೆ / ಮುಚ್ಚು">▾</button>
           <span class="no" ${ce} data-r="${ri}" data-f="no">${esc(r.no)}</span>
           <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
+          <span class="rcount no-print">${r.families.length}</span>
           <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
           <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
         </div>
@@ -625,12 +667,54 @@
     document.title = "ಉಪ್ರಳ್ಳಿ ಸೇವೆ — " + currentYear;
   }
 
-  function buildJump(){
-    const sel=document.getElementById('jump');
-    sel.innerHTML = `<option value="">— ಮಾಗಣೆಗೆ ಹೋಗಿ —</option>` +
-      state.regions.map((r,i)=>`<option value="reg-${i}">${esc(r.no)}. ${esc(r.name)} (${r.families.length})</option>`).join("");
-    sel.onchange=()=>{ if(sel.value) document.getElementById(sel.value).scrollIntoView({behavior:"smooth",block:"start"}); };
+  /* ಮಾಗಣೆ ಬಾಕ್ಸ್ ತೆರೆ/ಮುಚ್ಚು (full re-render ಇಲ್ಲದೆ) */
+  function toggleRegion(ri){
+    const el=document.getElementById('reg-'+ri);
+    if(!el) return;
+    if(openRegions.has(ri)){ openRegions.delete(ri); el.classList.add('collapsed'); }
+    else { openRegions.add(ri); el.classList.remove('collapsed'); }
   }
+
+  /* ✓ ಬದಲಾದಾಗ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಎಣಿಕೆ ತಕ್ಷಣ ನವೀಕರಣ (full re-render ಇಲ್ಲದೆ) */
+  function updateDash(){
+    const total = state.regions.reduce((n,r)=>n+r.families.length,0);
+    const done = state.regions.reduce((n,r)=>n+r.families.filter(f=>String(f.c||"").includes("1")).length,0);
+    const v = document.querySelectorAll('.dash .card .v');
+    if(v.length>=4){ v[0].textContent=state.regions.length; v[1].textContent=total; v[2].textContent=done; v[3].textContent=currentYear; }
+  }
+
+  function buildJump(){
+    const panel=document.getElementById('mpickPanel');
+    if(!panel) return;
+    panel.innerHTML = state.regions.map((r,i)=>
+      `<div class="mpick-item" onclick="gotoRegion(${i})">
+         <span>${esc(r.no)}. ${esc(r.name)}</span>
+         <span class="mpick-badge">${r.families.length}</span>
+       </div>`).join("");
+  }
+  function toggleMpick(){
+    const m=document.getElementById('mpick'); if(!m) return;
+    if(m.classList.contains('open')){ closeMpick(); return; }
+    const btn=m.querySelector('.mpick-btn'); const p=document.getElementById('mpickPanel');
+    const r=btn.getBoundingClientRect();
+    p.style.left=r.left+'px'; p.style.top=(r.bottom+6)+'px'; p.style.width=Math.max(r.width,220)+'px';
+    m.classList.add('open');
+  }
+  function closeMpick(){ const m=document.getElementById('mpick'); if(m) m.classList.remove('open'); }
+  function gotoRegion(idx){
+    if(!openRegions.has(idx)) toggleRegion(idx);
+    const el=document.getElementById('reg-'+idx);
+    if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+    const r=state.regions[idx];
+    const lbl=document.getElementById('mpickLabel');
+    if(lbl && r) lbl.textContent = (r.no!=null?r.no+". ":"") + (r.name||"");
+    closeMpick();
+  }
+  document.addEventListener('click', e=>{
+    const m=document.getElementById('mpick');
+    if(m && m.classList.contains('open') && !m.contains(e.target)) closeMpick();
+  });
+  window.addEventListener('resize', closeMpick);
 
   /* ===================== ಸಂಪಾದನೆ (events) ===================== */
   const sheet=document.getElementById('sheet');
@@ -659,6 +743,7 @@
     const person = (fam.n||"").split(",")[0].trim();        // ಹೆಸರು (ಮೊದಲ ಭಾಗ)
     if(e.target.checked) notifyAction("✓ "+col+" ಸೇರಿಸಲಾಗಿದೆ"+(person?" — "+person:""), "ok");
     else                 notifyAction("✗ "+col+" ತೆಗೆಯಲಾಗಿದೆ"+(person?" — "+person:""), "warn");
+    updateDash();        // "ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ" ಎಣಿಕೆ ತಕ್ಷಣ ನವೀಕರಿಸು
     save();
   });
 
@@ -740,6 +825,7 @@
     localStorage.setItem(YEAR_KEY, String(year));
     state = loadLocalYear() || yearTemplate(year);   // ತಕ್ಷಣ ತೋರಿಸಲು (ಕ್ಲೌಡ್ ಬಂದ ಮೇಲೆ ನವೀಕರಣ)
     lastRemoteJSON = null;
+    openRegions = new Set([0]);                      // ಹೊಸ ವರ್ಷ — ಮೊದಲ ಮಾಗಣೆ ತೆರೆ
     render();
     subscribeYear();                                 // ಆ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆಗೆ ಸಂಪರ್ಕ
     flash("ವರ್ಷ "+year+" ಆಯ್ಕೆಯಾಗಿದೆ");

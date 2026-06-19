@@ -136,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
         flexibleSpace: const DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [kPrimary, kPrimaryDark],
+              colors: [kSide1, kSide2],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -273,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(width: 10),
           _stat('$totalNames', 'ಹೆಸರು', Icons.groups),
           const SizedBox(width: 10),
-          _stat('$doneNames', 'ಗುರುತಿಸಲಾಗಿದೆ', Icons.task_alt),
+          _stat('$doneNames', 'ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ', Icons.task_alt),
         ],
       ),
     );
@@ -359,7 +359,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Text('$done / $total ಗುರುತಿಸಲಾಗಿದೆ',
+                    Text('$done / $total ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ',
                         style: const TextStyle(fontSize: 12, color: Colors.black54)),
                   ],
                 ),

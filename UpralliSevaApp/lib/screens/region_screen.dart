@@ -82,13 +82,23 @@ class _RegionScreenState extends State<RegionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: kAccent,
+        backgroundColor: Colors.transparent,
         foregroundColor: Colors.white,
+        elevation: 0,
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [kSide1, kSide2],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         title: Text(region.name, overflow: TextOverflow.ellipsis),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addRow,
-        backgroundColor: kAccent,
+        backgroundColor: kPrimary,
         icon: const Icon(Icons.person_add),
         label: const Text('ಹೆಸರು'),
       ),

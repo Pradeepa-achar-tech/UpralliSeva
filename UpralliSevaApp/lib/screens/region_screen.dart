@@ -42,6 +42,7 @@ class _RegionScreenState extends State<RegionScreen> {
   Future<bool> _editFamily(int i) async {
     final f = region.families[i];
     final nameCtrl = TextEditingController(text: f.n);
+    nameCtrl.selection = const TextSelection.collapsed(offset: 0); // ಕರ್ಸರ್ ಆರಂಭದಲ್ಲಿ
     final sel = List<bool>.generate(cols.length, (ci) => f.isOn(ci));
     final ok = await showDialog<bool>(
       context: context,

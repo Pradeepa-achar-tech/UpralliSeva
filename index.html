@@ -799,7 +799,7 @@
     document.getElementById('editPoojas').innerHTML = state.columns.map((c,ci)=>
       `<button type="button" class="pchip ${cks[ci]?'on':''}" data-ci="${ci}" onclick="this.classList.toggle('on')">${esc(c)}</button>`).join("");
     document.getElementById('editModal').classList.add('open');
-    setTimeout(()=>{ const el=document.getElementById('editName'); if(el) el.focus(); }, 40);
+    setTimeout(()=>{ const el=document.getElementById('editName'); if(el){ el.focus(); try{ el.setSelectionRange(0,0); }catch(e){} el.scrollLeft=0; } }, 40);
   }
   function closeEdit(){ document.getElementById('editModal').classList.remove('open'); _editTarget=null; }
   function saveEdit(){

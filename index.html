@@ -136,7 +136,17 @@
     font-size:15px; line-height:1; color:#111;
   }
   input[type=checkbox]:checked::after{ content:"✓"; }
-  input[type=checkbox]:hover{ background:#eee; border-radius:3px; }
+  input[type=checkbox]:disabled{ pointer-events:none; opacity:1; }   /* ಓದಲು-ಮಾತ್ರ; ಕ್ಲಿಕ್ ಸಾಲಿಗೆ ಹೋಗಲಿ */
+
+  /* ಸಾಲು ಕ್ಲಿಕ್ ಮಾಡಿ ತಿದ್ದುಪಡಿ (ಆಕಸ್ಮಿಕ ಬದಲಾವಣೆ ಇಲ್ಲ) */
+  tr.editrow{ cursor:pointer; }
+  tr.editrow:hover td{ background:#fff7e8; }
+
+  /* ತಿದ್ದುಪಡಿ ಪಾಪ್‌ಅಪ್‌ನ ಪೂಜಾ ಚಿಪ್‌ಗಳು */
+  .edit-poojas{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pchip{ border:1px solid var(--card-line); background:#fff; border-radius:20px; padding:8px 14px; cursor:pointer; font-size:13px; font-family:inherit; color:var(--ink); }
+  .pchip.on{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-dark); font-weight:700; }
+  .pchip.on::before{ content:"✓ "; }
 
   /* ಸಾಲು ಅಳಿಸುವ ಗುಂಡಿ */
   td.c-del{ width:26px; text-align:center; }
@@ -376,6 +386,20 @@
 
   <!-- ---------- ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF / WhatsApp) ---------- -->
   <div id="rmenu" class="rmenu no-print"></div>
+
+  <!-- ---------- ಸಾಲು ತಿದ್ದುಪಡಿ ಪಾಪ್‌ಅಪ್ ---------- -->
+  <div id="editModal" class="modal-wrap no-print" onclick="if(event.target===this)closeEdit()">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-title">ತಿದ್ದುಪಡಿ</div>
+      <input id="editName" class="modal-input" type="text" placeholder="ಹೆಸರು / ವಿಳಾಸ">
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px">ಪೂಜೆಗಳು</div>
+      <div id="editPoojas" class="edit-poojas"></div>
+      <div class="modal-actions">
+        <button class="tb" onclick="closeEdit()">ರದ್ದು</button>
+        <button class="tb primary" onclick="saveEdit()">ನವೀಕರಿಸಿ</button>
+      </div>
+    </div>
+  </div>
 
   <div id="app">
     <!-- ===== ಎಡ ಸೈಡ್‌ಬಾರ್ (admin dashboard) ===== -->
@@ -664,11 +688,11 @@
       } else {
         r.families.forEach((f,fi)=>{
           const ck = checks(f.c);
-          html += `<tr>
+          html += `<tr class="editrow" onclick="editRow(${ri},${fi})" title="ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ">
             <td class="c-no">${fi+1}</td>
-            <td class="c-name"><div ${ce} data-r="${ri}" data-f="${fi}" data-k="n">${esc(f.n)}</div></td>
-            ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" data-r="${ri}" data-f="${fi}" data-c="${ci}" ${on?"checked":""} ${canEdit?"":"disabled"}></td>`).join("")}
-            <td class="c-del no-print edit-only"><button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="delRow(${ri},${fi})">✕</button></td>
+            <td class="c-name"><div>${esc(f.n)}</div></td>
+            ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" ${on?"checked":""} disabled></td>`).join("")}
+            <td class="c-del no-print edit-only"><button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="event.stopPropagation();delRow(${ri},${fi})">✕</button></td>
           </tr>`;
         });
       }
@@ -763,6 +787,42 @@
     const v = document.querySelectorAll('.dash .card .v');
     if(v.length>=4){ v[0].textContent=state.regions.length; v[1].textContent=total; v[2].textContent=done; v[3].textContent=currentYear; }
   }
+
+  /* ===================== ಸಾಲು ತಿದ್ದುಪಡಿ ಪಾಪ್‌ಅಪ್ (ಆಕಸ್ಮಿಕ ಬದಲಾವಣೆ ತಡೆ) ===================== */
+  let _editTarget=null;
+  function editRow(ri, fi){
+    const f = state.regions[ri] && state.regions[ri].families[fi];
+    if(!f) return;
+    _editTarget={ri, fi};
+    document.getElementById('editName').value = f.n || "";
+    const cks = checks(f.c);
+    document.getElementById('editPoojas').innerHTML = state.columns.map((c,ci)=>
+      `<button type="button" class="pchip ${cks[ci]?'on':''}" data-ci="${ci}" onclick="this.classList.toggle('on')">${esc(c)}</button>`).join("");
+    document.getElementById('editModal').classList.add('open');
+    setTimeout(()=>{ const el=document.getElementById('editName'); if(el) el.focus(); }, 40);
+  }
+  function closeEdit(){ document.getElementById('editModal').classList.remove('open'); _editTarget=null; }
+  function saveEdit(){
+    if(!_editTarget) return closeEdit();
+    const {ri, fi}=_editTarget;
+    const f = state.regions[ri] && state.regions[ri].families[fi];
+    if(!f) return closeEdit();
+    f.n = document.getElementById('editName').value;
+    const chips=[...document.querySelectorAll('#editPoojas .pchip')];
+    const arr = chips.map(ch=>ch.classList.contains('on'));
+    while(arr.length<5) arr.push(false);
+    f.c = arr.slice(0,5).map(b=>b?"1":"0").join("");
+    pendingSaveMsg="✏ ತಿದ್ದುಪಡಿ";
+    closeEdit();
+    save(); render(); updateDash();
+  }
+  document.addEventListener('keydown', e=>{
+    const em=document.getElementById('editModal');
+    if(em && em.classList.contains('open')){
+      if(e.key==='Escape') closeEdit();
+      else if(e.key==='Enter' && document.activeElement && document.activeElement.id==='editName') saveEdit();
+    }
+  });
 
   function buildJump(){
     const panel=document.getElementById('mpickPanel');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>ಪೂಜಾ ದಾಖಲೆ 2024</title>
+<title>ಪೂಜಾ ದಾಖಲೆ 2025</title>
 
 <!-- ಕನ್ನಡ ಫಾಂಟ್ (ಸ್ಥಳೀಯ — ಇಂಟರ್ನೆಟ್ ಬೇಕಿಲ್ಲ) -->
 <link href="assets/kannada-font.css" rel="stylesheet">
@@ -111,7 +111,7 @@
 <body>
 
   <div class="toolbar no-print">
-    <h1>ಪೂಜಾ ದಾಖಲೆ 2024</h1>
+    <h1>ಪೂಜಾ ದಾಖಲೆ 2025</h1>
     <select class="jump" id="jump" title="ಮಾಗಣೆಗೆ ಹೋಗಿ"></select>
     <span class="spacer"></span>
     <span class="hint" id="status"></span>
@@ -129,7 +129,7 @@
   <script src="data.js"></script>
   <script>
   /* ===================== ಸ್ಥಿತಿ (state) ===================== */
-  const LS_KEY = "poojaRecord2024";
+  const LS_KEY = "poojaRecord2025";
   let state = load();
 
   function load(){
@@ -256,7 +256,7 @@
   function exportJSON(){
     const blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});
     const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob); a.download="pooja-dakhale-2024.json"; a.click();
+    a.href=URL.createObjectURL(blob); a.download="pooja-dakhale-2025.json"; a.click();
     URL.revokeObjectURL(a.href);
   }
   function importJSON(input){

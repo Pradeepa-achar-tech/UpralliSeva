@@ -227,6 +227,8 @@
     .region.collapsed .tbl{ display:block !important; }
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಉಳಿದವು ಮರೆ */
     body.print-one .region:not(.print-target){ display:none !important; }
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಎಲ್ಲ ✓ ಗುರುತು ಮರೆ (ಖಾಲಿ ಪೆಟ್ಟಿಗೆಗಳು) */
+    body.blank-print input[type=checkbox]:checked::after{ content:"" !important; }
   }
 
   /* ---------- ಸುಂದರ ಮಾಗಣೆ dropdown (custom) ---------- */
@@ -395,10 +397,10 @@
 
       <div class="side-group side-actions">
         <label class="side-label">ಕ್ರಿಯೆಗಳು</label>
-        <button class="tb primary" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
-        <button class="tb" onclick="window.print()">🖨 ಮುದ್ರಣ (Ctrl+P)</button>
+        <button class="tb primary" id="btnPdf" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
+        <button class="tb" id="btnPrint" onclick="window.print()">🖨 ಮುದ್ರಣ</button>
+        <button class="tb" id="btnBlank" onclick="downloadBlankPDF(this)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>
         <button class="tb edit-only" onclick="addRegion()">＋ ಮಾಗಣೆ</button>
-        <button class="tb warn edit-only" onclick="resetAll()">↺ ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
         <button class="tb warn edit-only" onclick="deleteYear()">🗑 ಈ ವರ್ಷ ಅಳಿಸಿ</button>
       </div>
 
@@ -679,6 +681,9 @@
     if(yl) yl.textContent = currentYear;
     const sel=document.getElementById('yearSel');
     if(sel && sel.value!==String(currentYear)) sel.value=String(currentYear);
+    const bp=document.getElementById('btnPdf');     if(bp) bp.textContent="📄 PDF ಡೌನ್‌ಲೋಡ್ ("+currentYear+")";
+    const bpr=document.getElementById('btnPrint');  if(bpr) bpr.textContent="🖨 ಮುದ್ರಣ ("+currentYear+")";
+    const bb=document.getElementById('btnBlank');   if(bb) bb.textContent="📝 ಖಾಲಿ ಅರ್ಜಿ PDF ("+currentYear+")";
     document.title = "ಉಪ್ರಳ್ಳಿ ಸೇವೆ — " + currentYear;
   }
 
@@ -863,6 +868,22 @@
       uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → \"Save as PDF\" ಬಳಸಿ.", "ದೋಷ");
     }finally{
       document.body.classList.remove('exporting');
+      btn.disabled=false; btn.textContent=old;
+    }
+  }
+
+  /* ಖಾಲಿ ಅರ್ಜಿ PDF — ಆ ವರ್ಷದ ಎಲ್ಲ ಹೆಸರು/ಮಾಗಣೆ, ಆದರೆ ಯಾವುದೇ ✓ ಗುರುತು ಇಲ್ಲ */
+  async function downloadBlankPDF(btn){
+    btn.disabled=true; const old=btn.textContent; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…";
+    try{
+      if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+      document.body.classList.add('exporting','blank-print');   // blank-print → ✓ ಮರೆ
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      window.print();
+    }catch(err){
+      uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message, "ದೋಷ");
+    }finally{
+      document.body.classList.remove('exporting','blank-print');
       btn.disabled=false; btn.textContent=old;
     }
   }

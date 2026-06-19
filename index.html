@@ -5,15 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <!-- ಬ್ರೌಸರ್‌ನ ಅನುವಾದ ಸೂಚನೆ ತೋರಿಸದಂತೆ -->
 <meta name="google" content="notranslate" />
-<title>ಪೂಜಾ ದಾಖಲೆ 2025</title>
+<title>ಉಪ್ರಳ್ಳಿ ಸೇವೆ</title>
+<link rel="icon" href="logo.png" />
 
 <!-- ಕನ್ನಡ ಫಾಂಟ್ (ಸ್ಥಳೀಯ — ಇಂಟರ್ನೆಟ್ ಬೇಕಿಲ್ಲ) -->
 <link href="assets/kannada-font.css" rel="stylesheet">
 
 <style>
   :root{
-    --ink:#1a1a1a; --line:#000; --muted:#666; --accent:#0b6; --bg:#eef0f2;
-    --reg-bg:#dfe7ef;
+    --ink:#1f1a14; --line:#000; --muted:#8a7e70;
+    --accent:#e9730c; --accent-dark:#c85d00; --accent-soft:#fff2e6;
+    --bg:#f4f1ec; --reg-bg:#fbe7d2;
   }
   *{ box-sizing:border-box; }
   html,body{ margin:0; }
@@ -23,41 +25,73 @@
     font-size:13px; line-height:1.35;
   }
 
-  /* ---------- ಮೇಲಿನ ಟೂಲ್‌ಬಾರ್ (ಮುದ್ರಣದಲ್ಲಿ ಕಾಣಿಸುವುದಿಲ್ಲ) ---------- */
-  .toolbar{
-    position:sticky; top:0; z-index:50;
-    display:flex; flex-wrap:wrap; gap:8px; align-items:center;
-    padding:10px 14px; background:#fff; border-bottom:2px solid #cdd3da;
-    box-shadow:0 2px 6px rgba(0,0,0,.06);
+  /* ====================== ಲೇಔಟ್: ಸೈಡ್‌ಬಾರ್ + ವಿಷಯ ====================== */
+  #app{ display:flex; min-height:100vh; align-items:stretch; }
+
+  #sidebar{
+    width:250px; flex-shrink:0; position:sticky; top:0; align-self:flex-start;
+    height:100vh; overflow-y:auto;
+    background:linear-gradient(160deg,var(--accent),var(--accent-dark));
+    color:#fff; padding:18px 14px; display:flex; flex-direction:column; gap:18px;
+    box-shadow:2px 0 14px rgba(0,0,0,.12);
   }
-  .toolbar h1{ font-size:15px; margin:0 12px 0 0; font-weight:700; }
-  .toolbar .spacer{ flex:1; }
+  #sidebar .brand{ display:flex; align-items:center; gap:10px; }
+  #sidebar .brand img{ width:40px; height:40px; border-radius:10px; background:#fff; padding:3px; object-fit:contain; }
+  #sidebar .brand span{ font-weight:800; font-size:17px; letter-spacing:.2px; }
+  .side-group{ display:flex; flex-direction:column; gap:8px; }
+  .side-label{ font-size:10.5px; text-transform:uppercase; letter-spacing:.6px; opacity:.85; font-weight:700; }
+  .side-actions{ border-top:1px solid rgba(255,255,255,.22); padding-top:14px; }
+  .side-foot{ margin-top:auto; border-top:1px solid rgba(255,255,255,.22); padding-top:12px; display:flex; flex-direction:column; gap:8px; }
+  .side-foot .hint{ color:#fff; opacity:.9; min-height:1em; }
+  #sidebar .jump{ width:100%; max-width:none; }
+  #sidebar button.tb{ width:100%; text-align:left; }
+
   button.tb{
     font-family:inherit; font-size:13px; cursor:pointer;
-    border:1px solid #b9c1ca; background:#f7f9fb; color:#222;
-    padding:7px 12px; border-radius:7px;
+    border:1px solid rgba(255,255,255,.55); background:rgba(255,255,255,.95); color:#8a4000;
+    padding:9px 13px; border-radius:9px; font-weight:600;
   }
-  button.tb:hover{ background:#eef3f8; }
-  button.tb.primary{ background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600; }
-  button.tb.primary:hover{ filter:brightness(1.05); }
-  button.tb.warn{ color:#a40000; border-color:#e2b3b3; }
-  .hint{ font-size:11.5px; color:var(--muted); }
-  .jump{ font-family:inherit; font-size:12.5px; padding:6px 8px; border:1px solid #b9c1ca; border-radius:7px; max-width:230px; }
+  button.tb:hover{ background:#fff; }
+  button.tb.primary{ background:#fff; border-color:#fff; color:var(--accent-dark); font-weight:700; }
+  button.tb.warn{ color:#a40000; background:rgba(255,255,255,.95); }
+  .hint{ font-size:11.5px; }
+  .jump{ font-family:inherit; font-size:13px; padding:8px 9px; border:1px solid rgba(255,255,255,.65); border-radius:9px; background:#fff; color:#333; }
+
+  .content{ flex:1; min-width:0; padding:18px; }
+  .topbar{ display:none; }   /* ಡೆಸ್ಕ್‌ಟಾಪ್‌ನಲ್ಲಿ ಮರೆ; ಮೊಬೈಲ್‌ನಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ */
+  .sb-backdrop{ display:none; }
 
   /* ---------- A4 ಹಾಳೆ ---------- */
   #sheet{
     width:210mm; min-height:297mm;
-    margin:16px auto; padding:12mm 10mm;
-    background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12);
+    margin:0 auto; padding:12mm 10mm;
+    background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12); border-radius:14px;
   }
   .doc-title{ text-align:center; font-weight:700; font-size:15px; margin:0 0 10px; padding-bottom:8px; border-bottom:2px solid var(--line); }
   .legend{ text-align:center; font-size:11px; color:#333; margin:-4px 0 14px; }
   .legend b{ font-weight:600; }
 
+  /* ---------- ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಅಂಕಿಅಂಶ ಕಾರ್ಡ್‌ಗಳು (ಮುದ್ರಣದಲ್ಲಿ ಕಾಣಿಸದು) ---------- */
+  .dash{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 16px; }
+  .dash .card{
+    flex:1; min-width:110px; background:#fff; border:1px solid #efe2d2;
+    border-radius:14px; padding:12px 14px; box-shadow:0 2px 10px rgba(0,0,0,.05);
+  }
+  .dash .card .v{ font-size:22px; font-weight:800; color:var(--accent-dark); line-height:1.1; }
+  .dash .card .l{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  @media print{ .dash{ display:none !important; } }
+
   .region{ margin:0 0 16px; border:1.5px solid var(--line); }
   .region-head{
     display:flex; align-items:center; gap:8px;
     background:var(--reg-bg); padding:6px 8px; border-bottom:1.5px solid var(--line);
+  }
+  /* ಪರದೆಯಲ್ಲಿ ಆಧುನಿಕ ಕಾರ್ಡ್ ಶೈಲಿ (ಮುದ್ರಣ ಕಪ್ಪು ಗಡಿ ಉಳಿಯುತ್ತದೆ) */
+  @media screen{
+    #sheet{ border-radius:16px; }
+    .region{ border:1px solid #eddfce; border-radius:14px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.05); }
+    .region-head{ background:var(--accent-soft); border-bottom:1px solid #f3dcc3; }
+    thead th{ background:#faf3ea !important; }
   }
   .region-head .no{ font-weight:700; min-width:26px; }
   .region-head .rname{ font-weight:700; font-size:13.5px; flex:1; }
@@ -135,7 +169,7 @@
     padding:34px 30px; box-shadow:0 8px 28px rgba(0,0,0,.12);
     max-width:380px; width:100%; text-align:center;
   }
-  #login .logo{ font-size:34px; margin-bottom:6px; }
+  #login .logo{ width:96px; height:96px; object-fit:contain; margin:0 auto 8px; display:block; }
   #login h2{ margin:0 0 6px; font-size:20px; font-weight:700; }
   #login p{ margin:0 0 20px; color:var(--muted); font-size:13px; line-height:1.5; }
   #login .gbtn{
@@ -148,37 +182,53 @@
   #login .checking{ color:var(--muted); font-size:12.5px; min-height:1.2em; margin-top:14px; }
 
   /* ಲಾಗಿನ್ ಆಗುವವರೆಗೆ ಆ್ಯಪ್ ಮರೆ; ಆದ ಮೇಲೆ ಲಾಗಿನ್ ಪರದೆ ಮರೆ */
-  body:not(.authed) .toolbar,
-  body:not(.authed) #sheet{ display:none !important; }
+  body:not(.authed) #app{ display:none !important; }
   body.authed #login{ display:none !important; }
 
   /* ಟೇಬಲ್ ಸುತ್ತುವಿಕೆ — ಸಣ್ಣ ಪರದೆಯಲ್ಲಿ ಅಡ್ಡ ಸ್ಕ್ರಾಲ್ */
   .tbl{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 
   /* ================= ರೆಸ್ಪಾನ್ಸಿವ್ (ಪರದೆ ಮಾತ್ರ; ಮುದ್ರಣ A4 ಉಳಿಯುತ್ತದೆ) ================= */
-  @media screen and (max-width: 860px){
-    #sheet{ width:100%; max-width:100%; margin:8px auto; padding:10px 8px; }
+  @media screen and (max-width: 1100px){
+    #sheet{ width:100%; max-width:100%; padding:14px 12px; }
   }
-  @media screen and (max-width: 640px){
+  @media screen and (max-width: 860px){
+    /* ಸೈಡ್‌ಬಾರ್ → ಸ್ಲೈಡ್-ಇನ್ ಡ್ರಾಯರ್ + ಮೇಲ್ಭಾಗ ಪಟ್ಟಿ */
+    #sidebar{
+      position:fixed; left:0; top:0; height:100vh; z-index:60;
+      transform:translateX(-100%); transition:transform .25s ease;
+    }
+    body.sb-open #sidebar{ transform:translateX(0); }
+    .sb-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:55; }
+    body.sb-open .sb-backdrop{ display:block; }
+    .content{ padding:0 0 18px; }
+    .topbar{
+      display:flex; align-items:center; gap:10px; position:sticky; top:0; z-index:40;
+      background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+      color:#fff; padding:10px 12px; margin-bottom:12px;
+      box-shadow:0 2px 10px rgba(0,0,0,.18);
+    }
+    .topbar .hamb{ background:rgba(255,255,255,.2); border:none; color:#fff; font-size:20px; width:40px; height:40px; border-radius:10px; cursor:pointer; }
+    .topbar img{ width:30px; height:30px; border-radius:7px; background:#fff; padding:2px; object-fit:contain; }
+    .topbar strong{ font-size:16px; }
     body{ font-size:12.5px; }
-    .toolbar{ padding:8px 10px; gap:6px; }
-    .toolbar h1{ font-size:14px; width:100%; margin:0 0 2px; }
-    .toolbar .spacer{ display:none; }
-    .hint{ width:100%; order:99; }                 /* ಸ್ಥಿತಿ ಸಂದೇಶ ಕೆಳಗೆ ಪೂರ್ಣ ಸಾಲು */
-    button.tb{ padding:9px 11px; font-size:12.5px; }  /* ಸ್ಪರ್ಶ-ಸ್ನೇಹಿ */
-    .jump{ max-width:44vw; }
-    #yearSel{ max-width:84px !important; }
-    #sheet{ padding:8px 6px; }
+    #sheet{ padding:10px 8px; border-radius:0; }
+    .content{ padding-left:8px; padding-right:8px; }
     .doc-title{ font-size:13.5px; }
     .region-head{ flex-wrap:wrap; }
     .region-head .rname{ flex:1 1 100%; order:2; }
     .region-head .rphone{ order:3; }
     th,td{ padding:4px 4px; }
     th.c-chk,td.c-chk{ width:30px; }
-    input[type=checkbox]{ width:20px; height:20px; font-size:16px; }  /* ದೊಡ್ಡ ಸ್ಪರ್ಶ ಗುರಿ */
-    .tbl table{ min-width:380px; }                 /* ಓದಲು ಕನಿಷ್ಠ ಅಗಲ; ಬೇಕಿದ್ದರೆ ಸ್ಕ್ರಾಲ್ */
+    input[type=checkbox]{ width:20px; height:20px; font-size:16px; }
+    .tbl table{ min-width:380px; }
   }
-  @media print{ .tbl{ overflow:visible; } .tbl table{ min-width:0; } }
+  @media print{
+    #app{ display:block; }
+    .content{ padding:0; }
+    #sheet{ box-shadow:none; border-radius:0; }
+    .tbl{ overflow:visible; } .tbl table{ min-width:0; }
+  }
 
   /* ---------- ಮೋಡಲ್ (ನೇಟಿವ್ popup ಬದಲಿಗೆ) ---------- */
   .modal-wrap{
@@ -226,8 +276,8 @@
   <!-- ---------- ಲಾಗಿನ್ ಪರದೆ (ಲಾಗಿನ್ ಆಗುವವರೆಗೆ ತೋರಿಸುತ್ತದೆ) ---------- -->
   <div id="login">
     <div class="card">
-      <div class="logo">🪔</div>
-      <h2>ಪೂಜಾ ದಾಖಲೆ</h2>
+      <img class="logo" src="logo.png" alt="ಉಪ್ರಳ್ಳಿ ಸೇವೆ">
+      <h2>ಉಪ್ರಳ್ಳಿ ಸೇವೆ</h2>
       <p>ಮುಂದುವರಿಯಲು ನಿಮ್ಮ ಅನುಮತಿ ಪಡೆದ Google ಖಾತೆಯಿಂದ ಲಾಗಿನ್ ಆಗಿ.</p>
       <button class="gbtn" onclick="toggleAuth()">
         <span style="font-size:17px">G</span> Google ಮೂಲಕ ಲಾಗಿನ್
@@ -253,24 +303,54 @@
   <!-- ---------- ಟೋಸ್ಟ್ (ಸ್ಪಷ್ಟ ಸೂಚನೆ — ಸೇರಿಸಿದ/ತೆಗೆದ/ಉಳಿಸಿದ) ---------- -->
   <div id="toast" class="no-print"></div>
 
-  <div class="toolbar no-print">
-    <h1>ಪೂಜಾ ದಾಖಲೆ <span id="yearLabel">2025</span></h1>
-    <select class="jump" id="yearSel" title="ವರ್ಷ ಆಯ್ಕೆ" style="max-width:110px"></select>
-    <button class="tb primary" onclick="setupYear()" title="ಹೊಸ ವರ್ಷ ಸೇರಿಸಿ">📅 ಹೊಸ ವರ್ಷ</button>
-    <select class="jump" id="jump" title="ಮಾಗಣೆಗೆ ಹೋಗಿ"></select>
-    <span class="spacer"></span>
-    <span class="hint" id="status"></span>
-    <button class="tb edit-only" onclick="addRegion()">+ ಮಾಗಣೆ</button>
-    <button class="tb" onclick="exportJSON()">JSON ಉಳಿಸು</button>
-    <button class="tb edit-only" onclick="document.getElementById('imp').click()">JSON ತೆರೆ</button>
-    <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(this)">
-    <button class="tb warn edit-only" onclick="resetAll()">ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
-    <button class="tb" onclick="window.print()">ಮುದ್ರಣ (Ctrl+P)</button>
-    <button class="tb primary" onclick="downloadPDF(this)">PDF ಡೌನ್‌ಲೋಡ್</button>
-    <button class="tb" id="authBtn" onclick="toggleAuth()">ಲಾಗಿನ್</button>
-  </div>
+  <div id="app">
+    <!-- ===== ಎಡ ಸೈಡ್‌ಬಾರ್ (admin dashboard) ===== -->
+    <aside id="sidebar" class="no-print">
+      <div class="brand">
+        <img src="logo.png" alt="ಉಪ್ರಳ್ಳಿ ಸೇವೆ">
+        <span>ಉಪ್ರಳ್ಳಿ ಸೇವೆ</span>
+      </div>
 
-  <div id="sheet"></div>
+      <div class="side-group">
+        <label class="side-label">ವರ್ಷ</label>
+        <select class="jump" id="yearSel" title="ವರ್ಷ ಆಯ್ಕೆ"></select>
+        <button class="tb primary" onclick="setupYear()">📅 ಹೊಸ ವರ್ಷ</button>
+      </div>
+
+      <div class="side-group">
+        <label class="side-label">ಮಾಗಣೆಗೆ ಹೋಗಿ</label>
+        <select class="jump" id="jump" title="ಮಾಗಣೆಗೆ ಹೋಗಿ"></select>
+      </div>
+
+      <div class="side-group side-actions">
+        <label class="side-label">ಕ್ರಿಯೆಗಳು</label>
+        <button class="tb primary" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
+        <button class="tb" onclick="window.print()">🖨 ಮುದ್ರಣ (Ctrl+P)</button>
+        <button class="tb edit-only" onclick="addRegion()">＋ ಮಾಗಣೆ</button>
+        <button class="tb" onclick="exportJSON()">⬇ JSON ಉಳಿಸು</button>
+        <button class="tb edit-only" onclick="document.getElementById('imp').click()">⬆ JSON ತೆರೆ</button>
+        <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(this)">
+        <button class="tb warn edit-only" onclick="resetAll()">↺ ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
+      </div>
+
+      <div class="side-foot">
+        <span class="hint" id="status"></span>
+        <button class="tb" id="authBtn" onclick="toggleAuth()">Google ಲಾಗಿನ್</button>
+      </div>
+    </aside>
+
+    <!-- ===== ಮುಖ್ಯ ವಿಷಯ ===== -->
+    <main class="content">
+      <header class="topbar no-print">
+        <button class="hamb" onclick="document.body.classList.toggle('sb-open')" aria-label="ಮೆನು">☰</button>
+        <img src="logo.png" alt="">
+        <strong>ಉಪ್ರಳ್ಳಿ ಸೇವೆ <span id="yearLabel"></span></strong>
+      </header>
+      <div id="sheet"></div>
+    </main>
+
+    <div class="sb-backdrop no-print" onclick="document.body.classList.remove('sb-open')"></div>
+  </div>
 
   <!-- Firebase (ಕ್ಲೌಡ್ ಸಿಂಕ್) — compat SDK, ಜಾಗತಿಕ `firebase` ಒದಗಿಸುತ್ತದೆ -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -464,11 +544,18 @@
     let total = state.regions.reduce((n,r)=>n+r.families.length,0);
 
     const ce = canEdit ? "contenteditable" : "";
+    const done = state.regions.reduce((n,r)=>n+r.families.filter(f=>String(f.c||"").includes("1")).length,0);
     let html = `
+      <div class="dash no-print">
+        <div class="card"><div class="v">${state.regions.length}</div><div class="l">ಮಾಗಣೆ</div></div>
+        <div class="card"><div class="v">${total}</div><div class="l">ಹೆಸರು</div></div>
+        <div class="card"><div class="v">${done}</div><div class="l">ಗುರುತಿಸಲಾಗಿದೆ</div></div>
+        <div class="card"><div class="v">${currentYear}</div><div class="l">ವರ್ಷ</div></div>
+      </div>
       <div class="doc-title" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">
         ಕಾಲಂಗಳು: <b>${cols.map(esc).join(" · ")}</b>
-        &nbsp;|&nbsp; ✓ = ಪೂಜೆ ಮಾಡಿಸಿದ್ದಾರೆ &nbsp;|&nbsp; ${state.regions.length} ಮಾಗಣೆ · ${total} ಹೆಸರು
+        &nbsp;|&nbsp; ✓ = ಪೂಜೆ ಮಾಡಿಸಿದ್ದಾರೆ
       </div>`;
 
     state.regions.forEach((r,ri)=>{
@@ -517,7 +604,7 @@
     if(yl) yl.textContent = currentYear;
     const sel=document.getElementById('yearSel');
     if(sel && sel.value!==String(currentYear)) sel.value=String(currentYear);
-    document.title = "ಪೂಜಾ ದಾಖಲೆ " + currentYear;
+    document.title = "ಉಪ್ರಳ್ಳಿ ಸೇವೆ — " + currentYear;
   }
 
   function buildJump(){
@@ -692,10 +779,10 @@
     unsub = DOC.onSnapshot(snap=>{
       docExists = snap.exists;
       if(!snap.exists){
-        // ಆ ವರ್ಷ ಇನ್ನೂ ಇಲ್ಲ — ಪೂರ್ವಭರ್ತಿ ಟೆಂಪ್ಲೇಟ್ ತೋರಿಸು; ಲಾಗಿನ್ ಆದವರಿದ್ದರೆ ರಚಿಸು
+        // ಆ ವರ್ಷ ಇನ್ನೂ ಇಲ್ಲ — ಪೂರ್ವಭರ್ತಿ ಟೆಂಪ್ಲೇಟ್ ತೋರಿಸು (ಸ್ಥಳೀಯ ಮಾತ್ರ).
+        // ಸ್ವಯಂ ರಚಿಸುವುದಿಲ್ಲ — ಬಳಕೆದಾರ ಬದಲಾವಣೆ ಮಾಡಿದಾಗಷ್ಟೇ ಕ್ಲೌಡ್‌ಗೆ ಉಳಿಯುತ್ತದೆ.
         state = loadLocalYear() || yearTemplate(currentYear);
         saveLocalYear();
-        if(canEdit) pushNow();
         render();
         return;
       }

@@ -1,0 +1,19 @@
+Place the Kannada font file here as:
+
+    NotoSansKannada-Regular.ttf
+
+Download it (free, OFL licensed) from Google Fonts:
+    https://fonts.google.com/noto/specimen/Noto+Sans+Kannada
+  → "Get font" / Download family → unzip → copy
+    "NotoSansKannada-Regular.ttf" into this folder.
+
+This single file is used for BOTH:
+  • the app UI (fontFamily: NotoSansKannada in pubspec.yaml), and
+  • the embedded font in the exported PDF (lib/pdf_service.dart),
+    so Kannada renders correctly in the PDF on any device.
+
+After adding the file, run:  flutter pub get
+
+(Optional) For bold text in the PDF you can also add
+"NotoSansKannada-Bold.ttf" and pass it as `bold:` in pdf_service.dart.
+You can delete this .txt file once the font is in place.

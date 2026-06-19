@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "815987668986",
+    "project_id": "upralliseva",
+    "storage_bucket": "upralliseva.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:815987668986:android:0e5da63b00254aacafd643",
+        "android_client_info": {
+          "package_name": "com.upralliseva.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "815987668986-l5uqfb4n7becu53a0vsb1s7h5leut7s6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.upralliseva.app",
+            "certificate_hash": "f75b6dc9e10b7212ffee7d198e1c7f74ecb5854c"
+          }
+        },
+        {
+          "client_id": "815987668986-0os3im9sjjvl2sv9407gqdrjbtnh36id.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbWWpFX91uzcmL8p3j0qEUDpu4HBPmCM0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "815987668986-0os3im9sjjvl2sv9407gqdrjbtnh36id.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

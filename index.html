@@ -104,52 +104,342 @@
     tr{ break-inside:avoid; page-break-inside:avoid; }
     td.c-del, th.c-del{ display:none !important; }
     .no-print{ display:none !important; }
+    #login{ display:none !important; }
   }
   /* PDF ರಫ್ತು ಮಾಡುವಾಗ ಸಂಪಾದನಾ ನಿಯಂತ್ರಣ ಮರೆಮಾಡಲು */
   body.exporting .no-print{ display:none !important; }
   body.exporting td.c-del{ display:none; }
+
+  /* ಲಾಗಿನ್ ಆಗದಿದ್ದರೆ ಸಂಪಾದನಾ ನಿಯಂತ್ರಣಗಳನ್ನು ಮರೆಮಾಡು (ವೀಕ್ಷಣೆ ಮಾತ್ರ) */
+  body:not(.editing) .edit-only{ display:none !important; }
+
+  /* ---------- ಲಾಗಿನ್ ಪರದೆ ---------- */
+  #login{
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    background:var(--bg); padding:24px;
+  }
+  #login .card{
+    background:#fff; border:1px solid #cdd3da; border-radius:14px;
+    padding:34px 30px; box-shadow:0 8px 28px rgba(0,0,0,.12);
+    max-width:380px; width:100%; text-align:center;
+  }
+  #login .logo{ font-size:34px; margin-bottom:6px; }
+  #login h2{ margin:0 0 6px; font-size:20px; font-weight:700; }
+  #login p{ margin:0 0 20px; color:var(--muted); font-size:13px; line-height:1.5; }
+  #login .gbtn{
+    font-family:inherit; font-size:15px; font-weight:600; cursor:pointer;
+    border:1px solid var(--accent); background:var(--accent); color:#fff;
+    padding:11px 22px; border-radius:9px; display:inline-flex; align-items:center; gap:8px;
+  }
+  #login .gbtn:hover{ filter:brightness(1.05); }
+  #login .err{ color:#a40000; font-size:12.5px; min-height:1.2em; margin-top:14px; }
+  #login .checking{ color:var(--muted); font-size:12.5px; min-height:1.2em; margin-top:14px; }
+
+  /* ಲಾಗಿನ್ ಆಗುವವರೆಗೆ ಆ್ಯಪ್ ಮರೆ; ಆದ ಮೇಲೆ ಲಾಗಿನ್ ಪರದೆ ಮರೆ */
+  body:not(.authed) .toolbar,
+  body:not(.authed) #sheet{ display:none !important; }
+  body.authed #login{ display:none !important; }
+
+  /* ಟೇಬಲ್ ಸುತ್ತುವಿಕೆ — ಸಣ್ಣ ಪರದೆಯಲ್ಲಿ ಅಡ್ಡ ಸ್ಕ್ರಾಲ್ */
+  .tbl{ width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+  /* ================= ರೆಸ್ಪಾನ್ಸಿವ್ (ಪರದೆ ಮಾತ್ರ; ಮುದ್ರಣ A4 ಉಳಿಯುತ್ತದೆ) ================= */
+  @media screen and (max-width: 860px){
+    #sheet{ width:100%; max-width:100%; margin:8px auto; padding:10px 8px; }
+  }
+  @media screen and (max-width: 640px){
+    body{ font-size:12.5px; }
+    .toolbar{ padding:8px 10px; gap:6px; }
+    .toolbar h1{ font-size:14px; width:100%; margin:0 0 2px; }
+    .toolbar .spacer{ display:none; }
+    .hint{ width:100%; order:99; }                 /* ಸ್ಥಿತಿ ಸಂದೇಶ ಕೆಳಗೆ ಪೂರ್ಣ ಸಾಲು */
+    button.tb{ padding:9px 11px; font-size:12.5px; }  /* ಸ್ಪರ್ಶ-ಸ್ನೇಹಿ */
+    .jump{ max-width:44vw; }
+    #yearSel{ max-width:84px !important; }
+    #sheet{ padding:8px 6px; }
+    .doc-title{ font-size:13.5px; }
+    .region-head{ flex-wrap:wrap; }
+    .region-head .rname{ flex:1 1 100%; order:2; }
+    .region-head .rphone{ order:3; }
+    th,td{ padding:4px 4px; }
+    th.c-chk,td.c-chk{ width:30px; }
+    input[type=checkbox]{ width:20px; height:20px; font-size:16px; }  /* ದೊಡ್ಡ ಸ್ಪರ್ಶ ಗುರಿ */
+    .tbl table{ min-width:380px; }                 /* ಓದಲು ಕನಿಷ್ಠ ಅಗಲ; ಬೇಕಿದ್ದರೆ ಸ್ಕ್ರಾಲ್ */
+  }
+  @media print{ .tbl{ overflow:visible; } .tbl table{ min-width:0; } }
+
+  /* ---------- ಮೋಡಲ್ (ನೇಟಿವ್ popup ಬದಲಿಗೆ) ---------- */
+  .modal-wrap{
+    position:fixed; inset:0; z-index:200; display:none;
+    align-items:center; justify-content:center;
+    background:rgba(15,20,25,.45); padding:18px;
+  }
+  .modal-wrap.open{ display:flex; }
+  .modal{
+    background:#fff; border-radius:14px; box-shadow:0 16px 48px rgba(0,0,0,.28);
+    width:100%; max-width:380px; padding:22px 22px 18px;
+    animation:modalpop .15s ease;
+  }
+  @keyframes modalpop{ from{ transform:scale(.95); opacity:0 } to{ transform:scale(1); opacity:1 } }
+  .modal-title{ font-weight:700; font-size:16px; margin-bottom:6px; }
+  .modal-title:empty{ display:none; }
+  .modal-body{ font-size:13.5px; color:#333; line-height:1.55; white-space:pre-line; }
+  .modal-input{
+    width:100%; margin-top:14px; font-family:inherit; font-size:16px;
+    padding:10px 12px; border:1px solid #b9c1ca; border-radius:8px;
+  }
+  .modal-input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(0,187,102,.25); }
+  .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .modal-actions .tb{ min-width:78px; padding:9px 14px; }
+
+  /* ---------- ಟೋಸ್ಟ್ (ದೊಡ್ಡ, ಸ್ಪಷ್ಟ ಸೂಚನೆ) ---------- */
+  #toast{
+    position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(24px);
+    z-index:300; min-width:220px; max-width:92vw; text-align:center;
+    padding:14px 22px; border-radius:12px;
+    font-size:16px; font-weight:700; color:#fff; background:#34495e;
+    box-shadow:0 8px 26px rgba(0,0,0,.30);
+    opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+  #toast.ok{   background:#0b8a4f; }
+  #toast.warn{ background:#c0392b; }
+  #toast.info{ background:#34495e; }
+  @media (max-width:640px){ #toast{ font-size:15px; left:8px; right:8px; transform:translateY(24px); max-width:none; } #toast.show{ transform:translateY(0); } }
+  @media print{ #toast{ display:none !important; } }
 </style>
 </head>
 <body>
 
+  <!-- ---------- ಲಾಗಿನ್ ಪರದೆ (ಲಾಗಿನ್ ಆಗುವವರೆಗೆ ತೋರಿಸುತ್ತದೆ) ---------- -->
+  <div id="login">
+    <div class="card">
+      <div class="logo">🪔</div>
+      <h2>ಪೂಜಾ ದಾಖಲೆ</h2>
+      <p>ಮುಂದುವರಿಯಲು ನಿಮ್ಮ ಅನುಮತಿ ಪಡೆದ Google ಖಾತೆಯಿಂದ ಲಾಗಿನ್ ಆಗಿ.</p>
+      <button class="gbtn" onclick="toggleAuth()">
+        <span style="font-size:17px">G</span> Google ಮೂಲಕ ಲಾಗಿನ್
+      </button>
+      <div class="checking" id="loginChecking">ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…</div>
+      <div class="err" id="loginErr"></div>
+    </div>
+  </div>
+
+  <!-- ---------- ಸಾಮಾನ್ಯ ಮೋಡಲ್ (alert / confirm / prompt) ---------- -->
+  <div id="modal" class="modal-wrap no-print" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-title" id="modalTitle"></div>
+      <div class="modal-body" id="modalBody"></div>
+      <input id="modalInput" class="modal-input" type="text" style="display:none">
+      <div class="modal-actions">
+        <button class="tb" id="modalCancel">ರದ್ದು</button>
+        <button class="tb primary" id="modalOk">ಸರಿ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ---------- ಟೋಸ್ಟ್ (ಸ್ಪಷ್ಟ ಸೂಚನೆ — ಸೇರಿಸಿದ/ತೆಗೆದ/ಉಳಿಸಿದ) ---------- -->
+  <div id="toast" class="no-print"></div>
+
   <div class="toolbar no-print">
-    <h1>ಪೂಜಾ ದಾಖಲೆ 2025</h1>
+    <h1>ಪೂಜಾ ದಾಖಲೆ <span id="yearLabel">2025</span></h1>
+    <select class="jump" id="yearSel" title="ವರ್ಷ ಆಯ್ಕೆ" style="max-width:110px"></select>
+    <button class="tb primary" onclick="setupYear()" title="ಹೊಸ ವರ್ಷ ಸೇರಿಸಿ">📅 ಹೊಸ ವರ್ಷ</button>
     <select class="jump" id="jump" title="ಮಾಗಣೆಗೆ ಹೋಗಿ"></select>
     <span class="spacer"></span>
     <span class="hint" id="status"></span>
-    <button class="tb" onclick="addRegion()">+ ಮಾಗಣೆ</button>
+    <button class="tb edit-only" onclick="addRegion()">+ ಮಾಗಣೆ</button>
     <button class="tb" onclick="exportJSON()">JSON ಉಳಿಸು</button>
-    <button class="tb" onclick="document.getElementById('imp').click()">JSON ತೆರೆ</button>
+    <button class="tb edit-only" onclick="document.getElementById('imp').click()">JSON ತೆರೆ</button>
     <input id="imp" type="file" accept="application/json" style="display:none" onchange="importJSON(this)">
-    <button class="tb warn" onclick="resetAll()">ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
+    <button class="tb warn edit-only" onclick="resetAll()">ಮೂಲಕ್ಕೆ ಮರಳಿ</button>
     <button class="tb" onclick="window.print()">ಮುದ್ರಣ (Ctrl+P)</button>
     <button class="tb primary" onclick="downloadPDF(this)">PDF ಡೌನ್‌ಲೋಡ್</button>
+    <button class="tb" id="authBtn" onclick="toggleAuth()">ಲಾಗಿನ್</button>
   </div>
 
   <div id="sheet"></div>
 
+  <!-- Firebase (ಕ್ಲೌಡ್ ಸಿಂಕ್) — compat SDK, ಜಾಗತಿಕ `firebase` ಒದಗಿಸುತ್ತದೆ -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
   <script src="data.js"></script>
   <script>
-  /* ===================== ಸ್ಥಿತಿ (state) ===================== */
-  const LS_KEY = "poojaRecord2025";
-  let state = load();
+  /* ===================== Firebase ಸಂರಚನೆ (config) ===================== */
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7_0pAUvA_lF6rCYw2xuS8VBGGO4Bm97s",
+    authDomain: "upralliseva.firebaseapp.com",
+    projectId: "upralliseva",
+    storageBucket: "upralliseva.firebasestorage.app",
+    messagingSenderId: "815987668986",
+    appId: "1:815987668986:web:37bcfc3388061f82afd643"
+  };
 
-  function load(){
-    try{
-      const saved = localStorage.getItem(LS_KEY);
-      if(saved) return JSON.parse(saved);
-    }catch(e){}
-    return structuredClone(window.SEED);
+  /* 👉 ಸಂಪಾದಿಸಬಹುದಾದವರ Gmail ವಿಳಾಸಗಳು (whitelist).
+     ಖಾಲಿ ಬಿಟ್ಟರೆ — ಲಾಗಿನ್ ಆದ ಯಾರಾದರೂ ಸಂಪಾದಿಸಬಹುದು (Firestore rules ರಕ್ಷಿಸುತ್ತದೆ).
+     ಭದ್ರತೆಯ ನಿಜವಾದ ಜಾರಿ Firestore rules ನಲ್ಲಿ — ಇದು ಬರೀ UI ಗೇಟ್. */
+  const ALLOWED_EDITORS = [
+    "thanthrajnaani@gmail.com",
+  ];
+
+  const CLOUD = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE");
+  let db=null, auth=null, DOC=null, unsub=null;
+  if(CLOUD){
+    firebase.initializeApp(firebaseConfig);
+    db   = firebase.firestore();
+    auth = firebase.auth();
   }
+
+  /* ===================== ವರ್ಷ + ಸ್ಥಿತಿ (year & state) ===================== */
+  const YEAR_KEY = "poojaYear";
+  const TITLE_FOR = y => y + "ರಲ್ಲಿ ಹೂವಿನ ಪೂಜೆ, ವಿಶ್ವಕರ್ಮ ಪೂಜೆ, ನವರಾತ್ರಿ ಪೂಜೆ ಮಾಡಿಸಿದವರು";
+
+  let currentYear = parseInt(localStorage.getItem(YEAR_KEY),10) || 2025;
+  let canEdit = false;            // ಲಾಗಿನ್ + whitelist ಆದಾಗ ಮಾತ್ರ true
+  let docExists = undefined;      // ಆಯ್ದ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಇದೆಯೇ
+  let lastRemoteJSON = null;      // ನಮ್ಮದೇ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಬಿಟ್ಟುಬಿಡಲು
+  let state = loadLocalYear() || yearTemplate(currentYear);
+
+  const lsKey = () => "poojaRecord_" + currentYear;
+
+  function seedYear(){
+    const m = String(window.SEED.title||"").match(/(\d{4})/);
+    return m ? parseInt(m[1],10) : null;
+  }
+  /* ಹೊಸ ವರ್ಷಕ್ಕೆ ಟೆಂಪ್ಲೇಟ್ — ಮಾಗಣೆ/ಹೆಸರು (data.js) ಪೂರ್ವಭರ್ತಿ.
+     data.js ನ ಮೂಲ ವರ್ಷಕ್ಕೆ ಅದರ ಆಯ್ಕೆಗಳನ್ನು ಉಳಿಸಿಕೊಳ್ಳುತ್ತದೆ;
+     ಬೇರೆ ವರ್ಷಕ್ಕೆ ಪೂಜಾ ಆಯ್ಕೆ ಖಾಲಿಯಾಗಿ ಆರಂಭ. */
+  function yearTemplate(year){
+    const t = structuredClone(window.SEED);
+    t.title = TITLE_FOR(year);
+    t.year  = year;
+    if(year !== seedYear()){
+      t.regions.forEach(r => r.families.forEach(f => { f.c = "00000"; }));
+    }
+    return t;
+  }
+
+  function loadLocalYear(){
+    try{ const s=localStorage.getItem("poojaRecord_"+currentYear); return s?JSON.parse(s):null; }
+    catch(e){ return null; }
+  }
+  function saveLocalYear(){ try{ localStorage.setItem(lsKey(), JSON.stringify(state)); }catch(e){} }
+
   let saveTimer=null;
   function save(){
+    saveLocalYear();                               // ಯಾವಾಗಲೂ ಸ್ಥಳೀಯ ಪ್ರತಿ
     clearTimeout(saveTimer);
     saveTimer=setTimeout(()=>{
-      try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); flash("✓ ಉಳಿಸಲಾಗಿದೆ"); }
-      catch(e){ flash("⚠ ಉಳಿಸಲಾಗಲಿಲ್ಲ"); }
-    },350);
+      if(CLOUD && canEdit && auth.currentUser) pushNow();
+      else { flash("✓ ಈ ಸಾಧನದಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ"); saveResult(true); }
+    },500);
+  }
+  /* state → Firestore ರಚನಾತ್ಮಕ ದಾಖಲೆ (native fields/objects, JSON string ಅಲ್ಲ) */
+  function toDoc(){
+    return {
+      title:   state.title,
+      columns: state.columns,
+      year:    currentYear,
+      regions: state.regions.map(r => ({
+        no: r.no, name: r.name, phone: r.phone || "",
+        families: (r.families||[]).map(f => ({ n: f.n || "", c: f.c || "00000" }))
+      }))
+    };
+  }
+  /* Firestore ದಾಖಲೆ → state (ಪ್ರತಿಧ್ವನಿ ಪತ್ತೆಗೆ ಸಹಿ/signature ಬಳಸುತ್ತೇವೆ) */
+  function fromDoc(d){
+    return {
+      title:   d.title || TITLE_FOR(currentYear),
+      columns: d.columns || structuredClone(window.SEED.columns),
+      year:    d.year || currentYear,
+      regions: (d.regions || []).map(r => ({
+        no: r.no, name: r.name, phone: r.phone || "",
+        families: (r.families||[]).map(f => ({ n: f.n || "", c: f.c || "00000" }))
+      }))
+    };
+  }
+  const sigOf = obj => JSON.stringify({title:obj.title, columns:obj.columns, regions:obj.regions});
+
+  function pushNow(){
+    if(!(CLOUD && auth && auth.currentUser && DOC)) return;
+    const doc = toDoc();
+    lastRemoteJSON = sigOf(doc);                    // ನಮ್ಮ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು
+    DOC.set(Object.assign({}, doc, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }))
+      .then(()=>{ flash("✓ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
+      .catch(err=>{ flash("⚠ ಕ್ಲೌಡ್ ಉಳಿಸಲಾಗಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });
   }
   function flash(msg){ const s=document.getElementById('status'); s.textContent=msg; }
+
+  /* ===================== ಟೋಸ್ಟ್ (ಸ್ಪಷ್ಟ ಸೂಚನೆ) ===================== */
+  let _toastTimer=null;
+  function toast(msg, kind, ms){
+    const t=document.getElementById('toast'); if(!t) return;
+    t.textContent=msg;
+    t.className="no-print show "+(kind||"info");
+    clearTimeout(_toastTimer);
+    _toastTimer=setTimeout(()=>{ t.classList.remove('show'); }, ms||2200);
+  }
+  /* ಒಂದು ಕ್ರಿಯೆ (ಚೆಕ್/ಸಾಲು/ಮಾಗಣೆ) ಆದ ಮೇಲೆ ಉಳಿತಾಯ ಫಲಿತಾಂಶ ತೋರಿಸಲು */
+  let pendingSaveMsg=null;
+  function notifyAction(prefix, kind){
+    pendingSaveMsg = prefix;
+    toast(prefix+" • ಉಳಿಸಲಾಗುತ್ತಿದೆ…", kind||"info", 6000);
+  }
+  function saveResult(ok){
+    if(pendingSaveMsg==null) return;
+    if(ok) toast(pendingSaveMsg+" • ✓ ಉಳಿಸಲಾಗಿದೆ", "ok", 1800);
+    else   toast(pendingSaveMsg+" • ⚠ ಉಳಿಯಲಿಲ್ಲ — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ", "warn", 4000);
+    pendingSaveMsg=null;
+  }
+
+  /* ===================== ಮೋಡಲ್ (alert / confirm / prompt ಬದಲಿಗೆ) ===================== */
+  const _modal = { wrap:null, resolve:null, mode:"alert" };
+  function modalInit(){
+    _modal.wrap = document.getElementById('modal');
+    document.getElementById('modalOk').onclick = ()=>modalClose(true);
+    document.getElementById('modalCancel').onclick = ()=>modalClose(false);
+    document.getElementById('modalInput').addEventListener('keydown', e=>{
+      if(e.key==="Enter"){ e.preventDefault(); modalClose(true); }
+    });
+    _modal.wrap.addEventListener('keydown', e=>{ if(e.key==="Escape") modalClose(false); });
+    _modal.wrap.addEventListener('mousedown', e=>{ if(e.target===_modal.wrap) modalClose(false); });
+  }
+  function modalOpen(opts){
+    return new Promise(res=>{
+      _modal.resolve = res; _modal.mode = opts.mode;
+      document.getElementById('modalTitle').textContent = opts.title||"";
+      document.getElementById('modalBody').textContent  = opts.body||"";
+      const inp = document.getElementById('modalInput');
+      if(opts.mode==="prompt"){ inp.style.display="block"; inp.value = opts.value!=null?opts.value:""; }
+      else { inp.style.display="none"; }
+      document.getElementById('modalCancel').style.display = (opts.mode==="alert") ? "none" : "";
+      document.getElementById('modalOk').textContent = opts.ok || "ಸರಿ";
+      _modal.wrap.classList.add('open');
+      setTimeout(()=>{
+        if(opts.mode==="prompt"){ inp.focus(); inp.select(); }
+        else document.getElementById('modalOk').focus();
+      }, 40);
+    });
+  }
+  function modalClose(ok){
+    if(!_modal.resolve) return;
+    const inp = document.getElementById('modalInput');
+    const r = _modal.resolve; _modal.resolve = null;
+    _modal.wrap.classList.remove('open');
+    if(_modal.mode==="prompt") r(ok ? inp.value : null);
+    else r(!!ok);
+  }
+  const uiAlert   = (body,title)        => modalOpen({mode:"alert",   body, title});
+  const uiConfirm = (body,title)        => modalOpen({mode:"confirm", body, title});
+  const uiPrompt  = (body,value,title)  => modalOpen({mode:"prompt",  body, value, title});
+
+  function isEditingNow(){
+    const a=document.activeElement;
+    return a && sheet.contains(a) && (a.isContentEditable || a.type==="checkbox");
+  }
 
   /* ===================== ಸಹಾಯಕಗಳು ===================== */
   const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
@@ -160,8 +450,9 @@
     const cols = state.columns;
     let total = state.regions.reduce((n,r)=>n+r.families.length,0);
 
+    const ce = canEdit ? "contenteditable" : "";
     let html = `
-      <div class="doc-title" contenteditable data-t="title">${esc(state.title)}</div>
+      <div class="doc-title" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">
         ಕಾಲಂಗಳು: <b>${cols.map(esc).join(" · ")}</b>
         &nbsp;|&nbsp; ✓ = ಪೂಜೆ ಮಾಡಿಸಿದ್ದಾರೆ &nbsp;|&nbsp; ${state.regions.length} ಮಾಗಣೆ · ${total} ಹೆಸರು
@@ -170,12 +461,12 @@
     state.regions.forEach((r,ri)=>{
       html += `<div class="region" id="reg-${ri}">
         <div class="region-head">
-          <span class="no" contenteditable data-r="${ri}" data-f="no">${esc(r.no)}</span>
-          <span class="rname" contenteditable data-r="${ri}" data-f="name">${esc(r.name)}</span>
-          <span class="rphone" contenteditable data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
-          <button class="tb warn no-print" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
+          <span class="no" ${ce} data-r="${ri}" data-f="no">${esc(r.no)}</span>
+          <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
+          <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
+          <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
         </div>
-        <table>
+        <div class="tbl"><table>
           <thead><tr>
             <th class="c-no">ಕ್ರ.</th>
             <th class="c-name">ಹೆಸರು / ವಿಳಾಸ</th>
@@ -191,20 +482,29 @@
           const ck = checks(f.c);
           html += `<tr>
             <td class="c-no">${fi+1}</td>
-            <td class="c-name"><div contenteditable data-r="${ri}" data-f="${fi}" data-k="n">${esc(f.n)}</div></td>
-            ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" data-r="${ri}" data-f="${fi}" data-c="${ci}" ${on?"checked":""}></td>`).join("")}
-            <td class="c-del no-print"><button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="delRow(${ri},${fi})">✕</button></td>
+            <td class="c-name"><div ${ce} data-r="${ri}" data-f="${fi}" data-k="n">${esc(f.n)}</div></td>
+            ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" data-r="${ri}" data-f="${fi}" data-c="${ci}" ${on?"checked":""} ${canEdit?"":"disabled"}></td>`).join("")}
+            <td class="c-del no-print edit-only"><button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="delRow(${ri},${fi})">✕</button></td>
           </tr>`;
         });
       }
 
-      html += `</tbody></table>
-        <div class="rowctrl no-print"><button onclick="addRow(${ri})">+ ಹೆಸರು ಸೇರಿಸಿ</button></div>
+      html += `</tbody></table></div>
+        <div class="rowctrl no-print edit-only"><button onclick="addRow(${ri})">+ ಹೆಸರು ಸೇರಿಸಿ</button></div>
       </div>`;
     });
 
     document.getElementById('sheet').innerHTML = html;
     buildJump();
+    updateYearUI();
+  }
+
+  function updateYearUI(){
+    const yl=document.getElementById('yearLabel');
+    if(yl) yl.textContent = currentYear;
+    const sel=document.getElementById('yearSel');
+    if(sel && sel.value!==String(currentYear)) sel.value=String(currentYear);
+    document.title = "ಪೂಜಾ ದಾಖಲೆ " + currentYear;
   }
 
   function buildJump(){
@@ -237,19 +537,24 @@
     const fam=state.regions[ri].families[fi];
     const arr=checks(fam.c); arr[ci]=e.target.checked;
     fam.c=arr.map(b=>b?"1":"0").join("");
+    const col = (state.columns[ci]||"").trim();
+    const person = (fam.n||"").split(",")[0].trim();        // ಹೆಸರು (ಮೊದಲ ಭಾಗ)
+    if(e.target.checked) notifyAction("✓ "+col+" ಸೇರಿಸಲಾಗಿದೆ"+(person?" — "+person:""), "ok");
+    else                 notifyAction("✗ "+col+" ತೆಗೆಯಲಾಗಿದೆ"+(person?" — "+person:""), "warn");
     save();
   });
 
   /* ===================== ಸಾಲು/ಮಾಗಣೆ ಕ್ರಿಯೆಗಳು ===================== */
-  function addRow(ri){ state.regions[ri].families.push({n:"",c:"00000"}); save(); render(); }
-  function delRow(ri,fi){ state.regions[ri].families.splice(fi,1); save(); render(); }
-  function delRegion(ri){
-    if(!confirm(`“${state.regions[ri].name}” ಮಾಗಣೆಯನ್ನು ಅಳಿಸಬೇಕೆ?`)) return;
-    state.regions.splice(ri,1); save(); render();
+  function addRow(ri){ state.regions[ri].families.push({n:"",c:"00000"}); notifyAction("➕ ಹೊಸ ಸಾಲು ಸೇರಿಸಲಾಗಿದೆ","ok"); save(); render(); }
+  function delRow(ri,fi){ state.regions[ri].families.splice(fi,1); notifyAction("🗑 ಸಾಲು ತೆಗೆಯಲಾಗಿದೆ","warn"); save(); render(); }
+  async function delRegion(ri){
+    if(!(await uiConfirm(`“${state.regions[ri].name}” ಮಾಗಣೆಯನ್ನು ಅಳಿಸಬೇಕೆ?`, "ಮಾಗಣೆ ಅಳಿಸಿ"))) return;
+    state.regions.splice(ri,1); notifyAction("🗑 ಮಾಗಣೆ ತೆಗೆಯಲಾಗಿದೆ","warn"); save(); render();
   }
   function addRegion(){
     const no = state.regions.length? (parseInt(state.regions[state.regions.length-1].no)||state.regions.length)+1 : 1;
     state.regions.push({no:no, name:"ಹೊಸ ಮಾಗಣೆ", phone:"", families:[]});
+    notifyAction("➕ ಹೊಸ ಮಾಗಣೆ ಸೇರಿಸಲಾಗಿದೆ","ok");
     save(); render();
     document.getElementById('reg-'+(state.regions.length-1)).scrollIntoView({behavior:"smooth"});
   }
@@ -258,19 +563,19 @@
   function exportJSON(){
     const blob=new Blob([JSON.stringify(state,null,1)],{type:"application/json"});
     const a=document.createElement('a');
-    a.href=URL.createObjectURL(blob); a.download="pooja-dakhale-2025.json"; a.click();
+    a.href=URL.createObjectURL(blob); a.download="pooja-dakhale-"+currentYear+".json"; a.click();
     URL.revokeObjectURL(a.href);
   }
   function importJSON(input){
     const file=input.files[0]; if(!file) return;
     const rd=new FileReader();
     rd.onload=()=>{ try{ state=JSON.parse(rd.result); save(); render(); flash("✓ ಆಮದಾಯಿತು"); }
-      catch(e){ alert("ಸರಿಯಾದ JSON ಕಡತವಲ್ಲ"); } input.value=""; };
+      catch(e){ uiAlert("ಸರಿಯಾದ JSON ಕಡತವಲ್ಲ", "ದೋಷ"); } input.value=""; };
     rd.readAsText(file);
   }
-  function resetAll(){
-    if(!confirm("ಎಲ್ಲ ಬದಲಾವಣೆಗಳನ್ನು ಅಳಿಸಿ ಮೂಲ ದತ್ತಾಂಶಕ್ಕೆ ಮರಳಬೇಕೆ?")) return;
-    localStorage.removeItem(LS_KEY); state=structuredClone(window.SEED); render(); flash("ಮೂಲಕ್ಕೆ ಮರಳಿದೆ");
+  async function resetAll(){
+    if(!(await uiConfirm(currentYear+" ವರ್ಷದ ಎಲ್ಲ ಪೂಜಾ ಆಯ್ಕೆಗಳನ್ನು ಅಳಿಸಿ ಪೂರ್ವಭರ್ತಿ ಪಟ್ಟಿಗೆ ಮರಳಬೇಕೆ?", "ಮೂಲಕ್ಕೆ ಮರಳಿ"))) return;
+    state=yearTemplate(currentYear); save(); render(); flash("ಪೂರ್ವಭರ್ತಿ ಪಟ್ಟಿಗೆ ಮರಳಿದೆ");
   }
 
   /* ===================== PDF ಡೌನ್‌ಲೋಡ್ (ಬ್ರೌಸರ್‌ನ ಸ್ವಂತ ಮುದ್ರಣ) =====================
@@ -289,15 +594,140 @@
       if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
       window.print();
     }catch(err){
-      alert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → \"Save as PDF\" ಬಳಸಿ.");
+      uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → \"Save as PDF\" ಬಳಸಿ.", "ದೋಷ");
     }finally{
       document.body.classList.remove('exporting');
       btn.disabled=false; btn.textContent=old;
     }
   }
 
+  /* ===================== ವರ್ಷ ಹೊಂದಿಸಿ (setup year) =====================
+     ಬಳಕೆದಾರ ವರ್ಷ ನಮೂದಿಸುತ್ತಾರೆ → ಆ ವರ್ಷದ ದತ್ತಾಂಶ ತೋರಿಸುತ್ತದೆ.
+     ಆ ವರ್ಷ ಇನ್ನೂ ಇಲ್ಲದಿದ್ದರೆ — ಮಾಗಣೆ/ಹೆಸರು ಪೂರ್ವಭರ್ತಿಯಾದ ಹೊಸ ಟೆಂಪ್ಲೇಟ್
+     (ಪೂಜಾ ಆಯ್ಕೆ ಖಾಲಿ) ಸಿದ್ಧವಾಗುತ್ತದೆ; ಲಾಗಿನ್ ಆದವರು ಪೂಜೆ ಆಯ್ಕೆ ಮಾಡಬಹುದು. */
+  function switchToYear(year){
+    currentYear = year;
+    localStorage.setItem(YEAR_KEY, String(year));
+    state = loadLocalYear() || yearTemplate(year);   // ತಕ್ಷಣ ತೋರಿಸಲು (ಕ್ಲೌಡ್ ಬಂದ ಮೇಲೆ ನವೀಕರಣ)
+    lastRemoteJSON = null;
+    render();
+    subscribeYear();                                 // ಆ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆಗೆ ಸಂಪರ್ಕ
+    flash("ವರ್ಷ "+year+" ಆಯ್ಕೆಯಾಗಿದೆ");
+    loadYears();
+  }
+  async function setupYear(){
+    const inp = await uiPrompt("ಹೊಸ ವರ್ಷ ನಮೂದಿಸಿ (ಉದಾ. 2027):", String(currentYear+1), "ಹೊಸ ವರ್ಷ");
+    if(inp===null) return;
+    const year = parseInt(String(inp).trim(),10);
+    if(!year || year<2000 || year>2100){ await uiAlert("ಸರಿಯಾದ ವರ್ಷ ನಮೂದಿಸಿ (2000–2100).", "ತಪ್ಪು ವರ್ಷ"); return; }
+    switchToYear(year);
+  }
+
+  /* ಕ್ಲೌಡ್‌ನಲ್ಲಿರುವ ಎಲ್ಲ ವರ್ಷಗಳ ಪಟ್ಟಿಯನ್ನು dropdown ನಲ್ಲಿ ತೋರಿಸು */
+  function loadYears(){
+    const sel=document.getElementById('yearSel');
+    if(!sel) return;
+    const fill = years=>{
+      if(!years.includes(currentYear)) years.push(currentYear);
+      years.sort((a,b)=>b-a);
+      sel.innerHTML = years.map(y=>`<option value="${y}" ${y===currentYear?"selected":""}>${y}</option>`).join("");
+    };
+    if(!CLOUD){ fill([currentYear]); return; }
+    db.collection("pooja").get()
+      .then(snap=> fill(snap.docs.map(d=>parseInt(d.id,10)).filter(Boolean)))
+      .catch(()=> fill([currentYear]));
+    sel.onchange = ()=>{ const y=parseInt(sel.value,10); if(y && y!==currentYear) switchToYear(y); };
+  }
+
+  /* ===================== ಲಾಗಿನ್ / ಲಾಗ್‌ಔಟ್ (Google) =====================
+     whitelist ಮೂಲ: Firestore "editors" ಸಂಗ್ರಹ — ದಾಖಲೆ ID = ಇಮೇಲ್ ವಿಳಾಸ.
+     (ಮೇಲಿನ ALLOWED_EDITORS ಬರೀ ಬ್ಯಾಕಪ್/bootstrap.) */
+  async function checkEditor(u){
+    if(!u) return false;
+    const email=(u.email||"").toLowerCase();
+    if(ALLOWED_EDITORS.map(e=>e.toLowerCase()).includes(email)) return true;
+    try{ const d = await db.collection("editors").doc(email).get(); return d.exists; }
+    catch(e){ return false; }
+  }
+  function setLoginMsg(err, checking){
+    const e=document.getElementById('loginErr'); if(e) e.textContent=err||"";
+    const c=document.getElementById('loginChecking'); if(c) c.textContent=checking||"";
+  }
+  function toggleAuth(){
+    if(!CLOUD){ uiAlert("ಕ್ಲೌಡ್ ಸಂರಚಿಸಿಲ್ಲ.", "ದೋಷ"); return; }
+    if(auth.currentUser){ auth.signOut().then(()=>flash("ಲಾಗ್‌ಔಟ್ ಆಯಿತು")); return; }
+    setLoginMsg("", "ಲಾಗಿನ್ ಆಗುತ್ತಿದೆ…");
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+      .catch(err=>{
+        setLoginMsg(err.code==="auth/popup-closed-by-user" ? "" : ("ಲಾಗಿನ್ ವಿಫಲ: "+(err.code||err.message)), "");
+      });
+  }
+  function updateAuthUI(u){
+    const btn=document.getElementById('authBtn');
+    document.body.classList.toggle('editing', canEdit);
+    if(btn) btn.textContent = u ? ("ಲಾಗ್‌ಔಟ್ ("+(u.email||"")+")") : "Google ಲಾಗಿನ್";
+  }
+
+  /* ===================== ಕ್ಲೌಡ್ ಸಿಂಕ್ (ವರ್ಷವಾರು) ===================== */
+  function subscribeYear(){
+    if(!CLOUD) return;
+    if(unsub){ unsub(); unsub=null; }
+    docExists = undefined;
+    DOC = db.collection("pooja").doc(String(currentYear));   // pooja/2025, pooja/2026, ...
+
+    unsub = DOC.onSnapshot(snap=>{
+      docExists = snap.exists;
+      if(!snap.exists){
+        // ಆ ವರ್ಷ ಇನ್ನೂ ಇಲ್ಲ — ಪೂರ್ವಭರ್ತಿ ಟೆಂಪ್ಲೇಟ್ ತೋರಿಸು; ಲಾಗಿನ್ ಆದವರಿದ್ದರೆ ರಚಿಸು
+        state = loadLocalYear() || yearTemplate(currentYear);
+        saveLocalYear();
+        if(canEdit) pushNow();
+        render();
+        return;
+      }
+      const incoming = fromDoc(snap.data());        // ರಚನಾತ್ಮಕ ದಾಖಲೆ → state
+      const sig = sigOf(incoming);
+      if(sig !== lastRemoteJSON){
+        lastRemoteJSON = sig;
+        state = incoming;
+        saveLocalYear();
+        if(!isEditingNow()) render();   // ಬರೆಯುತ್ತಿರುವಾಗ ಕರ್ಸರ್ ಕಳೆದುಹೋಗದಂತೆ
+      }
+    }, err=>flash("⚠ ಕ್ಲೌಡ್ ಸಂಪರ್ಕ ದೋಷ: "+(err.code||err.message)));
+  }
+
+  function startCloud(){
+    if(!CLOUD){ document.body.classList.add('authed'); setLoginMsg("ಕ್ಲೌಡ್ ಸಂರಚಿಸಿಲ್ಲ.",""); return; }
+    auth.onAuthStateChanged(async u=>{
+      canEdit = await checkEditor(u);
+      if(u && !canEdit){                              // ಲಾಗಿನ್ ಆಗಿದೆ ಆದರೆ whitelist ನಲ್ಲಿಲ್ಲ
+        document.body.classList.remove('authed');
+        setLoginMsg("“"+(u.email||"")+"” ಗೆ ಅನುಮತಿ ಇಲ್ಲ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.", "");
+        updateAuthUI(null);
+        auth.signOut();
+        return;
+      }
+      document.body.classList.toggle('authed', canEdit);
+      const c=document.getElementById('loginChecking'); if(c) c.textContent="";   // "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…" ಅಳಿಸು
+      if(canEdit){
+        const e=document.getElementById('loginErr'); if(e) e.textContent="";      // ಲಾಗಿನ್ ಆದಾಗ ಮಾತ್ರ ದೋಷ ಅಳಿಸು
+      }
+      updateAuthUI(u);
+      render();
+      if(canEdit){
+        subscribeYear();                              // ಲಾಗಿನ್ ಆದ ಮೇಲೆ ದತ್ತಾಂಶ ಲೋಡ್ / ಆಲಿಸು
+        loadYears();                                  // ವರ್ಷಗಳ dropdown ತುಂಬಿಸು
+      } else if(unsub){
+        unsub(); unsub=null;                          // ಲಾಗ್‌ಔಟ್ — ಆಲಿಸುವಿಕೆ ನಿಲ್ಲಿಸು
+      }
+    });
+  }
+
   /* ===================== ಆರಂಭ ===================== */
+  modalInit();
   render();
+  startCloud();
   </script>
 </body>
 </html>

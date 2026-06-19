@@ -1,0 +1,9 @@
+# ನಕಲಿಸಿ → key.properties ಆಗಿ ಉಳಿಸಿ (ಇದನ್ನು git ಗೆ ಸೇರಿಸಬೇಡಿ).
+# ಒಮ್ಮೆ keystore ರಚಿಸಿ (README "Releasing updates" ನೋಡಿ), ನಂತರ ಇಲ್ಲಿ ಭರ್ತಿ ಮಾಡಿ:
+
+storePassword=YOUR_STORE_PASSWORD
+keyPassword=YOUR_KEY_PASSWORD
+keyAlias=upralli
+# keystore ಫೈಲ್ ಮಾರ್ಗ (android/app/ ಗೆ ಸಾಪೇಕ್ಷ, ಅಥವಾ ಪೂರ್ಣ ಮಾರ್ಗ).
+# ಸಲಹೆ: keystore ಅನ್ನು android/ ಒಳಗೆ ಇಡಿ → storeFile=../upralli-release.jks
+storeFile=../upralli-release.jks

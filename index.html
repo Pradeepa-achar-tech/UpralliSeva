@@ -217,7 +217,17 @@
   .region.collapsed .rtoggle{ transform:rotate(-90deg); }
   .region.collapsed .tbl, .region.collapsed .rowctrl{ display:none; }
   .rcount{ font-size:11px; background:var(--accent-soft); color:var(--accent-dark); padding:1px 9px; border-radius:10px; white-space:nowrap; font-weight:700; }
-  @media print{ .region.collapsed .tbl{ display:block !important; } }
+  .rmenu-btn{ border:1px solid var(--card-line); background:#fff; color:#444; cursor:pointer; font-size:18px; line-height:1; font-weight:700; width:30px; height:30px; border-radius:8px; flex-shrink:0; }
+  .rmenu-btn:hover{ background:#f3f4f6; }
+  .rmenu{ position:fixed; z-index:130; display:none; min-width:200px; background:#fff; color:var(--ink); border:1px solid var(--card-line); border-radius:12px; box-shadow:0 16px 40px rgba(16,24,40,.28); padding:6px; }
+  .rmenu.open{ display:block; animation:modalpop .12s ease; }
+  .rmenu button{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:none; background:transparent; cursor:pointer; padding:11px 12px; border-radius:9px; font-family:inherit; font-size:14px; color:var(--ink); }
+  .rmenu button:hover{ background:var(--accent-soft); }
+  @media print{
+    .region.collapsed .tbl{ display:block !important; }
+    /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಉಳಿದವು ಮರೆ */
+    body.print-one .region:not(.print-target){ display:none !important; }
+  }
 
   /* ---------- ಸುಂದರ ಮಾಗಣೆ dropdown (custom) ---------- */
   .mpick{ position:relative; }
@@ -354,6 +364,9 @@
 
   <!-- ---------- ಟೋಸ್ಟ್ (ಸ್ಪಷ್ಟ ಸೂಚನೆ — ಸೇರಿಸಿದ/ತೆಗೆದ/ಉಳಿಸಿದ) ---------- -->
   <div id="toast" class="no-print"></div>
+
+  <!-- ---------- ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF / WhatsApp) ---------- -->
+  <div id="rmenu" class="rmenu no-print"></div>
 
   <div id="app">
     <!-- ===== ಎಡ ಸೈಡ್‌ಬಾರ್ (admin dashboard) ===== -->
@@ -625,6 +638,7 @@
           <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
           <span class="rcount no-print">${r.families.length}</span>
           <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
+          <button class="rmenu-btn no-print" title="ಆಯ್ಕೆಗಳು (PDF / WhatsApp)" onclick="regionMenu(event,${ri})">⋮</button>
           <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
         </div>
         <div class="tbl"><table>
@@ -674,6 +688,41 @@
     if(!el) return;
     if(openRegions.has(ri)){ openRegions.delete(ri); el.classList.add('collapsed'); }
     else { openRegions.add(ri); el.classList.remove('collapsed'); }
+  }
+
+  /* ಮಾಗಣೆ ಸಂದರ್ಭ ಮೆನು (PDF / WhatsApp) */
+  function regionMenu(ev, ri){
+    ev.stopPropagation();
+    const m=document.getElementById('rmenu');
+    m.innerHTML =
+      `<button onclick="closeRMenu();shareRegion(${ri})">📄 PDF ಡೌನ್‌ಲೋಡ್</button>`+
+      `<button onclick="closeRMenu();shareRegionWA(${ri})">🟢 WhatsApp ಹಂಚಿಕೆ</button>`;
+    const r=ev.currentTarget.getBoundingClientRect();
+    m.style.top=(r.bottom+5)+'px';
+    m.style.left=Math.max(8, Math.min(r.right-200, window.innerWidth-208))+'px';
+    m.classList.add('open');
+  }
+  function closeRMenu(){ const m=document.getElementById('rmenu'); if(m) m.classList.remove('open'); }
+  document.addEventListener('click', e=>{
+    const m=document.getElementById('rmenu');
+    if(m && m.classList.contains('open') && !m.contains(e.target) && !(e.target.classList&&e.target.classList.contains('rmenu-btn'))) closeRMenu();
+  });
+  function shareRegionWA(ri){
+    toast("PDF ಉಳಿಸಿ → WhatsApp ನಲ್ಲಿ ಲಗತ್ತಿಸಿ ಕಳುಹಿಸಿ", "info", 3500);
+    shareRegion(ri);
+  }
+
+  /* ಒಂದೇ ಮಾಗಣೆಯನ್ನು PDF ಆಗಿ ಮುದ್ರಿಸಿ/ಹಂಚಿಕೊಳ್ಳಿ (ಬೇರೆ ಮಾಗಣೆ ಮರೆ) */
+  function shareRegion(ri){
+    const target=document.getElementById('reg-'+ri);
+    if(!target) return;
+    if(!openRegions.has(ri)) toggleRegion(ri);     // ಮುಚ್ಚಿದ್ದರೆ ತೆರೆ
+    target.classList.add('print-target');
+    document.body.classList.add('print-one');
+    const cleanup=()=>{ document.body.classList.remove('print-one'); target.classList.remove('print-target'); window.removeEventListener('afterprint',cleanup); };
+    window.addEventListener('afterprint', cleanup);
+    const go=()=>window.print();
+    if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
   }
 
   /* ✓ ಬದಲಾದಾಗ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ಎಣಿಕೆ ತಕ್ಷಣ ನವೀಕರಣ (full re-render ಇಲ್ಲದೆ) */
@@ -839,8 +888,31 @@
     if(inp===null) return;
     const year = parseInt(String(inp).trim(),10);
     if(!year || year<2000 || year>2100){ await uiAlert("ಸರಿಯಾದ ವರ್ಷ ನಮೂದಿಸಿ (2000–2100).", "ತಪ್ಪು ವರ್ಷ"); return; }
-    draftYear = year;   // ಇನ್ನೂ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇಲ್ಲದಿದ್ದರೂ dropdown ನಲ್ಲಿ ತೋರಿಸಲು
+    // ಕ್ಲೌಡ್‌ನಲ್ಲಿರುವ ವರ್ಷಗಳು
+    let cloudYears=[];
+    if(CLOUD && db){ try{ const s=await db.collection("pooja").get(); cloudYears=s.docs.map(d=>parseInt(d.id,10)).filter(Boolean); }catch(e){} }
+    const exists = cloudYears.includes(year);
+    draftYear = year;
     switchToYear(year);
+    if(exists) return;                // ಈಗಾಗಲೇ ಇದೆ — ಮೇಲ್ಬರಹ ಮಾಡಬೇಡ
+    if(!(CLOUD && canEdit)){ await uiAlert("ಹೊಸ ವರ್ಷ ರಚಿಸಲು ಲಾಗಿನ್ ಆಗಿರಬೇಕು.", "ದೋಷ"); return; }
+    // ಇತ್ತೀಚಿನ ವರ್ಷದ ರಚನೆ (ಮಾಗಣೆ + ಹೆಸರುಗಳು) ನಕಲಿಸಿ — ಪೂಜಾ ಆಯ್ಕೆ ಖಾಲಿ
+    const prev = cloudYears.filter(y=>y!==year).sort((a,b)=>b-a);
+    let base=null;
+    if(prev.length && db){
+      try{ const d=await db.collection("pooja").doc(String(prev[0])).get(); if(d.exists) base=fromDoc(d.data()); }catch(e){}
+    }
+    if(base){
+      base.regions.forEach(r=>r.families.forEach(f=>{ f.c="00000"; }));   // ಆಯ್ಕೆ ಖಾಲಿ
+      base.title = TITLE_FOR(year); base.year = year;
+      state = base;
+    } else {
+      state = yearTemplate(year);     // ಮೊದಲ ವರ್ಷ — data.js seed
+    }
+    saveLocalYear();
+    render();
+    pushNow();                        // ಕ್ಲೌಡ್‌ನಲ್ಲಿ ತಕ್ಷಣ ರಚಿಸು — ಎಲ್ಲ ಬಳಕೆದಾರರಿಗೆ ಗೋಚರ
+    toast("📅 ವರ್ಷ "+year+" ರಚಿಸಲಾಗಿದೆ (ಹಿಂದಿನ ವರ್ಷದ ಪಟ್ಟಿ, ಖಾಲಿ ಆಯ್ಕೆ)", "ok");
   }
 
   /* dropdown = ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇರುವ ವರ್ಷಗಳು (+ ರಚಿಸುತ್ತಿರುವ draft ವರ್ಷ).

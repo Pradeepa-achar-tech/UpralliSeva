@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../main.dart';
 import '../models.dart';
+import '../pdf_service.dart';
 
 /// ಒಂದು ಮಾಗಣೆಯ ಹೆಸರುಗಳು — ಪ್ರತಿ ವ್ಯಕ್ತಿಗೆ ಪೂಜಾ ಕಾಲಂಗಳ ಚಿಪ್‌ಗಳು.
 class RegionScreen extends StatefulWidget {
@@ -95,6 +97,35 @@ class _RegionScreenState extends State<RegionScreen> {
           ),
         ),
         title: Text(region.name, overflow: TextOverflow.ellipsis),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (v) async {
+              final single = PoojaData(
+                title: widget.data.title,
+                columns: widget.data.columns,
+                year: widget.data.year,
+                regions: [region],
+              );
+              try {
+                if (v == 'pdf') await PdfService.share(single);
+                if (v == 'wa') await PdfService.shareWhatsApp(single);
+              } catch (e) {
+                _snack('ಹಂಚಿಕೆ ವಿಫಲ: $e', false);
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                  value: 'pdf',
+                  child: ListTile(leading: Icon(Icons.picture_as_pdf), title: Text('PDF ಡೌನ್‌ಲೋಡ್'))),
+              PopupMenuItem(
+                  value: 'wa',
+                  child: ListTile(
+                      leading: FaIcon(FontAwesomeIcons.whatsapp, color: Color(0xFF25D366)),
+                      title: Text('WhatsApp ಹಂಚಿಕೆ'))),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addRow,

@@ -438,6 +438,7 @@
     firebase.initializeApp(firebaseConfig);
     db   = firebase.firestore();
     auth = firebase.auth();
+    try{ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(e){}  // ರಿಫ್ರೆಶ್‌ನಲ್ಲೂ ಲಾಗಿನ್ ಉಳಿಯಲು
   }
 
   /* ===================== ವರ್ಷ + ಸ್ಥಿತಿ (year & state) ===================== */
@@ -787,6 +788,7 @@
     try{ await db.collection("pooja").doc(String(y)).delete(); }
     catch(e){ toast("⚠ ಅಳಿಸಲಾಗಲಿಲ್ಲ: "+(e.code||e.message), "warn", 4000); return; }
     try{ localStorage.removeItem("poojaRecord_"+y); }catch(e){}
+    if(draftYear===y) draftYear=null;
     toast("🗑 ವರ್ಷ "+y+" ಅಳಿಸಲಾಗಿದೆ", "ok");
     let years=[];
     try{ const snap=await db.collection("pooja").get(); years=snap.docs.map(d=>parseInt(d.id,10)).filter(Boolean).filter(x=>x!==y).sort((a,b)=>b-a); }catch(e){}
@@ -820,6 +822,7 @@
      ಬಳಕೆದಾರ ವರ್ಷ ನಮೂದಿಸುತ್ತಾರೆ → ಆ ವರ್ಷದ ದತ್ತಾಂಶ ತೋರಿಸುತ್ತದೆ.
      ಆ ವರ್ಷ ಇನ್ನೂ ಇಲ್ಲದಿದ್ದರೆ — ಮಾಗಣೆ/ಹೆಸರು ಪೂರ್ವಭರ್ತಿಯಾದ ಹೊಸ ಟೆಂಪ್ಲೇಟ್
      (ಪೂಜಾ ಆಯ್ಕೆ ಖಾಲಿ) ಸಿದ್ಧವಾಗುತ್ತದೆ; ಲಾಗಿನ್ ಆದವರು ಪೂಜೆ ಆಯ್ಕೆ ಮಾಡಬಹುದು. */
+  let draftYear = null;            // ಬಳಕೆದಾರ ಈಗಷ್ಟೇ ರಚಿಸುತ್ತಿರುವ (ಇನ್ನೂ ಉಳಿಯದ) ವರ್ಷ
   function switchToYear(year){
     currentYear = year;
     localStorage.setItem(YEAR_KEY, String(year));
@@ -836,22 +839,30 @@
     if(inp===null) return;
     const year = parseInt(String(inp).trim(),10);
     if(!year || year<2000 || year>2100){ await uiAlert("ಸರಿಯಾದ ವರ್ಷ ನಮೂದಿಸಿ (2000–2100).", "ತಪ್ಪು ವರ್ಷ"); return; }
+    draftYear = year;   // ಇನ್ನೂ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇಲ್ಲದಿದ್ದರೂ dropdown ನಲ್ಲಿ ತೋರಿಸಲು
     switchToYear(year);
   }
 
-  /* ಕ್ಲೌಡ್‌ನಲ್ಲಿರುವ ಎಲ್ಲ ವರ್ಷಗಳ ಪಟ್ಟಿಯನ್ನು dropdown ನಲ್ಲಿ ತೋರಿಸು */
+  /* dropdown = ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇರುವ ವರ್ಷಗಳು (+ ರಚಿಸುತ್ತಿರುವ draft ವರ್ಷ).
+     ಅಳಿಸಿದ ವರ್ಷ ಮರಳಿ ಬರದಂತೆ — currentYear ಇಲ್ಲದಿದ್ದರೆ ಇರುವ ವರ್ಷಕ್ಕೆ ಬದಲಿಸು. */
   function loadYears(){
     const sel=document.getElementById('yearSel');
     if(!sel) return;
-    const fill = years=>{
-      if(!years.includes(currentYear)) years.push(currentYear);
+    const apply = cloud=>{
+      let years = cloud.slice();
+      if(draftYear && !years.includes(draftYear)) years.push(draftYear);
       years.sort((a,b)=>b-a);
+      if(!years.length){   // ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಏನೂ ಇಲ್ಲ — ಪ್ರಸ್ತುತ ವರ್ಷ ತೋರಿಸು
+        sel.innerHTML = `<option value="${currentYear}" selected>${currentYear}</option>`;
+        return;
+      }
+      if(!years.includes(currentYear)){ switchToYear(years[0]); return; }  // ಅಳಿಸಿದ/ಅಮಾನ್ಯ → ಬದಲಿಸು
       sel.innerHTML = years.map(y=>`<option value="${y}" ${y===currentYear?"selected":""}>${y}</option>`).join("");
     };
-    if(!CLOUD){ fill([currentYear]); return; }
+    if(!CLOUD){ apply([]); return; }
     db.collection("pooja").get()
-      .then(snap=> fill(snap.docs.map(d=>parseInt(d.id,10)).filter(Boolean)))
-      .catch(()=> fill([currentYear]));
+      .then(snap=> apply(snap.docs.map(d=>parseInt(d.id,10)).filter(Boolean)))
+      .catch(()=> apply([]));
     sel.onchange = ()=>{ const y=parseInt(sel.value,10); if(y && y!==currentYear) switchToYear(y); };
   }
 
@@ -862,8 +873,12 @@
     if(!u) return false;
     const email=(u.email||"").toLowerCase();
     if(ALLOWED_EDITORS.map(e=>e.toLowerCase()).includes(email)) return true;
-    try{ const d = await db.collection("editors").doc(email).get(); return d.exists; }
-    catch(e){ return false; }
+    // ತಣ್ಣನೆ ರಿಫ್ರೆಶ್‌ನಲ್ಲಿ ಟೋಕನ್ ಸಿದ್ಧವಾಗುವ ಮುನ್ನ ಓದಿದರೆ ದೋಷ ಬರಬಹುದು — ಮರುಪ್ರಯತ್ನ
+    for(let i=0;i<4;i++){
+      try{ const d = await db.collection("editors").doc(email).get(); return d.exists; }
+      catch(e){ await new Promise(r=>setTimeout(r, 500)); }
+    }
+    return false;
   }
   function setLoginMsg(err, checking){
     const e=document.getElementById('loginErr'); if(e) e.textContent=err||"";

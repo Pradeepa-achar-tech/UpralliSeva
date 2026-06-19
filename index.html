@@ -867,7 +867,13 @@
 
   /* ===================== ಸಾಲು/ಮಾಗಣೆ ಕ್ರಿಯೆಗಳು ===================== */
   function addRow(ri){ state.regions[ri].families.push({n:"",c:"00000"}); notifyAction("➕ ಹೊಸ ಸಾಲು ಸೇರಿಸಲಾಗಿದೆ","ok"); save(); render(); }
-  function delRow(ri,fi){ state.regions[ri].families.splice(fi,1); notifyAction("🗑 ಸಾಲು ತೆಗೆಯಲಾಗಿದೆ","warn"); save(); render(); }
+  async function delRow(ri,fi){
+    const r=state.regions[ri]; if(!r) return;
+    const f=r.families[fi]; if(!f) return;
+    const nm=(f.n||"").trim();
+    if(!(await uiConfirm((nm?`“${nm}” `:"ಈ ")+"ಸಾಲನ್ನು ಅಳಿಸಬೇಕೆ?", "ಸಾಲು ಅಳಿಸಿ"))) return;
+    r.families.splice(fi,1); notifyAction("🗑 ಸಾಲು ತೆಗೆಯಲಾಗಿದೆ","warn"); save(); render();
+  }
   async function delRegion(ri){
     if(!(await uiConfirm(`“${state.regions[ri].name}” ಮಾಗಣೆಯನ್ನು ಅಳಿಸಬೇಕೆ?`, "ಮಾಗಣೆ ಅಳಿಸಿ"))) return;
     state.regions.splice(ri,1); notifyAction("🗑 ಮಾಗಣೆ ತೆಗೆಯಲಾಗಿದೆ","warn"); save(); render();

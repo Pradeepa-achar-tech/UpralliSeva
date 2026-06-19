@@ -16,7 +16,7 @@
   *{ box-sizing:border-box; }
   html,body{ margin:0; }
   body{
-    font-family:"Noto Sans Kannada", system-ui, sans-serif;
+    font-family:"Noto Sans Kannada", "Nirmala UI", "Tunga", "Kedage", system-ui, sans-serif;
     color:var(--ink); background:var(--bg);
     font-size:13px; line-height:1.35;
   }
@@ -93,12 +93,14 @@
   /* ---------- ಮುದ್ರಣ / PDF ---------- */
   @page{ size:A4; margin:10mm; }
   @media print{
-    body{ background:#fff; }
+    html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .toolbar{ display:none !important; }
-    #sheet{ width:auto; margin:0; padding:0; box-shadow:none; }
-    .region{ break-inside:auto; }
+    #sheet{ width:auto; min-height:0; margin:0; padding:0; box-shadow:none; }
+    .region{ break-inside:auto; page-break-inside:auto; }
+    .region-head{ break-after:avoid; page-break-after:avoid; }
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
-    tr{ break-inside:avoid; }
+    tr{ break-inside:avoid; page-break-inside:avoid; }
+    td.c-del, th.c-del{ display:none !important; }
     .no-print{ display:none !important; }
   }
   /* PDF ರಫ್ತು ಮಾಡುವಾಗ ಸಂಪಾದನಾ ನಿಯಂತ್ರಣ ಮರೆಮಾಡಲು */
@@ -269,33 +271,27 @@
     localStorage.removeItem(LS_KEY); state=structuredClone(window.SEED); render(); flash("ಮೂಲಕ್ಕೆ ಮರಳಿದೆ");
   }
 
-  /* ===================== PDF ಡೌನ್‌ಲೋಡ್ (html2pdf) ===================== */
-  function ensureLib(){
-    return new Promise((res,rej)=>{
-      if(window.html2pdf) return res();
-      const s=document.createElement('script');
-      s.src="assets/html2pdf.bundle.min.js";
-      s.onload=res; s.onerror=()=>rej(new Error("ಲೈಬ್ರರಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ"));
-      document.head.appendChild(s);
-    });
-  }
+  /* ===================== PDF ಡೌನ್‌ಲೋಡ್ (ಬ್ರೌಸರ್‌ನ ಸ್ವಂತ ಮುದ್ರಣ) =====================
+     ಟಿಪ್ಪಣಿ: html2canvas/html2pdf ಕನ್ನಡ ಒತ್ತಕ್ಷರಗಳನ್ನು ಚಿತ್ರವಾಗಿ ಪರಿವರ್ತಿಸಿ
+     ಒಡೆಯುತ್ತದೆ. ಆದ್ದರಿಂದ ಬ್ರೌಸರ್‌ನ ಸ್ವಂತ ಮುದ್ರಣವನ್ನು ಬಳಸುತ್ತೇವೆ —
+     ಇದು ಕನ್ನಡ ಫಾಂಟ್‌ಅನ್ನು ಸರಿಯಾಗಿ ತೋರಿಸುತ್ತದೆ, ಎಲ್ಲ ಮೌಲ್ಯಗಳನ್ನೂ ಸೇರಿಸುತ್ತದೆ,
+     ಮತ್ತು ಯಾವುದೇ ಲೈಬ್ರರಿ/ಇಂಟರ್ನೆಟ್ ಬೇಕಿಲ್ಲ. ಮುದ್ರಣ ಸಂವಾದದಲ್ಲಿ
+     "Save as PDF" / "PDF ಆಗಿ ಉಳಿಸಿ" ಆಯ್ಕೆ ಮಾಡಿ. */
   async function downloadPDF(btn){
     btn.disabled=true; const old=btn.textContent; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…";
     try{
-      await ensureLib();
-      if(document.fonts && document.fonts.ready) await document.fonts.ready;
+      // ಮುದ್ರಿಸುವ ಮುನ್ನ ಫಾಂಟ್ ಲೋಡ್ ಆಗುವವರೆಗೆ ಕಾಯಿ (ಕನ್ನಡ ಸರಿಯಾಗಿ ಬರಲು)
+      if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
       document.body.classList.add('exporting');
-      const opt={
-        margin:[8,8,10,8],
-        filename:"pooja-dakhale-2024.pdf",
-        image:{type:"jpeg",quality:0.97},
-        html2canvas:{scale:2,useCORS:true,letterRendering:true},
-        jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},
-        pagebreak:{mode:["css","legacy"],avoid:["tr",".region-head"]}
-      };
-      await window.html2pdf().set(opt).from(document.getElementById('sheet')).save();
-    }catch(err){ alert("PDF ತಯಾರಿಸಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → Save as PDF ಬಳಸಿ."); }
-    finally{ document.body.classList.remove('exporting'); btn.disabled=false; btn.textContent=old; }
+      // ಯಾವುದೇ ಸಂಪಾದನಾ ಕರ್ಸರ್ ಮುದ್ರಣದಲ್ಲಿ ಕಾಣದಂತೆ
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      window.print();
+    }catch(err){
+      alert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → \"Save as PDF\" ಬಳಸಿ.");
+    }finally{
+      document.body.classList.remove('exporting');
+      btn.disabled=false; btn.textContent=old;
+    }
   }
 
   /* ===================== ಆರಂಭ ===================== */

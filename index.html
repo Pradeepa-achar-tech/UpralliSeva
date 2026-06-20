@@ -97,6 +97,23 @@
   .dash .card .l{ font-size:11.5px; color:var(--muted); margin-top:3px; font-weight:600; }
   @media print{ .dash{ display:none !important; } }
 
+  /* ===== ಸಂಗ್ರಹ ಸಾರಾಂಶ (ಪರದೆ ಮೇಲೆ ಮಾತ್ರ) ===== */
+  .collect{ display:flex; flex-wrap:wrap; gap:12px; margin:0 0 16px; }
+  .collect .ct{ flex:1 1 180px; background:#fff; border:1px solid var(--card-line); border-radius:14px; padding:13px 16px; display:flex; flex-direction:column; gap:3px; box-shadow:0 1px 2px rgba(20,20,40,.04); }
+  .collect .cl{ font-size:11.5px; color:var(--muted); font-weight:600; }
+  .collect .cv{ font-size:21px; font-weight:800; color:var(--ink); }
+  .collect .ct.grand{ background:var(--accent-soft); border-color:var(--accent); }
+  .collect .ct.grand .cv{ color:var(--accent-dark); }
+  @media print{ .collect{ display:none !important; } }
+
+  /* ಮಾಗಣೆ ಸಂಗ್ರಹ + ಮೊತ್ತ ಕಾಲಂಗಳು (ಪರದೆ ಮೇಲೆ ಮಾತ್ರ) */
+  .region-head .rmoney{ font-size:11px; color:#555; white-space:nowrap; background:#f3f4f8; border:1px solid var(--card-line); padding:2px 9px; border-radius:9px; }
+  .region-head .rmoney b{ color:var(--accent-dark); font-weight:700; }
+  th.c-money{ font-size:10.5px; white-space:nowrap; text-align:right; }
+  td.c-money{ text-align:right; white-space:nowrap; font-size:12px; color:#333; }
+  td.c-money.total{ font-weight:800; color:var(--accent-dark); }
+  .rphone-sm{ font-size:11px; color:#777; margin-top:2px; }
+
   .region{ margin:0 0 16px; border:1.5px solid var(--line); }
   .region-head{
     display:flex; align-items:center; gap:8px;
@@ -178,6 +195,10 @@
     .region-head{ break-after:avoid; page-break-after:avoid; }
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
     tr{ break-inside:avoid; page-break-inside:avoid; }
+    /* ಮಾಗಣೆ ಹೆಸರು ಮತ್ತು ದೂರವಾಣಿ — ಸ್ವಲ್ಪ ದೊಡ್ಡ ಮತ್ತು ದಪ್ಪ (ಎರಡೂ PDF: ಡೇಟಾ + ಖಾಲಿ) */
+    .region-head .rname{ font-size:16px !important; font-weight:800 !important; }
+    .region-head .rphone{ font-size:14px !important; font-weight:800 !important; }
+    .region-head .rphone::before{ font-weight:800; }
     td.c-del, th.c-del{ display:none !important; }
     .no-print{ display:none !important; }
     #login{ display:none !important; }
@@ -405,8 +426,11 @@
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-title">ತಿದ್ದುಪಡಿ</div>
       <input id="editName" class="modal-input" type="text" placeholder="ಹೆಸರು / ವಿಳಾಸ">
+      <input id="editPhone" class="modal-input" type="tel" inputmode="tel" placeholder="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)" style="margin-top:8px">
       <div style="font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px">ಪೂಜೆಗಳು</div>
       <div id="editPoojas" class="edit-poojas"></div>
+      <div style="font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px">ಕಾಲುಕಾಣಿಕೆ (ಐಚ್ಛಿಕ)</div>
+      <input id="editKaalu" class="modal-input" type="number" inputmode="decimal" min="0" placeholder="₹ ಹೆಚ್ಚುವರಿ ಕಾಣಿಕೆ ಮೊತ್ತ">
       <div class="modal-actions">
         <button class="tb" onclick="closeEdit()">ರದ್ದು</button>
         <button class="tb primary" onclick="saveEdit()">ನವೀಕರಿಸಿ</button>
@@ -571,7 +595,7 @@
       rates:   (state.rates||[]).map(x => ({ n: x.n || "", r: x.r || "" })),
       regions: state.regions.map(r => ({
         no: r.no, name: r.name, phone: r.phone || "",
-        families: (r.families||[]).map(f => ({ n: f.n || "", c: f.c || "00000" }))
+        families: (r.families||[]).map(f => ({ n: f.n || "", c: f.c || "00000", p: f.p || "", k: f.k || "" }))
       }))
     };
   }
@@ -584,7 +608,7 @@
       rates:   Array.isArray(d.rates) ? d.rates.map(x => ({ n: x.n || "", r: x.r || "" })) : [],
       regions: (d.regions || []).map(r => ({
         no: r.no, name: r.name, phone: r.phone || "",
-        families: (r.families||[]).map(f => ({ n: f.n || "", c: f.c || "00000" }))
+        families: (r.families||[]).map(f => ({ n: f.n || "", c: f.c || "00000", p: f.p || "", k: f.k || "" }))
       }))
     };
   }
@@ -679,12 +703,30 @@
 
     const ce = canEdit ? "contenteditable" : "";
     const done = state.regions.reduce((n,r)=>n+r.families.filter(f=>String(f.c||"").includes("1")).length,0);
+    /* ===== ದರ ನಕ್ಷೆ + ಮೊತ್ತಗಳು (ಪರದೆ ಮೇಲೆ ಮಾತ್ರ; PDF ನಲ್ಲಿ ಇಲ್ಲ) ===== */
+    const rmap={}; (state.rates||[]).forEach(x=>{ const v=parseFloat(x.r); rmap[x.n]=isNaN(v)?0:v; });
+    const rateFor = c => rmap[c]||0;
+    const num = v => { const n=parseFloat(v); return isNaN(n)?0:n; };
+    const money = n => "₹"+(Number(n)||0).toLocaleString('en-IN');
+    const poojaAmt = f => { const k=checks(f.c); return cols.reduce((a,c,ci)=> a+(k[ci]?rateFor(c):0),0); };
+    // ಪ್ರತಿ ಮಾಗಣೆಯ {ಪೂಜಾ, ಕಾಣಿಕೆ, ಒಟ್ಟು}
+    const rsum = state.regions.map(r=>{
+      let p=0,k=0; r.families.forEach(f=>{ p+=poojaAmt(f); k+=num(f.k); });
+      return { p, k, t:p+k };
+    });
+    const gP=rsum.reduce((a,b)=>a+b.p,0), gK=rsum.reduce((a,b)=>a+b.k,0), gT=gP+gK;
+
     let html = `
       <div class="dash no-print">
         <div class="card"><div class="v">${state.regions.length}</div><div class="l">ಮಾಗಣೆ</div></div>
         <div class="card"><div class="v">${total}</div><div class="l">ಹೆಸರು</div></div>
         <div class="card"><div class="v">${done}</div><div class="l">ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ</div></div>
         <div class="card"><div class="v">${currentYear}</div><div class="l">ವರ್ಷ</div></div>
+      </div>
+      <div class="collect no-print">
+        <div class="ct"><span class="cl">ಒಟ್ಟು ಪೂಜಾ ಸೇವೆ</span><span class="cv">${money(gP)}</span></div>
+        <div class="ct"><span class="cl">ಒಟ್ಟು ಕಾಲುಕಾಣಿಕೆ</span><span class="cv">${money(gK)}</span></div>
+        <div class="ct grand"><span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ (ಎಲ್ಲ ಮಾಗಣೆ)</span><span class="cv">${money(gT)}</span></div>
       </div>
       <div class="doc-title" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">
@@ -694,12 +736,14 @@
 
     state.regions.forEach((r,ri)=>{
       const open = openRegions.has(ri);
+      const s = rsum[ri];
       html += `<div class="region ${open?'':'collapsed'}" id="reg-${ri}">
         <div class="region-head">
           <button class="rtoggle no-print" onclick="toggleRegion(${ri})" title="ತೆರೆ / ಮುಚ್ಚು">▾</button>
           <span class="no" ${ce} data-r="${ri}" data-f="no">${esc(r.no)}</span>
           <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
           <span class="rcount no-print">${r.families.length}</span>
+          <span class="rmoney no-print" title="ಈ ಮಾಗಣೆಯ ಸಂಗ್ರಹ">ಪೂಜಾ <b>${money(s.p)}</b> · ಕಾಣಿಕೆ <b>${money(s.k)}</b> · ಒಟ್ಟು <b>${money(s.t)}</b></span>
           <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
           <button class="rmenu-btn no-print" title="ಆಯ್ಕೆಗಳು (PDF)" onclick="regionMenu(event,${ri})">⋮</button>
           <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
@@ -709,19 +753,26 @@
             <th class="c-no">ಕ್ರ.</th>
             <th class="c-name">ಹೆಸರು / ವಿಳಾಸ</th>
             ${cols.map(c=>`<th class="c-chk">${esc(c)}</th>`).join("")}
+            <th class="c-money no-print">ಪೂಜಾ ₹</th>
+            <th class="c-money no-print">ಕಾಲುಕಾಣಿಕೆ ₹</th>
+            <th class="c-money no-print">ಒಟ್ಟು ₹</th>
             <th class="c-del no-print"></th>
           </tr></thead>
           <tbody>`;
 
       if(r.families.length===0){
-        html += `<tr><td class="empty-note" colspan="${cols.length+3}">— ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ. ಕೆಳಗಿನ “+ ಹೆಸರು ಸೇರಿಸಿ” ಒತ್ತಿ —</td></tr>`;
+        html += `<tr><td class="empty-note" colspan="${cols.length+6}">— ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ. ಕೆಳಗಿನ “+ ಹೆಸರು ಸೇರಿಸಿ” ಒತ್ತಿ —</td></tr>`;
       } else {
         r.families.forEach((f,fi)=>{
           const ck = checks(f.c);
+          const pa = poojaAmt(f), ka = num(f.k), tt = pa+ka;
           html += `<tr class="editrow" ondragover="rowDragOver(event)" ondrop="rowDrop(event,${ri},${fi})" onclick="editRow(${ri},${fi})" title="ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ">
             <td class="c-no">${fi+1}</td>
-            <td class="c-name"><div>${esc(f.n)}</div></td>
+            <td class="c-name"><div>${esc(f.n)}</div>${f.p?`<div class="rphone-sm no-print">📞 ${esc(f.p)}</div>`:""}</td>
             ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" ${on?"checked":""} disabled></td>`).join("")}
+            <td class="c-money no-print">${money(pa)}</td>
+            <td class="c-money no-print">${money(ka)}</td>
+            <td class="c-money no-print total">${money(tt)}</td>
             <td class="c-del no-print edit-only">
               <span class="draghandle" draggable="true" title="ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ" ondragstart="rowDragStart(event,${ri},${fi})" ondragend="rowDragEnd(event)" onclick="event.stopPropagation()">⠿</span>
               <button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="event.stopPropagation();delRow(${ri},${fi})">✕</button>
@@ -806,6 +857,8 @@
     if(!f) return;
     _editTarget={ri, fi};
     document.getElementById('editName').value = f.n || "";
+    document.getElementById('editPhone').value = f.p || "";
+    document.getElementById('editKaalu').value = f.k || "";
     const cks = checks(f.c);
     document.getElementById('editPoojas').innerHTML = state.columns.map((c,ci)=>
       `<button type="button" class="pchip ${cks[ci]?'on':''}" data-ci="${ci}" onclick="this.classList.toggle('on')">${esc(c)}</button>`).join("");
@@ -819,13 +872,15 @@
     const f = state.regions[ri] && state.regions[ri].families[fi];
     if(!f) return closeEdit();
     f.n = document.getElementById('editName').value;
+    f.p = document.getElementById('editPhone').value.trim();
+    f.k = String(document.getElementById('editKaalu').value || "").trim();
     const chips=[...document.querySelectorAll('#editPoojas .pchip')];
     const arr = chips.map(ch=>ch.classList.contains('on'));
     while(arr.length<5) arr.push(false);
     f.c = arr.slice(0,5).map(b=>b?"1":"0").join("");
     pendingSaveMsg="✏ ತಿದ್ದುಪಡಿ";
     closeEdit();
-    save(); render(); updateDash();
+    save(); render();
   }
   document.addEventListener('keydown', e=>{
     const em=document.getElementById('editModal');

@@ -221,23 +221,25 @@
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
     tr{ break-inside:avoid; page-break-inside:avoid; }
     /* ಸ್ವಚ್ಛ, ಅಚ್ಚುಕಟ್ಟಾದ ಟೇಬಲ್ — ವಿಶಾಲ ಸಾಲು, ಸ್ಪಷ್ಟ ಗಡಿ (sona Pooja list ಶೈಲಿ) */
-    th,td{ padding:6px 8px; border:1px solid #000; }
-    td.c-no{ font-size:13px; text-align:center; }
-    td.c-name{ font-size:13.5px; line-height:1.5; }
-    thead th{ background:#eee !important; font-size:12.5px; font-weight:700; padding:7px 8px; }
+    th,td{ padding:7px 8px; border:1px solid #000; }
+    td.c-no{ font-size:14.5px; text-align:center; }
+    td.c-name{ font-size:15.5px; line-height:1.5; }
+    thead th{ background:#eee !important; font-size:14px; font-weight:700; padding:8px 8px; }
+    /* ✓ ಗುರುತು ಸ್ವಲ್ಪ ದೊಡ್ಡದಾಗಿ (ಡೇಟಾ PDF) */
+    input[type=checkbox]{ width:19px !important; height:19px !important; font-size:18px !important; }
     .region-head{ padding:7px 10px; }
     /* ಬಾಕ್ಸ್ ಗಡಿ ಪೂರ್ಣ: region ಹೊದಿಕೆ ಗಡಿ ಪುಟ ಮುರಿತದಲ್ಲಿ ಬೀಳುತ್ತದೆ — ಬದಲಿಗೆ ತಲೆಗೇ ಸ್ವಂತ ಗಡಿ + ಟೇಬಲ್ ಸೆಲ್ ಗಡಿ */
     .region{ border:none !important; margin-right:3px; }
     .region-head{ border:1px solid #000; border-bottom:none; }
     /* ಮಾಗಣೆ ಹೆಸರು ಮತ್ತು ದೂರವಾಣಿ — ಸ್ವಲ್ಪ ದೊಡ್ಡ ಮತ್ತು ದಪ್ಪ (ಎರಡೂ PDF: ಡೇಟಾ + ಖಾಲಿ) */
-    .region-head .rname{ font-size:16px !important; font-weight:800 !important; }
-    .region-head .rphone{ font-size:14px !important; font-weight:800 !important; }
+    .region-head .rname{ font-size:17.5px !important; font-weight:800 !important; }
+    .region-head .rphone{ font-size:15px !important; font-weight:800 !important; }
     .region-head .rphone::before{ font-weight:800; }
-    /* ದೇವಸ್ಥಾನ ತಲೆಬರಹ — ಡೇಟಾ PDF: ದಾಖಲೆ ಆರಂಭದಲ್ಲಿ ಒಮ್ಮೆ ಮಾತ್ರ */
-    body:not(.blank-print) .temple-head.doc-level{ display:block; }
-    /* ಖಾಲಿ ಅರ್ಜಿ: ಪ್ರತಿ ಮಾಗಣೆಯ ಮೊದಲ ಪುಟದಲ್ಲಿ (ಎರಡನೇ ಪುಟಕ್ಕೆ ಮುಂದುವರಿದರೆ ಪುನರಾವರ್ತನೆ ಇಲ್ಲ) */
+    /* ಡೇಟಾ PDF: ಮೇಲ್ಭಾಗದಲ್ಲಿ ಒಮ್ಮೆ ವರ್ಷದ ಶೀರ್ಷಿಕೆ (caption) — ದೇವಸ್ಥಾನ ಹೆಸರು ಇಲ್ಲ */
+    body:not(.blank-print) .doc-title.doc-level{ display:block; }
+    body:not(.blank-print) .temple-head{ display:none !important; }
+    /* ಖಾಲಿ ಅರ್ಜಿ: ಪ್ರತಿ ಮಾಗಣೆ ಪುಟದಲ್ಲಿ ದೇವಸ್ಥಾನ ತಲೆಬರಹ; ಮೇಲಿನ ಶೀರ್ಷಿಕೆ ಮರೆ */
     body.blank-print .temple-head.reg-level{ display:block; }
-    /* ಖಾಲಿ ಅರ್ಜಿ: ಪ್ರತಿ ಮಾಗಣೆ ಪುಟ ಏಕರೂಪವಾಗಿರಲು ವರ್ಷದ ಶೀರ್ಷಿಕೆ ಮರೆ */
     body.blank-print .doc-title{ display:none !important; }
     td.c-del, th.c-del{ display:none !important; }
     .no-print{ display:none !important; }
@@ -803,8 +805,7 @@
       <div class="collect no-print">
         <div class="ct grand"><span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ (ಎಲ್ಲ ಮಾಗಣೆ)</span><span class="cv">${money(gT)}</span></div>
       </div>
-      <div class="temple-head doc-level">${TEMPLE_HEAD}</div>
-      <div class="doc-title" ${ce} data-t="title">${esc(state.title)}</div>
+      <div class="doc-title doc-level" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">
         ಕಾಲಂಗಳು: <b>${cols.map(esc).join(" · ")}</b>
         &nbsp;|&nbsp; ✓ = ಪೂಜೆ ಮಾಡಿಸಿದ್ದಾರೆ

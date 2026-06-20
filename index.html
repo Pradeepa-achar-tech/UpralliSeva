@@ -410,6 +410,15 @@
     padding:10px 12px; border:1px solid #b9c1ca; border-radius:8px;
   }
   .modal-input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 2px rgba(0,187,102,.25); }
+  /* ಕನ್ನಡ ಲಿಪ್ಯಂತರ ಕ್ಷೇತ್ರ + ಟಾಗಲ್ */
+  .kan-field{ display:flex; gap:6px; align-items:stretch; }
+  .kan-field .modal-input{ flex:1; margin-top:14px; }
+  .kan-toggle{ flex:none; width:46px; margin-top:14px; border:1px solid #b9c1ca; border-radius:8px;
+    background:var(--accent-soft,#e8f5ec); color:var(--accent-dark,#1b6e3c); cursor:pointer;
+    font-family:inherit; font-size:18px; font-weight:800; line-height:1; }
+  .kan-toggle.off{ background:#f1f2f5; color:#9aa3ad; }
+  .kan-hint{ font-size:11.5px; color:var(--muted); margin:6px 2px 0; line-height:1.5; }
+  .kan-hint b{ color:#444; }
   .modal-actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
   .modal-actions .tb{ min-width:78px; padding:9px 14px; }
 
@@ -469,7 +478,11 @@
   <div id="editModal" class="modal-wrap no-print" onclick="if(event.target===this)closeEdit()">
     <div class="modal" role="dialog" aria-modal="true">
       <div class="modal-title">ತಿದ್ದುಪಡಿ</div>
-      <input id="editName" class="modal-input" type="text" placeholder="ಹೆಸರು / ವಿಳಾಸ">
+      <div class="kan-field">
+        <input id="editName" class="modal-input" type="text" placeholder="ಹೆಸರು / ವಿಳಾಸ">
+        <button type="button" id="editNameKan" class="kan-toggle" title="ಕನ್ನಡ ಲಿಪ್ಯಂತರ ಆನ್/ಆಫ್">ಕ</button>
+      </div>
+      <div class="kan-hint">ಆಂಗ್ಲದಲ್ಲಿ ಬರೆದು <b>ಸ್ಪೇಸ್</b> ಒತ್ತಿ → ಕನ್ನಡ. ಉದಾ: <b>achaarya</b>→ಅಚಾರ್ಯ · <b>raamachaMdra</b>→ರಾಮಚಂದ್ರ · ಸೊನ್ನೆ(ಂ)ಗೆ <b>M</b>. ಆಂಗ್ಲ ಬೇಕಿದ್ದರೆ <b>A</b> ಗುಂಡಿ.</div>
       <input id="editPhone" class="modal-input" type="tel" inputmode="tel" placeholder="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)" style="margin-top:8px">
       <div style="font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px">ಪೂಜೆಗಳು</div>
       <div id="editPoojas" class="edit-poojas"></div>
@@ -570,6 +583,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
   <script src="data.js"></script>
+  <!-- ಕನ್ನಡ ಲಿಪ್ಯಂತರ (ಆಂಗ್ಲ ಫೋನೆಟಿಕ್ → ಕನ್ನಡ ಲಿಪಿ) — ಸ್ಥಳೀಯ ಪ್ರತಿ -->
+  <script src="sanscript.min.js"></script>
   <script>
   /* ===================== Firebase ಸಂರಚನೆ (config) ===================== */
   const firebaseConfig = {
@@ -926,11 +941,62 @@
     setTimeout(()=>{ const el=document.getElementById('editName'); if(el){ el.focus(); try{ el.setSelectionRange(0,0); }catch(e){} el.scrollLeft=0; } }, 40);
   }
   function closeEdit(){ document.getElementById('editModal').classList.remove('open'); _editTarget=null; }
+  /* ===================== ಕನ್ನಡ ಲಿಪ್ಯಂತರ (Sanscript: ITRANS → ಕನ್ನಡ) ===================== */
+  /* ಆಂಗ್ಲ ಫೋನೆಟಿಕ್ ಬರೆದು ಸ್ಪೇಸ್/ಚಿಹ್ನೆ ಒತ್ತಿದಾಗ ಆ ಪದ ಕನ್ನಡಕ್ಕೆ ಬದಲಾಗುತ್ತದೆ */
+  const KAN_BOUNDARY = /[\s.,;:\/()\[\]\-+&]/;     // ಪದ ಗಡಿ ಚಿಹ್ನೆಗಳು
+  function toKannada(s){
+    try{ return (window.Sanscript) ? Sanscript.t(s, 'itrans', 'kannada') : s; }
+    catch(e){ return s; }
+  }
+  // ≥2 ಆಂಗ್ಲ ಅಕ್ಷರದ ಪದ ಮಾತ್ರ ಪರಿವರ್ತಿಸು — "S/o", "D/o" ನಂತಹ ಒಂಟಿ ಅಕ್ಷರ ಹಾಗೇ ಉಳಿಯಲಿ
+  const isLatinWord = w => /[A-Za-z]{2,}/.test(w);
+  // ಕಾರ್ಸರ್‌ನ ಮೊದಲಿನ (ಗಡಿಗೆ ಮುಂಚಿನ) ಪದವನ್ನು ಮಾತ್ರ ಪರಿವರ್ತಿಸು
+  function convertWordBeforeCaret(el){
+    const val = el.value, caret = el.selectionStart;
+    const bEnd = caret - 1;                          // ಈಗ ಒತ್ತಿದ ಗಡಿ ಚಿಹ್ನೆ
+    let start = bEnd;
+    while(start > 0 && !KAN_BOUNDARY.test(val[start-1])) start--;
+    const word = val.slice(start, bEnd);
+    if(!isLatinWord(word)) return;                   // ಒಂಟಿ ಅಕ್ಷರ/ಕನ್ನಡ — ಬಿಡು
+    const conv = toKannada(word);
+    if(conv === word) return;
+    el.value = val.slice(0, start) + conv + val.slice(bEnd);
+    const np = start + conv.length + 1;              // ಗಡಿ ಚಿಹ್ನೆಯ ನಂತರ
+    try{ el.setSelectionRange(np, np); }catch(e){}
+  }
+  // ಉಳಿದ ಎಲ್ಲ ≥2-ಅಕ್ಷರ ಆಂಗ್ಲ ತುಣುಕುಗಳನ್ನು ಪರಿವರ್ತಿಸು (ಉಳಿಸುವ ಮುನ್ನ / blur)
+  function flushKannada(el){
+    if(!el || el.dataset.kan !== '1') return;
+    el.value = el.value.replace(/[A-Za-z][A-Za-z'^~.]+/g, m => toKannada(m));
+  }
+  function attachKannada(el, toggleBtn){
+    if(!el || el._kanOn !== undefined) return;
+    el.dataset.kan = '1';                            // ಪೂರ್ವನಿಯೋಜಿತ: ಆನ್
+    el._kanOn = true;
+    el.addEventListener('input', e=>{
+      if(el.dataset.kan !== '1') return;
+      const ch = e.data;                             // ಸೇರಿಸಿದ ಅಕ್ಷರ (ಅಳಿಸುವಾಗ null)
+      if(ch && KAN_BOUNDARY.test(ch)) convertWordBeforeCaret(el);
+    });
+    el.addEventListener('blur', ()=> flushKannada(el));
+    if(toggleBtn){
+      toggleBtn.addEventListener('click', ()=>{
+        const on = el.dataset.kan === '1';
+        el.dataset.kan = on ? '0' : '1';
+        toggleBtn.classList.toggle('off', on);
+        toggleBtn.textContent = on ? 'A' : 'ಕ';
+        toggleBtn.title = on ? 'ಕನ್ನಡ ಲಿಪ್ಯಂತರ ಆಫ್ (ಆಂಗ್ಲ ಟೈಪ್)' : 'ಕನ್ನಡ ಲಿಪ್ಯಂತರ ಆನ್';
+        el.focus();
+      });
+    }
+  }
+
   function saveEdit(){
     if(!_editTarget) return closeEdit();
     const {ri, fi}=_editTarget;
     const f = state.regions[ri] && state.regions[ri].families[fi];
     if(!f) return closeEdit();
+    flushKannada(document.getElementById('editName'));   // ಕೊನೆಯ ಆಂಗ್ಲ ಪದವನ್ನೂ ಕನ್ನಡಕ್ಕೆ
     f.n = document.getElementById('editName').value;
     f.p = document.getElementById('editPhone').value.trim();
     f.k = String(document.getElementById('editKaalu').value || "").trim();
@@ -1416,6 +1482,7 @@
 
   /* ===================== ಆರಂಭ ===================== */
   modalInit();
+  attachKannada(document.getElementById('editName'), document.getElementById('editNameKan'));  // ಹೆಸರು ಕ್ಷೇತ್ರಕ್ಕೆ ಕನ್ನಡ ಲಿಪ್ಯಂತರ
   render();
   startCloud();
   </script>

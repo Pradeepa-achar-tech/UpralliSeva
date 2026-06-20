@@ -43,7 +43,6 @@ class _RegionScreenState extends State<RegionScreen> {
     final nameCtrl = TextEditingController(text: f.n);
     nameCtrl.selection = const TextSelection.collapsed(offset: 0); // ಕರ್ಸರ್ ಆರಂಭದಲ್ಲಿ
     final phoneCtrl = TextEditingController(text: f.p);
-    final kaaluCtrl = TextEditingController(text: f.k);
     final sel = List<bool>.generate(cols.length, (ci) => f.isOn(ci));
     final ok = await showDialog<bool>(
       context: context,
@@ -87,16 +86,6 @@ class _RegionScreenState extends State<RegionScreen> {
                         onSelected: (v) => setLocal(() => sel[ci] = v),
                       )),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: kaaluCtrl,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(
-                    labelText: 'ಕಾಲುಕಾಣಿಕೆ ₹ (ಐಚ್ಛಿಕ)',
-                    prefixText: '₹ ',
-                    border: OutlineInputBorder(),
-                  ),
-                ),
               ],
             ),
           ),
@@ -111,7 +100,6 @@ class _RegionScreenState extends State<RegionScreen> {
       setState(() {
         f.n = nameCtrl.text.trim();
         f.p = phoneCtrl.text.trim();
-        f.k = kaaluCtrl.text.trim();
         for (var ci = 0; ci < cols.length; ci++) f.setOn(ci, sel[ci]);
       });
       _dirty = true;

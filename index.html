@@ -486,8 +486,6 @@
       <input id="editPhone" class="modal-input" type="tel" inputmode="tel" placeholder="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)" style="margin-top:8px">
       <div style="font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px">ಪೂಜೆಗಳು</div>
       <div id="editPoojas" class="edit-poojas"></div>
-      <div style="font-size:12px;color:var(--muted);font-weight:700;margin:14px 0 6px">ಕಾಲುಕಾಣಿಕೆ (ಐಚ್ಛಿಕ)</div>
-      <input id="editKaalu" class="modal-input" type="number" inputmode="decimal" min="0" placeholder="₹ ಹೆಚ್ಚುವರಿ ಕಾಣಿಕೆ ಮೊತ್ತ">
       <div class="modal-actions">
         <button class="tb" onclick="closeEdit()">ರದ್ದು</button>
         <button class="tb primary" onclick="saveEdit()">ನವೀಕರಿಸಿ</button>
@@ -933,7 +931,6 @@
     _editTarget={ri, fi};
     document.getElementById('editName').value = f.n || "";
     document.getElementById('editPhone').value = f.p || "";
-    document.getElementById('editKaalu').value = f.k || "";
     const cks = checks(f.c);
     document.getElementById('editPoojas').innerHTML = state.columns.map((c,ci)=>
       `<button type="button" class="pchip ${cks[ci]?'on':''}" data-ci="${ci}" onclick="this.classList.toggle('on')">${esc(c)}</button>`).join("");
@@ -999,7 +996,6 @@
     flushKannada(document.getElementById('editName'));   // ಕೊನೆಯ ಆಂಗ್ಲ ಪದವನ್ನೂ ಕನ್ನಡಕ್ಕೆ
     f.n = document.getElementById('editName').value;
     f.p = document.getElementById('editPhone').value.trim();
-    f.k = String(document.getElementById('editKaalu').value || "").trim();
     const chips=[...document.querySelectorAll('#editPoojas .pchip')];
     const arr = chips.map(ch=>ch.classList.contains('on'));
     while(arr.length<5) arr.push(false);

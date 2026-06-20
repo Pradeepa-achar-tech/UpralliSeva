@@ -95,7 +95,7 @@ class _RatesScreenState extends State<RatesScreen> {
     }
     d.rates = rates;
     try {
-      await firestoreService.saveYear(d);
+      await firestoreService.saveRates(widget.year, rates); // ದರ ಮಾತ್ರ (merge)
       if (!mounted) return;
       ScaffoldMessenger.of(context)
         ..clearSnackBars()

@@ -114,9 +114,13 @@
   /* ಮಾಗಣೆ ಸಂಗ್ರಹ + ಮೊತ್ತ ಕಾಲಂಗಳು (ಪರದೆ ಮೇಲೆ ಮಾತ್ರ) */
   .region-head .rmoney{ font-size:11px; color:#555; white-space:nowrap; background:#f3f4f8; border:1px solid var(--card-line); padding:2px 9px; border-radius:9px; }
   .region-head .rmoney b{ color:var(--accent-dark); font-weight:700; }
-  th.c-money{ font-size:10.5px; white-space:nowrap; text-align:right; }
-  td.c-money{ text-align:right; white-space:nowrap; font-size:12px; color:#333; }
-  td.c-money.total{ font-weight:800; color:var(--accent-dark); }
+  /* ಹಣದ ಕಾಲಂಗಳು — ಲೆಕ್ಕಪತ್ರ ಶೈಲಿ (ಹಸಿರು ಛಾಯೆ) ಇದರಿಂದ ಹಣ ಎಂದು ಗುರುತಿಸಬಹುದು */
+  th.c-money{ font-size:10.5px; white-space:nowrap; text-align:right; background:#e8f5ec; color:#1b6e3c; border-bottom:2px solid #b7dcc4; }
+  td.c-money{ text-align:right; white-space:nowrap; font-size:12px; color:#1b6e3c; font-weight:600;
+              background:#f1faf3; font-variant-numeric:tabular-nums; font-feature-settings:"tnum"; }
+  /* ಚೆಕ್‌ಮಾರ್ಕ್ ಕಾಲಂಗಳಿಂದ ಬೇರ್ಪಡಿಸಲು ಎಡ ಗೆರೆ */
+  th.c-money.mfirst, td.c-money.mfirst{ border-left:2px solid #b7dcc4; }
+  td.c-money.total{ font-weight:800; color:#0f5a2e; background:#e2f4e8; }
   .rphone-sm{ font-size:11px; color:#777; margin-top:2px; }
 
   .region{ margin:0 0 16px; border:1.5px solid var(--line); }
@@ -191,12 +195,14 @@
   .empty-note{ padding:8px; font-size:12px; color:#999; font-style:italic; }
 
   /* ---------- ಮುದ್ರಣ / PDF ---------- */
-  @page{ size:A4; margin:10mm; }
+  @page{ size:A4; margin:10mm 12mm; }   /* ಬಲ/ಎಡ ಗಡಿ ಪುಟದ ಅಂಚಿನಲ್ಲಿ ಕತ್ತರಿಸದಂತೆ ಸ್ವಲ್ಪ ಹೆಚ್ಚು ಅಂಚು */
   @media print{
     html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .toolbar{ display:none !important; }
     #sheet{ width:auto; min-height:0; margin:0; padding:0; box-shadow:none; }
-    .region{ break-inside:auto; page-break-inside:auto; }
+    .region{ break-inside:auto; page-break-inside:auto; box-sizing:border-box; }
+    /* ಮುದ್ರಣದಲ್ಲಿ ಅಡ್ಡ ಸ್ಕ್ರಾಲ್ ಬೇಡ — ಇಲ್ಲದಿದ್ದರೆ ಬಲ ಗಡಿ ಕತ್ತರಿಸುತ್ತದೆ */
+    .tbl{ overflow:visible !important; }
     .region-head{ break-after:avoid; page-break-after:avoid; }
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
     tr{ break-inside:avoid; page-break-inside:avoid; }
@@ -775,7 +781,7 @@
             <th class="c-no">ಕ್ರ.</th>
             <th class="c-name">ಹೆಸರು / ವಿಳಾಸ</th>
             ${cols.map(c=>`<th class="c-chk">${esc(c)}</th>`).join("")}
-            <th class="c-money no-print">ಪೂಜಾ ₹</th>
+            <th class="c-money mfirst no-print">ಪೂಜಾ ₹</th>
             <th class="c-money no-print">ಕಾಲುಕಾಣಿಕೆ ₹</th>
             <th class="c-money no-print">ಒಟ್ಟು ₹</th>
             <th class="c-del no-print"></th>
@@ -792,7 +798,7 @@
             <td class="c-no">${fi+1}</td>
             <td class="c-name"><div>${esc(f.n)}</div>${f.p?`<div class="rphone-sm no-print">📞 ${esc(f.p)}</div>`:""}</td>
             ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" ${on?"checked":""} disabled></td>`).join("")}
-            <td class="c-money no-print">${money(pa)}</td>
+            <td class="c-money mfirst no-print">${money(pa)}</td>
             <td class="c-money no-print">${money(ka)}</td>
             <td class="c-money no-print total">${money(tt)}</td>
             <td class="c-del no-print edit-only">
@@ -957,12 +963,22 @@
   function saveRates(){
     if(!_rateDraft) return closeRates();
     const nCore=(state.columns||[]).length;
-    state.rates = _rateDraft
+    const rates = _rateDraft
       .filter((x,i)=> i<nCore || (x.n||"").trim()!=="")
       .map(x=>({ n:(x.n||"").trim(), r:String(x.r||"").trim() }));
+    state.rates = rates;
     closeRates();
-    save();
+    saveLocalYear();
     render();   // ಕಾಲಂ ಮೊತ್ತಗಳು ತಕ್ಷಣ ನವೀಕರಿಸು
+    // ರೇಟ್ ಅನ್ನು ತಕ್ಷಣ + merge ಮೂಲಕ ಬರೆ (regions ಮುಟ್ಟದೆ — ಬೇರೆ ಬರಹದಿಂದ ಅಳಿಸಲ್ಪಡದು)
+    if(CLOUD && canEdit && auth && auth.currentUser && DOC){
+      lastRemoteJSON = sigOf(toDoc());   // ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು (regions ಬದಲಾಗಿಲ್ಲ + ಹೊಸ ದರ)
+      DOC.set({ rates: rates, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
+        .then(()=>{ flash("✓ ದರಗಳು ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
+        .catch(err=>{ flash("⚠ ದರ ಉಳಿಯಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });
+    } else {
+      saveResult(true);
+    }
     toast("✓ ದರಗಳು ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")","ok");
   }
   document.addEventListener('keydown', e=>{

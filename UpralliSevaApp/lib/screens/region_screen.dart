@@ -31,7 +31,7 @@ class _RegionScreenState extends State<RegionScreen> {
     if (!_dirty) return;
     _dirty = false;
     try {
-      await firestoreService.saveYear(widget.data);
+      await firestoreService.saveYearFields(widget.data); // ದರ ಕ್ಷೇತ್ರ ಮುಟ್ಟದೆ
     } catch (e) {
       if (mounted) _snack('⚠ ಉಳಿಯಲಿಲ್ಲ — ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ', false);
     }

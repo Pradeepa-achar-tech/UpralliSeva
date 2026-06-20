@@ -53,6 +53,24 @@ class FirestoreService {
     });
   }
 
+  /// regions/title/columns ಉಳಿಸು — `rates` ಕ್ಷೇತ್ರ ಮುಟ್ಟದೆ (merge).
+  /// ಹೆಸರು/ಪೂಜೆ/ಕಾಲುಕಾಣಿಕೆ ಬದಲಾವಣೆ ದರಗಳನ್ನು ಅಳಿಸುವುದಿಲ್ಲ.
+  Future<void> saveYearFields(PoojaData data) async {
+    final m = data.toMap()..remove('rates');
+    await _pooja.doc('${data.year}').set({
+      ...m,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  /// ದರಗಳನ್ನು ಮಾತ್ರ ಉಳಿಸು (merge) — regions ಮುಟ್ಟದೆ.
+  Future<void> saveRates(int year, List<PoojaRate> rates) async {
+    await _pooja.doc('$year').set({
+      'rates': rates.map((x) => x.toMap()).toList(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
   Future<void> deleteYear(int year) async {
     await _pooja.doc('$year').delete();
   }

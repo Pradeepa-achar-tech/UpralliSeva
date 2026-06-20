@@ -324,8 +324,6 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           box('ಒಟ್ಟು ಪೂಜಾ ಸೇವೆ', money(gp)),
           const SizedBox(width: 10),
-          box('ಒಟ್ಟು ಕಾಲುಕಾಣಿಕೆ', money(gk)),
-          const SizedBox(width: 10),
           box('ಒಟ್ಟು ಸಂಗ್ರಹ', money(gp + gk), grand: true),
         ],
       ),

@@ -360,8 +360,7 @@ class _RegionScreenState extends State<RegionScreen> {
       child: Row(
         children: [
           Expanded(child: tot('ಪೂಜಾ ಸೇವೆ', money(pa))),
-          Expanded(child: tot('ಕಾಲುಕಾಣಿಕೆ', money(ka))),
-          Expanded(child: tot('ಒಟ್ಟು', money(pa + ka), strong: true)),
+          Expanded(child: tot('ಒಟ್ಟು ಸಂಗ್ರಹ', money(pa + ka), strong: true)),
         ],
       ),
     );
@@ -382,8 +381,6 @@ class _RegionScreenState extends State<RegionScreen> {
                   fontWeight: strong ? FontWeight.w800 : FontWeight.w600)),
         );
     return Wrap(spacing: 8, runSpacing: 6, children: [
-      chip('ಪೂಜಾ ${money(pa)}'),
-      chip('ಕಾಲುಕಾಣಿಕೆ ${money(ka)}'),
       chip('ಒಟ್ಟು ${money(pa + ka)}', strong: true),
     ]);
   }

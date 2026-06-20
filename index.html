@@ -8,7 +8,11 @@
 <title>ಉಪ್ರಳ್ಳಿ ಸೇವೆ</title>
 <link rel="icon" href="logo.png" />
 
-<!-- ಕನ್ನಡ ಫಾಂಟ್ (ಸ್ಥಳೀಯ — ಇಂಟರ್ನೆಟ್ ಬೇಕಿಲ್ಲ) -->
+<!-- ಕನ್ನಡ ಫಾಂಟ್ — UI ಗೆ Sans, PDF/ದಾಖಲೆಗೆ ಸುಂದರ Serif (sona Pooja list ಶೈಲಿ) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700;800&family=Noto+Serif+Kannada:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<!-- ಹಳೆಯ ಸ್ಥಳೀಯ ಫಾಂಟ್ (ಇದ್ದರೆ ಬಳಸಿ; ಇಲ್ಲದಿದ್ದರೆ ಮೇಲಿನವು) -->
 <link href="assets/kannada-font.css" rel="stylesheet">
 
 <style>
@@ -80,6 +84,9 @@
     width:210mm; min-height:297mm;
     margin:0 auto; padding:12mm 10mm;
     background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12); border-radius:14px;
+    /* ದಾಖಲೆ/PDF — ಸುಂದರ ಸಾಂಪ್ರದಾಯಿಕ ಸೆರಿಫ್ ಫಾಂಟ್ (ಎಲ್ಲ PDF ಸ್ವಚ್ಛ, ಅಚ್ಚುಕಟ್ಟಾಗಿ) */
+    font-family:"Noto Serif Kannada", "Tunga", "Nirmala UI", "Kedage", serif;
+    color:#111;
   }
   /* ---------- ದೇವಸ್ಥಾನ ತಲೆಬರಹ (PDF ಮಾತ್ರ) ---------- */
   .temple-head{ display:none; text-align:center; margin:0 0 8px; break-inside:avoid; page-break-inside:avoid; }
@@ -202,10 +209,18 @@
     #sheet{ width:auto; min-height:0; margin:0; padding:0; box-shadow:none; }
     .region{ break-inside:auto; page-break-inside:auto; box-sizing:border-box; }
     /* ಮುದ್ರಣದಲ್ಲಿ ಅಡ್ಡ ಸ್ಕ್ರಾಲ್ ಬೇಡ — ಇಲ್ಲದಿದ್ದರೆ ಬಲ ಗಡಿ ಕತ್ತರಿಸುತ್ತದೆ */
-    .tbl{ overflow:visible !important; }
+    /* ಬಲ ಅಂಚಿನ ಗೆರೆ ಪೂರ್ತಿ ಮುದ್ರಿತವಾಗಲು ಟೇಬಲ್‌ ಅನ್ನು 2px ಒಳಕ್ಕೆ ತನ್ನಿ */
+    .tbl{ overflow:visible !important; padding-right:2px; box-sizing:border-box; }
+    table{ box-sizing:border-box; }
     .region-head{ break-after:avoid; page-break-after:avoid; }
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
     tr{ break-inside:avoid; page-break-inside:avoid; }
+    /* ಸ್ವಚ್ಛ, ಅಚ್ಚುಕಟ್ಟಾದ ಟೇಬಲ್ — ವಿಶಾಲ ಸಾಲು, ಸ್ಪಷ್ಟ ಗಡಿ (sona Pooja list ಶೈಲಿ) */
+    th,td{ padding:6px 8px; border:1px solid #000; }
+    td.c-no{ font-size:13px; text-align:center; }
+    td.c-name{ font-size:13.5px; line-height:1.5; }
+    thead th{ background:#eee !important; font-size:12.5px; font-weight:700; padding:7px 8px; }
+    .region-head{ padding:7px 10px; }
     /* ಮಾಗಣೆ ಹೆಸರು ಮತ್ತು ದೂರವಾಣಿ — ಸ್ವಲ್ಪ ದೊಡ್ಡ ಮತ್ತು ದಪ್ಪ (ಎರಡೂ PDF: ಡೇಟಾ + ಖಾಲಿ) */
     .region-head .rname{ font-size:16px !important; font-weight:800 !important; }
     .region-head .rphone{ font-size:14px !important; font-weight:800 !important; }
@@ -751,8 +766,6 @@
         <div class="card"><div class="v">${currentYear}</div><div class="l">ವರ್ಷ</div></div>
       </div>
       <div class="collect no-print">
-        <div class="ct"><span class="cl">ಒಟ್ಟು ಪೂಜಾ ಸೇವೆ</span><span class="cv">${money(gP)}</span></div>
-        <div class="ct"><span class="cl">ಒಟ್ಟು ಕಾಲುಕಾಣಿಕೆ</span><span class="cv">${money(gK)}</span></div>
         <div class="ct grand"><span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ (ಎಲ್ಲ ಮಾಗಣೆ)</span><span class="cv">${money(gT)}</span></div>
       </div>
       <div class="temple-head doc-level">${TEMPLE_HEAD}</div>
@@ -771,37 +784,33 @@
           <button class="rtoggle no-print" onclick="toggleRegion(${ri})" title="ತೆರೆ / ಮುಚ್ಚು">▾</button>
           <span class="no" ${ce} data-r="${ri}" data-f="no">${esc(r.no)}</span>
           <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
-          <span class="rcount no-print">${r.families.length}</span>
-          <span class="rmoney no-print" title="ಈ ಮಾಗಣೆಯ ಸಂಗ್ರಹ">ಪೂಜಾ <b>${money(s.p)}</b> · ಕಾಣಿಕೆ <b>${money(s.k)}</b> · ಒಟ್ಟು <b>${money(s.t)}</b></span>
+          <span class="rcount no-print">${r.families.length} ಕುಟುಂಬ</span>
+          <span class="rmoney no-print" title="ಈ ಮಾಗಣೆಯ ಸಂಗ್ರಹ">ಒಟ್ಟು <b>${money(s.t)}</b></span>
           <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
           <button class="rmenu-btn no-print" title="ಆಯ್ಕೆಗಳು (PDF)" onclick="regionMenu(event,${ri})">⋮</button>
           <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
         </div>
         <div class="tbl"><table>
           <thead><tr>
-            <th class="c-no">ಕ್ರ.</th>
+            <th class="c-no">ಕ್ರ.ಸಂ.</th>
             <th class="c-name">ಹೆಸರು / ವಿಳಾಸ</th>
             ${cols.map(c=>`<th class="c-chk">${esc(c)}</th>`).join("")}
-            <th class="c-money mfirst no-print">ಪೂಜಾ ₹</th>
-            <th class="c-money no-print">ಕಾಲುಕಾಣಿಕೆ ₹</th>
-            <th class="c-money no-print">ಒಟ್ಟು ₹</th>
+            <th class="c-money mfirst no-print">ಒಟ್ಟು ₹</th>
             <th class="c-del no-print"></th>
           </tr></thead>
           <tbody>`;
 
       if(r.families.length===0){
-        html += `<tr><td class="empty-note" colspan="${cols.length+6}">— ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ. ಕೆಳಗಿನ “+ ಹೆಸರು ಸೇರಿಸಿ” ಒತ್ತಿ —</td></tr>`;
+        html += `<tr><td class="empty-note" colspan="${cols.length+4}">— ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ. ಕೆಳಗಿನ “+ ಹೆಸರು ಸೇರಿಸಿ” ಒತ್ತಿ —</td></tr>`;
       } else {
         r.families.forEach((f,fi)=>{
           const ck = checks(f.c);
           const pa = poojaAmt(f), ka = num(f.k), tt = pa+ka;
           html += `<tr class="editrow" ondragover="rowDragOver(event)" ondrop="rowDrop(event,${ri},${fi})" onclick="editRow(${ri},${fi})" title="ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ">
-            <td class="c-no">${fi+1}</td>
+            <td class="c-no">${fi+1}.</td>
             <td class="c-name"><div>${esc(f.n)}</div>${f.p?`<div class="rphone-sm no-print">📞 ${esc(f.p)}</div>`:""}</td>
             ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" ${on?"checked":""} disabled></td>`).join("")}
-            <td class="c-money mfirst no-print">${money(pa)}</td>
-            <td class="c-money no-print">${money(ka)}</td>
-            <td class="c-money no-print total">${money(tt)}</td>
+            <td class="c-money mfirst no-print total">${money(tt)}</td>
             <td class="c-del no-print edit-only">
               <span class="draghandle" draggable="true" title="ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ" ondragstart="rowDragStart(event,${ri},${fi})" ondragend="rowDragEnd(event)" onclick="event.stopPropagation()">⠿</span>
               <button class="rowdel" title="ಸಾಲು ಅಳಿಸು" onclick="event.stopPropagation();delRow(${ri},${fi})">✕</button>

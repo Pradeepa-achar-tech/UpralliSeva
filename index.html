@@ -639,7 +639,8 @@
     if(!(CLOUD && auth && auth.currentUser && DOC)) return;
     const doc = toDoc();
     lastRemoteJSON = sigOf(doc);                    // ನಮ್ಮ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು
-    DOC.set(Object.assign({}, doc, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }))
+    // merge — ಯಾವುದೇ ಕ್ಷೇತ್ರ (ದರ ಸೇರಿ) ಆಕಸ್ಮಿಕವಾಗಿ ಅಳಿಸದಂತೆ
+    DOC.set(Object.assign({}, doc, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }), { merge:true })
       .then(()=>{ dirty=false; flash("✓ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
       .catch(err=>{ dirty=false; flash("⚠ ಕ್ಲೌಡ್ ಉಳಿಸಲಾಗಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });
   }
@@ -1295,7 +1296,12 @@
       // ನಮ್ಮಲ್ಲಿ ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ (dirty) ಇದ್ದರೆ — ರಿಮೋಟ್ ದತ್ತಾಂಶ ತರಬೇಡ
       // (ಇಲ್ಲದಿದ್ದರೆ ಬರೆಯುತ್ತಿರುವ ಹೆಸರು ಮೇಲೆ ಬರೆಯಲ್ಪಡುತ್ತದೆ).
       if(dirty || isEditingNow()) return;
-      const incoming = fromDoc(snap.data());        // ರಚನಾತ್ಮಕ ದಾಖಲೆ → state
+      const raw = snap.data();
+      const incoming = fromDoc(raw);                // ರಚನಾತ್ಮಕ ದಾಖಲೆ → state
+      // ಹಳೆಯ ಕ್ಲೈಂಟ್ ದರ ಕ್ಷೇತ್ರವಿಲ್ಲದೆ ಬರೆದಿದ್ದರೆ — ಸ್ಥಳೀಯ ದರ ಉಳಿಸಿಕೋ (ಅಳಿಸಬೇಡ)
+      if(!Array.isArray(raw.rates) && Array.isArray(state.rates) && state.rates.length){
+        incoming.rates = state.rates;
+      }
       const sig = sigOf(incoming);
       if(sig !== lastRemoteJSON){
         lastRemoteJSON = sig;

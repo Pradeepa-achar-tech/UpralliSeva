@@ -81,6 +81,11 @@
     margin:0 auto; padding:12mm 10mm;
     background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12); border-radius:14px;
   }
+  /* ---------- ದೇವಸ್ಥಾನ ತಲೆಬರಹ (PDF ಮಾತ್ರ) ---------- */
+  .temple-head{ display:none; text-align:center; margin:0 0 8px; break-inside:avoid; page-break-inside:avoid; }
+  .temple-head .th1{ font-size:17px; font-weight:700; line-height:1.4; }
+  .temple-head .th2{ font-size:22px; font-weight:800; line-height:1.45; margin:1px 0; }
+  .temple-head .th3{ font-size:14px; font-weight:600; line-height:1.4; }
   .doc-title{ text-align:center; font-weight:700; font-size:15px; margin:0 0 10px; padding-bottom:8px; border-bottom:2px solid var(--line); }
   .legend{ text-align:center; font-size:11px; color:#333; margin:-4px 0 14px; }
   .legend b{ font-weight:600; }
@@ -199,6 +204,12 @@
     .region-head .rname{ font-size:16px !important; font-weight:800 !important; }
     .region-head .rphone{ font-size:14px !important; font-weight:800 !important; }
     .region-head .rphone::before{ font-weight:800; }
+    /* ದೇವಸ್ಥಾನ ತಲೆಬರಹ — ಡೇಟಾ PDF: ದಾಖಲೆ ಆರಂಭದಲ್ಲಿ ಒಮ್ಮೆ ಮಾತ್ರ */
+    body:not(.blank-print) .temple-head.doc-level{ display:block; }
+    /* ಖಾಲಿ ಅರ್ಜಿ: ಪ್ರತಿ ಮಾಗಣೆಯ ಮೊದಲ ಪುಟದಲ್ಲಿ (ಎರಡನೇ ಪುಟಕ್ಕೆ ಮುಂದುವರಿದರೆ ಪುನರಾವರ್ತನೆ ಇಲ್ಲ) */
+    body.blank-print .temple-head.reg-level{ display:block; }
+    /* ಖಾಲಿ ಅರ್ಜಿ: ಪ್ರತಿ ಮಾಗಣೆ ಪುಟ ಏಕರೂಪವಾಗಿರಲು ವರ್ಷದ ಶೀರ್ಷಿಕೆ ಮರೆ */
+    body.blank-print .doc-title{ display:none !important; }
     td.c-del, th.c-del{ display:none !important; }
     .no-print{ display:none !important; }
     #login{ display:none !important; }
@@ -271,13 +282,17 @@
     .region.collapsed .tbl{ display:block !important; }
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಉಳಿದವು ಮರೆ */
     body.print-one .region:not(.print-target){ display:none !important; }
+    /* ಒಂದೇ ಮಾಗಣೆ — ಗುರಿ ಮಾಗಣೆಯ ತಲೆಬರಹ ಮಾತ್ರ (ಉಳಿದ ತಲೆಬರಹ ಮರೆ) */
+    body.print-one .temple-head.reg-level{ display:none !important; }
+    body.print-one.blank-print .temple-head.reg-level:has(+ .region.print-target){ display:block !important; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಎಲ್ಲ ✓ ಗುರುತು ಮರೆ (ಖಾಲಿ ಪೆಟ್ಟಿಗೆಗಳು) */
     body.blank-print input[type=checkbox]:checked::after{ content:"" !important; }
-    /* ಖಾಲಿ ಅರ್ಜಿ — ಮೊದಲನೆಯ ಹೊರತು ಪ್ರತಿ ಮಾಗಣೆ ಹೊಸ ಪುಟದಲ್ಲಿ ಆರಂಭ
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಮೊದಲನೆಯ ಹೊರತು ಪ್ರತಿ ಮಾಗಣೆ ಹೊಸ ಪುಟದಲ್ಲಿ ಆರಂಭ (ತಲೆಬರಹದಿಂದ)
        (ಒಂದೇ ಪುಟದಲ್ಲಿ ಎರಡು ಮಾಗಣೆ ಬರಬಾರದು) */
-    body.blank-print:not(.print-one) .region ~ .region{ break-before:page; page-break-before:always; }
+    body.blank-print:not(.print-one) .region ~ .temple-head.reg-level{ break-before:page; page-break-before:always; }
     body.blank-print .region{ break-inside:auto; page-break-inside:auto; }
-    /* ಮಾಗಣೆ ತಲೆಬರಹ ಮೊದಲ ಸಾಲಿನೊಂದಿಗೆ ಒಟ್ಟಿಗೆ; ಉಕ್ಕಿದ ಪುಟದಲ್ಲೂ ಕಾಲಂ ಶೀರ್ಷಿಕೆ */
+    /* ತಲೆಬರಹ ಮಾಗಣೆಯೊಂದಿಗೆ ಒಟ್ಟಿಗೇ ಉಳಿಯಲಿ; ಮಾಗಣೆ ತಲೆ ಮೊದಲ ಸಾಲಿನೊಂದಿಗೆ */
+    body.blank-print .temple-head.reg-level{ break-after:avoid; page-break-after:avoid; }
     body.blank-print .region-head{ break-after:avoid; page-break-after:avoid; }
     body.blank-print thead{ display:table-header-group; }
   }
@@ -693,6 +708,11 @@
   }
 
   /* ===================== ಸಹಾಯಕಗಳು ===================== */
+  /* ದೇವಸ್ಥಾನ ತಲೆಬರಹ (PDF ನಲ್ಲಿ ಮಾತ್ರ ಕಾಣಿಸುತ್ತದೆ) */
+  const TEMPLE_HEAD =
+    '<div class="th1">ಕರಸ್ಥಳ ಜಗದ್ಗುರು ಶ್ರೀ ನಾಗಲಿಂಗ ಸ್ವಾಮಿ ಹಾಗೂ ಶ್ರೀ ವಿಶ್ವಕರ್ಮೇಶ್ವರ ಸಾನಿಧ್ಯವಿರುವ</div>'+
+    '<div class="th2">ಶ್ರೀ ಕಾಳಿಕಾಂಬಾ ದೇವಸ್ಥಾನ, ಉಪ್ರಳ್ಳಿ</div>'+
+    '<div class="th3">ಉಳ್ಳೂರು – 11, ಪೋಸ್ಟ್ : ಮೂಡುಮಠ, ಕುಂದಾಪುರ ತಾಲೂಕು, ಉಡುಪಿ ಜಿಲ್ಲೆ – 576 219</div>';
   const esc = s => String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   const checks = c => { const a=[]; const s=(c||"").padEnd(5,"0"); for(let i=0;i<5;i++) a.push(s[i]==="1"); return a; };
 
@@ -728,6 +748,7 @@
         <div class="ct"><span class="cl">ಒಟ್ಟು ಕಾಲುಕಾಣಿಕೆ</span><span class="cv">${money(gK)}</span></div>
         <div class="ct grand"><span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ (ಎಲ್ಲ ಮಾಗಣೆ)</span><span class="cv">${money(gT)}</span></div>
       </div>
+      <div class="temple-head doc-level">${TEMPLE_HEAD}</div>
       <div class="doc-title" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">
         ಕಾಲಂಗಳು: <b>${cols.map(esc).join(" · ")}</b>
@@ -737,7 +758,8 @@
     state.regions.forEach((r,ri)=>{
       const open = openRegions.has(ri);
       const s = rsum[ri];
-      html += `<div class="region ${open?'':'collapsed'}" id="reg-${ri}">
+      html += `<div class="temple-head reg-level">${TEMPLE_HEAD}</div>
+      <div class="region ${open?'':'collapsed'}" id="reg-${ri}">
         <div class="region-head">
           <button class="rtoggle no-print" onclick="toggleRegion(${ri})" title="ತೆರೆ / ಮುಚ್ಚು">▾</button>
           <span class="no" ${ce} data-r="${ri}" data-f="no">${esc(r.no)}</span>
@@ -940,6 +962,7 @@
       .map(x=>({ n:(x.n||"").trim(), r:String(x.r||"").trim() }));
     closeRates();
     save();
+    render();   // ಕಾಲಂ ಮೊತ್ತಗಳು ತಕ್ಷಣ ನವೀಕರಿಸು
     toast("✓ ದರಗಳು ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")","ok");
   }
   document.addEventListener('keydown', e=>{

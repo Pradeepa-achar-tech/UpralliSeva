@@ -3,6 +3,7 @@ import '../main.dart';
 import '../models.dart';
 import '../pdf_service.dart';
 import 'region_screen.dart';
+import 'rates_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -163,11 +164,16 @@ class _HomeScreenState extends State<HomeScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (v) {
+              if (v == 'rates') {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => RatesScreen(year: _year)));
+              }
               if (v == 'new') _newYear();
               if (v == 'delete') _deleteYear();
               if (v == 'logout') authService.signOut();
             },
             itemBuilder: (_) => const [
+              PopupMenuItem(value: 'rates', child: ListTile(leading: Icon(Icons.tune), title: Text('ಸೇವಾ ದರಗಳು'))),
               PopupMenuItem(value: 'new', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('ಹೊಸ ವರ್ಷ'))),
               PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete_outline, color: Colors.red), title: Text('ಈ ವರ್ಷ ಅಳಿಸಿ'))),
               PopupMenuItem(value: 'logout', child: ListTile(leading: Icon(Icons.logout), title: Text('ಲಾಗ್‌ಔಟ್'))),
@@ -196,6 +202,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 )
               else ...[
                 SliverToBoxAdapter(child: _stats(data)),
+                SliverToBoxAdapter(child: _collection(data)),
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
                   sliver: SliverList.separated(
@@ -273,6 +280,58 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // ---------- ಎಲ್ಲ ಮಾಗಣೆಯ ಒಟ್ಟು ಸಂಗ್ರಹ ----------
+  Widget _collection(PoojaData data) {
+    double gp = 0, gk = 0;
+    for (final r in data.regions) {
+      for (final f in r.families) {
+        gp += data.poojaAmount(f);
+        gk += double.tryParse(f.k.trim()) ?? 0;
+      }
+    }
+    Widget box(String label, String val, {bool grand = false}) => Expanded(
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(12, 11, 10, 11),
+            decoration: BoxDecoration(
+              color: grand ? kPrimary.withOpacity(.12) : Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: grand ? kPrimary : kCardLine),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10, color: Colors.black54, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 3),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(val,
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: grand ? kPrimaryDark : kInk)),
+                ),
+              ],
+            ),
+          ),
+        );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
+      child: Row(
+        children: [
+          box('ಒಟ್ಟು ಪೂಜಾ ಸೇವೆ', money(gp)),
+          const SizedBox(width: 10),
+          box('ಒಟ್ಟು ಕಾಲುಕಾಣಿಕೆ', money(gk)),
+          const SizedBox(width: 10),
+          box('ಒಟ್ಟು ಸಂಗ್ರಹ', money(gp + gk), grand: true),
+        ],
+      ),
+    );
+  }
+
   Widget _stat(String value, String label, IconData icon) {
     return Expanded(
       child: Container(
@@ -316,6 +375,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final total = r.families.length;
     final done = r.families.where((f) => f.count > 0).length;
     final pct = total == 0 ? 0.0 : done / total;
+    double mp = 0, mk = 0;
+    for (final f in r.families) {
+      mp += data.poojaAmount(f);
+      mk += double.tryParse(f.k.trim()) ?? 0;
+    }
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -355,6 +419,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 5),
                     Text('$done / $total ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ',
                         style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                    const SizedBox(height: 4),
+                    Text('ಸಂಗ್ರಹ: ${money(mp + mk)}',
+                        style: const TextStyle(fontSize: 12, color: kPrimaryDark, fontWeight: FontWeight.w700)),
                   ],
                 ),
               ),

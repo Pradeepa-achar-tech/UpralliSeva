@@ -42,6 +42,8 @@ class _RegionScreenState extends State<RegionScreen> {
     final f = region.families[i];
     final nameCtrl = TextEditingController(text: f.n);
     nameCtrl.selection = const TextSelection.collapsed(offset: 0); // ಕರ್ಸರ್ ಆರಂಭದಲ್ಲಿ
+    final phoneCtrl = TextEditingController(text: f.p);
+    final kaaluCtrl = TextEditingController(text: f.k);
     final sel = List<bool>.generate(cols.length, (ci) => f.isOn(ci));
     final ok = await showDialog<bool>(
       context: context,
@@ -62,6 +64,15 @@ class _RegionScreenState extends State<RegionScreen> {
                     border: OutlineInputBorder(),
                   ),
                 ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (ಐಚ್ಛಿಕ)',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
                 const SizedBox(height: 16),
                 const Text('ಪೂಜೆಗಳು', style: TextStyle(fontWeight: FontWeight.w600)),
                 const SizedBox(height: 8),
@@ -76,6 +87,16 @@ class _RegionScreenState extends State<RegionScreen> {
                         onSelected: (v) => setLocal(() => sel[ci] = v),
                       )),
                 ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: kaaluCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: const InputDecoration(
+                    labelText: 'ಕಾಲುಕಾಣಿಕೆ ₹ (ಐಚ್ಛಿಕ)',
+                    prefixText: '₹ ',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -89,6 +110,8 @@ class _RegionScreenState extends State<RegionScreen> {
     if (ok == true) {
       setState(() {
         f.n = nameCtrl.text.trim();
+        f.p = phoneCtrl.text.trim();
+        f.k = kaaluCtrl.text.trim();
         for (var ci = 0; ci < cols.length; ci++) f.setOn(ci, sel[ci]);
       });
       _dirty = true;
@@ -206,7 +229,11 @@ class _RegionScreenState extends State<RegionScreen> {
         icon: const Icon(Icons.person_add),
         label: const Text('ಹೆಸರು'),
       ),
-      body: region.families.isEmpty
+      body: Column(
+        children: [
+          _maganiTotal(),
+          Expanded(
+            child: region.families.isEmpty
           ? const Center(child: Text('ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ'))
           : ReorderableListView.builder(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
@@ -234,12 +261,23 @@ class _RegionScreenState extends State<RegionScreen> {
                               ),
                               const SizedBox(width: 10),
                               Expanded(
-                                child: Text(
-                                  f.n.trim().isEmpty ? '— ಹೆಸರು ಸೇರಿಸಿ —' : f.n,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 15,
-                                      color: f.n.trim().isEmpty ? Colors.black38 : kInk),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      f.n.trim().isEmpty ? '— ಹೆಸರು ಸೇರಿಸಿ —' : f.n,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 15,
+                                          color: f.n.trim().isEmpty ? Colors.black38 : kInk),
+                                    ),
+                                    if (f.p.trim().isNotEmpty)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 2),
+                                        child: Text('📞 ${f.p}',
+                                            style: const TextStyle(fontSize: 12, color: Colors.black54)),
+                                      ),
+                                  ],
                                 ),
                               ),
                               // ✎ ತಿದ್ದು — ಪಾಪ್‌ಅಪ್‌ನಲ್ಲಿ ಮಾತ್ರ ಬದಲಾವಣೆ (ಆಕಸ್ಮಿಕ ತಿದ್ದುಪಡಿ ಇಲ್ಲ)
@@ -275,6 +313,9 @@ class _RegionScreenState extends State<RegionScreen> {
                             children: List.generate(
                                 cols.length, (ci) => _poojaTag(cols[ci], f.isOn(ci))),
                           ),
+                          const SizedBox(height: 10),
+                          _moneyLine(widget.data.poojaAmount(f),
+                              double.tryParse(f.k.trim()) ?? 0),
                         ],
                       ),
                     ),
@@ -282,7 +323,69 @@ class _RegionScreenState extends State<RegionScreen> {
                 );
               },
             ),
+          ),
+        ],
+      ),
     );
+  }
+
+  /// ಈ ಮಾಗಣೆಯ ಒಟ್ಟು ಸಂಗ್ರಹ (ಪೂಜಾ / ಕಾಲುಕಾಣಿಕೆ / ಒಟ್ಟು)
+  Widget _maganiTotal() {
+    double pa = 0, ka = 0;
+    for (final f in region.families) {
+      pa += widget.data.poojaAmount(f);
+      ka += double.tryParse(f.k.trim()) ?? 0;
+    }
+    Widget tot(String l, String v, {bool strong = false}) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l, style: const TextStyle(fontSize: 10.5, color: Colors.black54, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 2),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(v,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: strong ? kPrimaryDark : kInk)),
+            ),
+          ],
+        );
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: kCardLine),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: tot('ಪೂಜಾ ಸೇವೆ', money(pa))),
+          Expanded(child: tot('ಕಾಲುಕಾಣಿಕೆ', money(ka))),
+          Expanded(child: tot('ಒಟ್ಟು', money(pa + ka), strong: true)),
+        ],
+      ),
+    );
+  }
+
+  /// ಪ್ರತಿ ಸಾಲಿನ ಮೊತ್ತ — ಪೂಜಾ / ಕಾಲುಕಾಣಿಕೆ / ಒಟ್ಟು
+  Widget _moneyLine(double pa, double ka) {
+    Widget chip(String text, {bool strong = false}) => Container(
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+          decoration: BoxDecoration(
+            color: strong ? kPrimary.withOpacity(.12) : const Color(0xFFF3F4F8),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(text,
+              style: TextStyle(
+                  fontSize: 11.5,
+                  color: strong ? kPrimaryDark : Colors.black87,
+                  fontWeight: strong ? FontWeight.w800 : FontWeight.w600)),
+        );
+    return Wrap(spacing: 8, runSpacing: 6, children: [
+      chip('ಪೂಜಾ ${money(pa)}'),
+      chip('ಕಾಲುಕಾಣಿಕೆ ${money(ka)}'),
+      chip('ಒಟ್ಟು ${money(pa + ka)}', strong: true),
+    ]);
   }
 
   /// ಮಾಗಣೆಯೊಳಗೆ ಸಾಲು ಎಳೆದು ಕ್ರಮ ಬದಲಾವಣೆ

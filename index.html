@@ -149,6 +149,11 @@
   .region-head .rname{ font-weight:700; font-size:13.5px; flex:1; }
   .region-head .rphone{ font-size:12px; white-space:nowrap; }
   .region-head .rphone::before{ content:"ಮೊ: "; color:#444; }
+  /* ಲಾಗಿನ್ ಆದಾಗ — ದೂರವಾಣಿ ಕ್ಲಿಕ್ ಮಾಡಿ ಪಾಪ್‌ಅಪ್‌ನಲ್ಲಿ ತಿದ್ದಬಹುದು */
+  .region-head .rphone-edit{ cursor:pointer; border-bottom:1px dashed #b9c6d3; padding-bottom:1px; }
+  .region-head .rphone-edit:hover{ background:#eef4fb; border-radius:3px; }
+  .region-head .rphone-edit::after{ content:" ✏"; font-size:11px; opacity:.55; }
+  @media print{ .region-head .rphone-edit{ border-bottom:none; } .region-head .rphone-edit::after{ display:none; } }
 
   table{ width:100%; border-collapse:collapse; }
   th,td{ border:1px solid var(--line); padding:3px 5px; vertical-align:top; }
@@ -210,7 +215,7 @@
     .region{ break-inside:auto; page-break-inside:auto; box-sizing:border-box; }
     /* ಮುದ್ರಣದಲ್ಲಿ ಅಡ್ಡ ಸ್ಕ್ರಾಲ್ ಬೇಡ — ಇಲ್ಲದಿದ್ದರೆ ಬಲ ಗಡಿ ಕತ್ತರಿಸುತ್ತದೆ */
     /* ಬಲ ಅಂಚಿನ ಗೆರೆ ಪೂರ್ತಿ ಮುದ್ರಿತವಾಗಲು ಟೇಬಲ್‌ ಅನ್ನು 2px ಒಳಕ್ಕೆ ತನ್ನಿ */
-    .tbl{ overflow:visible !important; padding-right:2px; box-sizing:border-box; }
+    .tbl{ overflow:visible !important; box-sizing:border-box; }
     table{ box-sizing:border-box; }
     .region-head{ break-after:avoid; page-break-after:avoid; }
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
@@ -221,6 +226,9 @@
     td.c-name{ font-size:13.5px; line-height:1.5; }
     thead th{ background:#eee !important; font-size:12.5px; font-weight:700; padding:7px 8px; }
     .region-head{ padding:7px 10px; }
+    /* ಬಾಕ್ಸ್ ಗಡಿ ಪೂರ್ಣ: region ಹೊದಿಕೆ ಗಡಿ ಪುಟ ಮುರಿತದಲ್ಲಿ ಬೀಳುತ್ತದೆ — ಬದಲಿಗೆ ತಲೆಗೇ ಸ್ವಂತ ಗಡಿ + ಟೇಬಲ್ ಸೆಲ್ ಗಡಿ */
+    .region{ border:none !important; margin-right:3px; }
+    .region-head{ border:1px solid #000; border-bottom:none; }
     /* ಮಾಗಣೆ ಹೆಸರು ಮತ್ತು ದೂರವಾಣಿ — ಸ್ವಲ್ಪ ದೊಡ್ಡ ಮತ್ತು ದಪ್ಪ (ಎರಡೂ PDF: ಡೇಟಾ + ಖಾಲಿ) */
     .region-head .rname{ font-size:16px !important; font-weight:800 !important; }
     .region-head .rphone{ font-size:14px !important; font-weight:800 !important; }
@@ -484,6 +492,20 @@
       <div class="modal-actions">
         <button class="tb" onclick="closeRates()">ರದ್ದು</button>
         <button class="tb primary" onclick="saveRates()">ಉಳಿಸಿ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ಮಾಗಣೆ ದೂರವಾಣಿ ಸಂಖ್ಯೆ(ಗಳು) ತಿದ್ದುಪಡಿ ===== -->
+  <div id="phoneModal" class="modal-wrap no-print" onclick="if(event.target===this)closePhone()">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:420px">
+      <div class="modal-title">ಮಾಗಣೆ ದೂರವಾಣಿ ಸಂಖ್ಯೆಗಳು</div>
+      <div style="font-size:12px;color:var(--muted);margin:0 0 12px">ಒಂದು ಅಥವಾ ಹೆಚ್ಚು ಸಂಖ್ಯೆ ಸೇರಿಸಬಹುದು · ಕನಿಷ್ಠ ಒಂದು ಕಡ್ಡಾಯ</div>
+      <div id="phoneRows" class="rate-rows"></div>
+      <button class="tb" style="margin-top:12px;width:100%" onclick="addPhone()">＋ ಇನ್ನೊಂದು ಸಂಖ್ಯೆ ಸೇರಿಸಿ</button>
+      <div class="modal-actions">
+        <button class="tb" onclick="closePhone()">ರದ್ದು</button>
+        <button class="tb primary" onclick="savePhone()">ಉಳಿಸಿ</button>
       </div>
     </div>
   </div>
@@ -786,7 +808,7 @@
           <span class="rname" ${ce} data-r="${ri}" data-f="name">${esc(r.name)}</span>
           <span class="rcount no-print">${r.families.length} ಕುಟುಂಬ</span>
           <span class="rmoney no-print" title="ಈ ಮಾಗಣೆಯ ಸಂಗ್ರಹ">ಒಟ್ಟು <b>${money(s.t)}</b></span>
-          <span class="rphone" ${ce} data-r="${ri}" data-f="phone">${esc(r.phone)}</span>
+          <span class="rphone${canEdit?' rphone-edit':''}" ${canEdit?`onclick="openPhone(${ri})" title="ದೂರವಾಣಿ ಸಂಖ್ಯೆ ತಿದ್ದಿ / ಸೇರಿಸಿ"`:''}>${esc(r.phone)}</span>
           <button class="rmenu-btn no-print" title="ಆಯ್ಕೆಗಳು (PDF)" onclick="regionMenu(event,${ri})">⋮</button>
           <button class="tb warn no-print edit-only" style="padding:3px 8px" onclick="delRegion(${ri})">ಅಳಿಸು</button>
         </div>
@@ -994,6 +1016,50 @@
   document.addEventListener('keydown', e=>{
     const rm=document.getElementById('rateModal');
     if(rm && rm.classList.contains('open') && e.key==='Escape') closeRates();
+  });
+
+  /* ===================== ಮಾಗಣೆ ದೂರವಾಣಿ ಸಂಖ್ಯೆ(ಗಳು) ===================== */
+  /* ದೂರವಾಣಿಯನ್ನು ", "ಯಿಂದ ಬೇರ್ಪಡಿಸಿ ಒಂದೇ ಪಠ್ಯವಾಗಿ r.phone ನಲ್ಲಿ ಉಳಿಸಲಾಗುತ್ತದೆ (ಆ್ಯಪ್ + PDFಗೆ ಹೊಂದಿಕೆ) */
+  let _phoneDraft=null, _phoneRi=null;
+  function openPhone(ri){
+    if(!canEdit){ toast("ತಿದ್ದಲು ಲಾಗಿನ್ ಆಗಿರಬೇಕು","warn"); return; }
+    const r=state.regions[ri]; if(!r) return;
+    _phoneRi=ri;
+    const list=String(r.phone||"").split(/[,\n;]/).map(s=>s.trim()).filter(Boolean);
+    _phoneDraft = list.length ? list : [""];
+    renderPhoneRows();
+    document.getElementById('phoneModal').classList.add('open');
+    setTimeout(()=>{ const ins=document.querySelectorAll('#phoneRows .rate-name-in'); if(ins.length) ins[0].focus(); },40);
+  }
+  function renderPhoneRows(){
+    const box=document.getElementById('phoneRows'); if(!box) return;
+    box.innerHTML=_phoneDraft.map((v,i)=>
+      `<div class="rate-row">`+
+        `<input class="rate-name-in" type="tel" inputmode="tel" value="${esc(v)}" placeholder="ಮೊಬೈಲ್ ಸಂಖ್ಯೆ" oninput="phoneSet(${i},this.value)">`+
+        (_phoneDraft.length>1 ? `<button class="rate-del" title="ಈ ಸಂಖ್ಯೆ ತೆಗೆ" onclick="delPhone(${i})">✕</button>` : ``)+
+      `</div>`).join("");
+  }
+  function phoneSet(i,v){ if(_phoneDraft && i<_phoneDraft.length) _phoneDraft[i]=v; }
+  function addPhone(){
+    if(!_phoneDraft) return;
+    _phoneDraft.push(""); renderPhoneRows();
+    const ins=document.querySelectorAll('#phoneRows .rate-name-in'); if(ins.length) ins[ins.length-1].focus();
+  }
+  function delPhone(i){ if(_phoneDraft && _phoneDraft.length>1){ _phoneDraft.splice(i,1); renderPhoneRows(); } }
+  function closePhone(){ const m=document.getElementById('phoneModal'); if(m) m.classList.remove('open'); _phoneDraft=null; _phoneRi=null; }
+  function savePhone(){
+    if(_phoneDraft===null || _phoneRi===null) return closePhone();
+    const nums=_phoneDraft.map(s=>String(s||"").trim()).filter(Boolean);
+    if(nums.length===0){ toast("ಕನಿಷ್ಠ ಒಂದು ದೂರವಾಣಿ ಸಂಖ್ಯೆ ಬೇಕು","warn"); return; }
+    const r=state.regions[_phoneRi];
+    if(r){ r.phone=nums.join(", "); pendingSaveMsg="✏ ದೂರವಾಣಿ"; }
+    closePhone();
+    save(); render();
+    toast("✓ ದೂರವಾಣಿ ಉಳಿಸಲಾಗಿದೆ","ok");
+  }
+  document.addEventListener('keydown', e=>{
+    const pm=document.getElementById('phoneModal');
+    if(pm && pm.classList.contains('open') && e.key==='Escape') closePhone();
   });
 
   function buildJump(){

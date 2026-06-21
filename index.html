@@ -690,8 +690,13 @@
   function pushNow(){
     if(!(CLOUD && auth && auth.currentUser && DOC)) return;
     const doc = toDoc();
-    lastRemoteJSON = sigOf(doc);                    // ನಮ್ಮ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು
-    // merge — ಯಾವುದೇ ಕ್ಷೇತ್ರ (ದರ ಸೇರಿ) ಆಕಸ್ಮಿಕವಾಗಿ ಅಳಿಸದಂತೆ
+    /* ⚠ ದರ ರಕ್ಷಣೆ: ಈ ಬರಹ regions/ಹೆಸರು ಬದಲಾವಣೆಗೆ. doc.rates ಯಾವಾಗಲೂ ಸೇರಿರುತ್ತದೆ —
+       merge:true ಆದರೂ ಸ್ಪಷ್ಟ rates ಕ್ಷೇತ್ರ ಕ್ಲೌಡ್‌ನ ದರವನ್ನು ಮೇಲ್ಬರೆಯುತ್ತದೆ.
+       ಸ್ಥಳೀಯ ದರ ಖಾಲಿ/ಬರಿದಾಗಿದ್ದರೆ (ಇನ್ನೂ ಲೋಡ್ ಆಗಿಲ್ಲ/ಸ್ಟೇಲ್) ದರ ಬರೆಯಬೇಡ —
+       ಆಗ merge ಕ್ಲೌಡ್‌ನ ಅಸ್ತಿತ್ವದ ದರ ಉಳಿಸಿಕೊಳ್ಳುತ್ತದೆ. ದರ ತಿದ್ದುಪಡಿ saveRates() ಮೂಲಕ ಮಾತ್ರ. */
+    const hasRates = Array.isArray(doc.rates) && doc.rates.some(x => String(x.r||"").trim() !== "");
+    if(!hasRates) delete doc.rates;
+    lastRemoteJSON = sigOf(toDoc());                // ಪೂರ್ಣ state ಆಧಾರಿತ ಸಹಿ (ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು)
     DOC.set(Object.assign({}, doc, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }), { merge:true })
       .then(()=>{ dirty=false; flash("✓ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
       .catch(err=>{ dirty=false; flash("⚠ ಕ್ಲೌಡ್ ಉಳಿಸಲಾಗಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });

@@ -298,7 +298,7 @@ class _HomeScreenState extends State<HomeScreen> {
               border: Border.all(color: grand ? kPrimary : kCardLine),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(label,
                     maxLines: 1,
@@ -307,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 3),
                 FittedBox(
                   fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
+                  alignment: Alignment.center,
                   child: Text(val,
                       style: TextStyle(
                           fontSize: 18,
@@ -322,8 +322,6 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
       child: Row(
         children: [
-          box('ಒಟ್ಟು ಪೂಜಾ ಸೇವೆ', money(gp)),
-          const SizedBox(width: 10),
           box('ಒಟ್ಟು ಸಂಗ್ರಹ', money(gp + gk), grand: true),
         ],
       ),

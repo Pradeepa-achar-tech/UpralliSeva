@@ -325,13 +325,13 @@ class _RegionScreenState extends State<RegionScreen> {
       ka += double.tryParse(f.k.trim()) ?? 0;
     }
     Widget tot(String l, String v, {bool strong = false}) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(l, style: const TextStyle(fontSize: 10.5, color: Colors.black54, fontWeight: FontWeight.w600)),
             const SizedBox(height: 2),
             FittedBox(
               fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
+              alignment: Alignment.center,
               child: Text(v,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: strong ? kPrimaryDark : kInk)),
             ),
@@ -347,7 +347,6 @@ class _RegionScreenState extends State<RegionScreen> {
       ),
       child: Row(
         children: [
-          Expanded(child: tot('ಪೂಜಾ ಸೇವೆ', money(pa))),
           Expanded(child: tot('ಒಟ್ಟು ಸಂಗ್ರಹ', money(pa + ka), strong: true)),
         ],
       ),

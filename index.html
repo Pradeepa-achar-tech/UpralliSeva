@@ -116,6 +116,22 @@
   .collect .cv{ font-size:21px; font-weight:800; color:var(--ink); }
   .collect .ct.grand{ background:var(--accent-soft); border-color:var(--accent); }
   .collect .ct.grand .cv{ color:var(--accent-dark); }
+  /* ಹೀರೋ — ಒಟ್ಟು ಸಂಗ್ರಹ (ಡ್ಯಾಶ್‌ಬೋರ್ಡ್‌ನ ಮುಖ್ಯ ಸಂಖ್ಯೆ, ಮೇಲ್ಭಾಗದಲ್ಲಿ) */
+  .collect.hero{ margin:0 0 14px; justify-content:center; }   /* ಪುಟದ ಮಧ್ಯದಲ್ಲಿ */
+  .collect.hero .ct.grand{
+    flex:0 1 auto;                          /* ವಿಷಯಕ್ಕೆ ತಕ್ಕಂತೆ ಅಗಲ — ಪೂರ್ಣ ಅಗಲ ಅಲ್ಲ */
+    flex-direction:row; align-items:center; justify-content:center; gap:22px;
+    border:1.5px solid var(--accent); border-radius:16px; padding:14px 32px;
+    background:linear-gradient(135deg, var(--accent-soft), #fff);
+    box-shadow:0 4px 14px rgba(233,115,12,.14);
+  }
+  .collect.hero .cl{ font-size:14px; font-weight:700; color:var(--accent-dark); }
+  .collect.hero .cl small{ font-size:11.5px; font-weight:600; color:var(--muted); }
+  .collect.hero .cv{ font-size:32px; font-weight:800; color:var(--accent-dark); line-height:1; white-space:nowrap; letter-spacing:.2px; }
+  @media (max-width:560px){
+    .collect.hero .ct.grand{ flex-direction:column; align-items:center; gap:4px; width:100%; }
+    .collect.hero .cv{ font-size:28px; }
+  }
   @media print{ .collect{ display:none !important; } }
 
   /* ಮಾಗಣೆ ಸಂಗ್ರಹ + ಮೊತ್ತ ಕಾಲಂಗಳು (ಪರದೆ ಮೇಲೆ ಮಾತ್ರ) */
@@ -801,14 +817,17 @@
     const gP=rsum.reduce((a,b)=>a+b.p,0), gK=rsum.reduce((a,b)=>a+b.k,0), gT=gP+gK;
 
     let html = `
+      <div class="collect hero no-print">
+        <div class="ct grand">
+          <span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ <small>(ಎಲ್ಲ ಮಾಗಣೆ)</small></span>
+          <span class="cv">${money(gT)}</span>
+        </div>
+      </div>
       <div class="dash no-print">
         <div class="card"><div class="v">${state.regions.length}</div><div class="l">ಮಾಗಣೆ</div></div>
         <div class="card"><div class="v">${total}</div><div class="l">ಹೆಸರು</div></div>
         <div class="card"><div class="v">${done}</div><div class="l">ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ</div></div>
         <div class="card"><div class="v">${currentYear}</div><div class="l">ವರ್ಷ</div></div>
-      </div>
-      <div class="collect no-print">
-        <div class="ct grand"><span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ (ಎಲ್ಲ ಮಾಗಣೆ)</span><span class="cv">${money(gT)}</span></div>
       </div>
       <div class="doc-title doc-level" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">

@@ -817,17 +817,17 @@
     const gP=rsum.reduce((a,b)=>a+b.p,0), gK=rsum.reduce((a,b)=>a+b.k,0), gT=gP+gK;
 
     let html = `
-      <div class="collect hero no-print">
-        <div class="ct grand">
-          <span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ <small>(ಎಲ್ಲ ಮಾಗಣೆ)</small></span>
-          <span class="cv">${money(gT)}</span>
-        </div>
-      </div>
       <div class="dash no-print">
         <div class="card"><div class="v">${state.regions.length}</div><div class="l">ಮಾಗಣೆ</div></div>
         <div class="card"><div class="v">${total}</div><div class="l">ಹೆಸರು</div></div>
         <div class="card"><div class="v">${done}</div><div class="l">ಪೂಜೆ ಸಲ್ಲಿಸಿದ್ದಾರೆ</div></div>
         <div class="card"><div class="v">${currentYear}</div><div class="l">ವರ್ಷ</div></div>
+      </div>
+      <div class="collect hero no-print">
+        <div class="ct grand">
+          <span class="cl">ಒಟ್ಟು ಸಂಗ್ರಹ <small>(ಎಲ್ಲ ಮಾಗಣೆ)</small></span>
+          <span class="cv">${money(gT)}</span>
+        </div>
       </div>
       <div class="doc-title doc-level" ${ce} data-t="title">${esc(state.title)}</div>
       <div class="legend no-print">

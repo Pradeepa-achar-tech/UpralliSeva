@@ -11,7 +11,7 @@
 <!-- ಕನ್ನಡ ಫಾಂಟ್ — UI ಗೆ Sans, PDF/ದಾಖಲೆಗೆ ಸುಂದರ Serif (sona Pooja list ಶೈಲಿ) -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400;500;600;700;800&family=Noto+Serif+Kannada:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@300;400;500;600;700;800&family=Noto+Serif+Kannada:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <!-- ಹಳೆಯ ಸ್ಥಳೀಯ ಫಾಂಟ್ (ಇದ್ದರೆ ಬಳಸಿ; ಇಲ್ಲದಿದ್ದರೆ ಮೇಲಿನವು) -->
 <link href="assets/kannada-font.css" rel="stylesheet">
 
@@ -181,6 +181,9 @@
   td.c-name [contenteditable]{ outline:none; min-height:1em; display:block; }
   td.c-name [contenteditable]:focus{ background:#fff7cc; }
 
+  /* ===== ಎರಡು-ಕಾಲಂ ಮುದ್ರಣ ಹರಿವು (PDF — sone arathi ಶೈಲಿ; ಪರದೆಯಲ್ಲಿ ಮರೆ) ===== */
+  .print-flow{ display:none; }
+
   /* ಚೆಕ್‌ಬಾಕ್ಸ್ — ಗುರುತಿಸಿದರೆ ಬಾಕ್ಸ್ ಇಲ್ಲದೆ ಬರೀ ✓ ತೋರಿಸು */
   input[type=checkbox]{
     -webkit-appearance:none; appearance:none;
@@ -243,6 +246,40 @@
     thead th{ background:#eee !important; font-size:14px; font-weight:700; padding:8px 8px; }
     /* ✓ ಗುರುತು ಸ್ವಲ್ಪ ದೊಡ್ಡದಾಗಿ (ಡೇಟಾ PDF) */
     input[type=checkbox]{ width:19px !important; height:19px !important; font-size:18px !important; }
+    /* ===== ಎರಡು-ಕಾಲಂ ಹರಿವು (sone arathi ಶೈಲಿ): ಎಲ್ಲ ಪರದೆ ವಿಷಯ ಮರೆ, ಹರಿವು ಮಾತ್ರ ====== */
+    .dash, .collect, .legend, .region, .doc-title, .temple-head{ display:none !important; }
+    /* column-gap → ಎರಡು ಪ್ರತ್ಯೇಕ ಬಾಕ್ಸ್ (ಮಧ್ಯದ ಗೆರೆ ಅಲ್ಲ); column-rule ಇಲ್ಲ */
+    /* column-fill:auto → ಕಾಲಂ ಮೇಲಿಂದ ಕೆಳಗೆ ತುಂಬು (balance ಇಲ್ಲ) → ಕೆಳಗೆ ಖಾಲಿ ಜಾಗ/ತೂಗು ಗೆರೆ ಇಲ್ಲ */
+    .print-flow{ display:block !important; column-count:2; column-gap:16px; column-fill:auto; }
+    .pf-temple{ display:none; }
+    body.blank-print .pf-temple{ display:block; column-span:all; text-align:center; margin:0 0 8px; }
+    .pf-title{ column-span:all; text-align:center; font-weight:800; font-size:15px; margin:0 0 8px; padding:0 0 6px; border-bottom:2px solid #000; }
+    body.blank-print .pf-title{ display:none; }
+    .pf-mag{ break-inside:auto; margin:0 0 10px; }   /* ನಿರಂತರ ಹರಿವು (ಮಾಗಣೆ ಕಾಲಂ ದಾಟಿ ಮುಂದುವರಿಯಬಹುದು) */
+    /* ಮಾಗಣೆ ಶೀರ್ಷಿಕೆ ಪಟ್ಟಿ — ಟೇಬಲ್ ಮೇಲೆ (ಮುಂದುವರಿದ ಕಾಲಂನಲ್ಲಿ ಪುನರಾವರ್ತನೆ ಇಲ್ಲ) */
+    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:700; font-size:13px; color:#222; border:1px solid #9a9a9a; border-bottom:none; padding:3px 7px; background:#f2f2f2; break-after:avoid; }
+    .pf-head .pf-ph{ font-size:11px; font-weight:600; white-space:nowrap; }
+    /* ಟೇಬಲ್ ಗಡಿ ಇಲ್ಲ — ಬದಿ ಗೆರೆಗಳು ಸೆಲ್‌ನಿಂದ (ಖಾಲಿ ಜಾಗಕ್ಕೆ ತೂಗದಂತೆ); ಮೇಲೆ thead, ಕೆಳಗೆ tfoot */
+    .pf-tbl{ width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
+    /* ಜಾಗತಿಕ th,td ಗಡಿ ರದ್ದು; ನಂತರ ತೆಳು ಲಂಬ ಗೆರೆ ಮಾತ್ರ */
+    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:1px solid #c2c2c2 !important; padding:4px 7px; font-size:13px; font-weight:300; color:#222; vertical-align:top; overflow:hidden; box-sizing:border-box; line-height:1.55; }
+    .pf-tbl tr > :last-child{ border-right:1px solid #9a9a9a !important; }   /* ಬಾಕ್ಸ್ ಬಲ ಅಂಚು */
+    .pf-tbl thead{ display:table-header-group; }                              /* ಮೇಲ್ ಶೀರ್ಷಿಕೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
+    .pf-tbl thead th{ border-top:1px solid #9a9a9a !important; border-bottom:1px solid #9a9a9a !important; font-weight:600; }   /* ಬಾಕ್ಸ್ ಮೇಲ್ ಗೆರೆ + ಶೀರ್ಷಿಕೆ ಕೆಳ ಗೆರೆ */
+    .pf-tbl tfoot{ display:table-footer-group; }                             /* ಕೆಳ ಗೆರೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
+    .pf-tbl tfoot td{ border:0 !important; border-top:1px solid #9a9a9a !important; padding:0 !important; height:0; line-height:0; font-size:0; }
+    .pf-tbl tr{ break-inside:avoid; }
+    .pf-tbl .pf-no{ width:20px; text-align:right; white-space:nowrap; border-left:1px solid #9a9a9a !important; padding-left:2px; padding-right:3px; }   /* ಬಾಕ್ಸ್ ಎಡ ಅಂಚು */
+    .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.5; }
+    .pf-tbl thead .pf-nm{ text-align:center; }
+    /* ಚೆಕ್ ಕಾಲಂ — ಶೀರ್ಷಿಕೆ ಒಂದೇ ಸಾಲಿನಲ್ಲಿ ಪೂರ್ತಿ ಕಾಣಲು ಸಾಕಷ್ಟು ಅಗಲ */
+    .pf-tbl .pf-c{ width:32px; text-align:center; padding-left:1px; padding-right:1px; }
+    .pf-tbl thead .pf-c{ font-size:8px; line-height:1.1; padding:2px 1px; white-space:nowrap; }
+    .pf-tbl .pf-c i{ font-style:normal; font-weight:400; color:#333; }
+    body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
+    /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
+    body.print-one .pf-mag{ display:none; }
+    body.print-one .pf-mag.pf-target{ display:block; }
     .region-head{ padding:7px 10px; }
     /* ಬಾಕ್ಸ್ ಗಡಿ ಪೂರ್ಣ: region ಹೊದಿಕೆ ಗಡಿ ಪುಟ ಮುರಿತದಲ್ಲಿ ಬೀಳುತ್ತದೆ — ಬದಲಿಗೆ ತಲೆಗೇ ಸ್ವಂತ ಗಡಿ + ಟೇಬಲ್ ಸೆಲ್ ಗಡಿ */
     .region{ border:none !important; margin-right:3px; }
@@ -326,8 +363,7 @@
   .rmenu button{ display:flex; align-items:center; gap:10px; width:100%; text-align:left; border:none; background:transparent; cursor:pointer; padding:11px 12px; border-radius:9px; font-family:inherit; font-size:14px; color:var(--ink); }
   .rmenu button:hover{ background:var(--accent-soft); }
   @media print{
-    .region.collapsed .tbl{ display:block !important; }
-    /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಉಳಿದವು ಮರೆ */
+    /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಉಳಿದವು ಮರೆ (ಹಳೆಯ ಟೇಬಲ್; ಈಗ ಹರಿವು ಬಳಸುತ್ತೇವೆ) */
     body.print-one .region:not(.print-target){ display:none !important; }
     /* ಒಂದೇ ಮಾಗಣೆ — ಗುರಿ ಮಾಗಣೆಯ ತಲೆಬರಹ ಮಾತ್ರ (ಉಳಿದ ತಲೆಬರಹ ಮರೆ) */
     body.print-one .temple-head.reg-level{ display:none !important; }
@@ -884,6 +920,24 @@
       </div>`;
     });
 
+    /* ===== ಮುದ್ರಣ-ಮಾತ್ರ ಎರಡು-ಕಾಲಂ ಹರಿವು (PDF — sone arathi ಶೈಲಿ; ಪರದೆಯಲ್ಲಿ ಮರೆ) =====
+       ಎಲ್ಲ ಮಾಗಣೆಗಳು ಒಂದೇ ಹರಿವಿನಲ್ಲಿ — ಎಡ ಕಾಲಂ ತುಂಬಿ ಬಲ ಕಾಲಂ, ನಂತರ ಮುಂದಿನ ಪುಟ. */
+    let pf = `<div class="print-flow">
+      <div class="pf-temple">${TEMPLE_HEAD}</div>
+      <div class="pf-title">${esc(state.title)}</div>`;
+    state.regions.forEach((r,ri)=>{
+      pf += `<section class="pf-mag" data-r="${ri}" id="pf-${ri}">
+        <div class="pf-head"><span>${esc(r.no)}. ${esc(r.name)}</span><span class="pf-ph">ಮೊ.: ${esc(r.phone)}</span></div>
+        <table class="pf-tbl"><thead><tr><th class="pf-no"></th><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+2}"></td></tr></tfoot><tbody>`;
+      r.families.forEach((f,fi)=>{
+        const k=checks(f.c);
+        pf += `<tr><td class="pf-no">${fi+1}.</td><td class="pf-nm">${esc(f.n)}</td>${k.map(on=>`<td class="pf-c"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;
+      });
+      pf += `</tbody></table></section>`;
+    });
+    pf += `</div>`;
+    html += pf;
+
     document.getElementById('sheet').innerHTML = html;
     buildJump();
     updateYearUI();
@@ -932,9 +986,11 @@
     if(!target) return;
     if(!openRegions.has(ri)) toggleRegion(ri);     // ಮುಚ್ಚಿದ್ದರೆ ತೆರೆ
     target.classList.add('print-target');
+    const pfChunks=document.querySelectorAll('.pf-mag[data-r="'+ri+'"]');   // ಗುರಿ ಮಾಗಣೆಯ ಎಲ್ಲ ಬಾಕ್ಸ್‌ಗಳು
+    pfChunks.forEach(el=>el.classList.add('pf-target'));
     document.body.classList.add('print-one');
     if(blank) document.body.classList.add('blank-print');
-    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print'); target.classList.remove('print-target'); window.removeEventListener('afterprint',cleanup); };
+    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); window.removeEventListener('afterprint',cleanup); };
     window.addEventListener('afterprint', cleanup);
     const go=()=>window.print();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();

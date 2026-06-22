@@ -226,7 +226,14 @@
   .empty-note{ padding:8px; font-size:12px; color:#999; font-style:italic; }
 
   /* ---------- ಮುದ್ರಣ / PDF ---------- */
-  @page{ size:A4; margin:10mm 12mm; }   /* ಬಲ/ಎಡ ಗಡಿ ಪುಟದ ಅಂಚಿನಲ್ಲಿ ಕತ್ತರಿಸದಂತೆ ಸ್ವಲ್ಪ ಹೆಚ್ಚು ಅಂಚು */
+  /* size ಸ್ಥಿರವಾಗಿ A4 ಅಲ್ಲ — ಮುದ್ರಣ ಸಂವಾದದಲ್ಲಿ ಆಯ್ದ ಕಾಗದ (A4/A5) ಅನುಸರಿಸಲಿ;
+     ಇದರಿಂದ A5ಗೆ ಒಂದು-ಕಾಲಂ media query ಕೆಲಸ ಮಾಡುತ್ತದೆ */
+  @page{ margin:10mm 12mm; }
+  /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
+     A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
+  @media print and (max-width:170mm){
+    .print-flow{ column-count:1 !important; column-gap:0 !important; }
+  }
   @media print{
     html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .toolbar{ display:none !important; }

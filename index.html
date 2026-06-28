@@ -851,11 +851,22 @@
   const checks = c => { const n=Math.max(5,(state.columns||[]).length); const a=[]; const s=(c||"").padEnd(n,"0"); for(let i=0;i<n;i++) a.push(s[i]==="1"); return a; };
 
   /* ಹೊಸ ಸೇವಾ ಕಾಲಂ — ಮುಖಪುಟ + ತಿದ್ದು + ಖಾಲಿ PDF ನಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ; ಡೇಟಾ (ಭರ್ತಿ) PDF ನಲ್ಲಿ ಮರೆ */
-  const NEW_COLS = ["ಗು.ಕಾ"];
-  const BLANK_ONLY = new Set(NEW_COLS);   // ಡೇಟಾ PDF ನಲ್ಲಿ ಮರೆಮಾಡುವ ಕಾಲಂಗಳು
+  const BLANK_ONLY = new Set();   // ಡೇಟಾ PDF ನಲ್ಲಿ ಮರೆಮಾಡುವ ಕಾಲಂಗಳು (ಈಗ ಯಾವುದೂ ಇಲ್ಲ)
+  /* ಕಾಲಂಗಳ ಅಂತಿಮ ಕ್ರಮ. ಕಾಲಂ ಮರುಜೋಡಿಸಿದಾಗ ಪ್ರತಿ ಕುಟುಂಬದ ಗುರುತುಗಳನ್ನು (f.c)
+     ಹೆಸರಿನ ಆಧಾರದಲ್ಲಿ ಮರುಜೋಡಿಸಲಾಗುತ್ತದೆ — ಗುರುತು ಸರಿಯಾದ ಸೇವೆಯ ಕೆಳಗೇ ಉಳಿಯುತ್ತದೆ. */
+  const COLUMN_ORDER = ["ಹೂ.ಪೂ.", "ವಿ.ಪೂ.", "ನ.ಪೂ.", "ವ.ಕಾ.", "ಕಾ.ಕಾ.", "ಗು.ಕಾ."];
   function ensureColumns(){
     if(!Array.isArray(state.columns)) state.columns = [];
-    NEW_COLS.forEach(c=>{ if(!state.columns.includes(c)) state.columns.push(c); });
+    const cur = state.columns.slice();
+    const extras = cur.filter(c=>!COLUMN_ORDER.includes(c));   // ಪಟ್ಟಿಯಲ್ಲಿಲ್ಲದ ಹೆಚ್ಚುವರಿ ಕಾಲಂ ಕೊನೆಗೆ
+    const desired = [...COLUMN_ORDER, ...extras];
+    if(cur.length===desired.length && cur.every((c,i)=>c===desired[i])) return;   // ಈಗಾಗಲೇ ಸರಿ
+    // ಗುರುತುಗಳನ್ನು ಹೆಸರಿನ ಪ್ರಕಾರ cur → desired ಗೆ ಮರುಜೋಡಿಸು
+    state.regions.forEach(r=> (r.families||[]).forEach(f=>{
+      const s=(f.c||"").padEnd(cur.length,"0");
+      f.c = desired.map(name=>{ const i=cur.indexOf(name); return (i>=0 && s[i]==="1") ? "1" : "0"; }).join("");
+    }));
+    state.columns = desired;
   }
 
   /* ===================== ರೆಂಡರ್ ===================== */

@@ -284,6 +284,10 @@
     /* ಕ್ರಮ ಸಂಖ್ಯೆ + ಹೆಸರು ಒಂದೇ ಸೆಲ್ (ಮಧ್ಯೆ ಗೆರೆ ಇಲ್ಲ — ಚಿತ್ರದಂತೆ); ಪೆಟ್ಟಿಗೆ ಎಡ ಅಂಚು */
     .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.3; border-left:1.6px solid #23408e !important; }
     .pf-tbl thead .pf-nm{ text-align:center; }
+    /* ಕ್ರಮ ಸಂಖ್ಯೆ + ಹೆಸರು — flex; ಮುಂದುವರಿದ ಸಾಲು ಸಂಖ್ಯೆ ಕೆಳಗೆ ಬಾರದೆ ಹೆಸರಿನ ಮೊದಲ ಸಾಲಿಗೆ ಹೊಂದಿಕೆ */
+    .pf-tbl td.pf-nm .pf-row{ display:flex; gap:5px; align-items:baseline; }
+    .pf-tbl td.pf-nm .pf-row b{ flex:0 0 auto; font-weight:600; }   /* ಕ್ರಮ ಸಂಖ್ಯೆ — ಸ್ಥಿರ */
+    .pf-tbl td.pf-nm .pf-nmt{ flex:1 1 auto; min-width:0; word-break:break-word; }   /* ಹೆಸರು — ತನ್ನದೇ ಪೆಟ್ಟಿಗೆಯಲ್ಲಿ ಸುತ್ತು */
     .pf-tbl .pf-nm b{ font-weight:600; }   /* ಕ್ರಮ ಸಂಖ್ಯೆ */
     /* ಚೆಕ್ ಕಾಲಂ — ಶೀರ್ಷಿಕೆ ಪೂರ್ತಿ ಕಾಣಲು ಸಾಕಷ್ಟು ಅಗಲ */
     .pf-tbl .pf-c{ width:32px; text-align:center; padding-left:1px; padding-right:1px; }
@@ -945,7 +949,7 @@
         <table class="pf-tbl"><thead><tr><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+1}"></td></tr></tfoot><tbody>`;
       r.families.forEach((f,fi)=>{
         const k=checks(f.c);
-        pf += `<tr><td class="pf-nm"><b>${fi+1}.</b> ${esc(f.n)}</td>${k.map(on=>`<td class="pf-c"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;
+        pf += `<tr><td class="pf-nm"><span class="pf-row"><b>${fi+1}.</b><span class="pf-nmt">${esc(f.n)}</span></span></td>${k.map(on=>`<td class="pf-c"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;
       });
       pf += `</tbody></table></section>`;
     });

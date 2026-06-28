@@ -183,6 +183,7 @@
 
   /* ===== ಎರಡು-ಕಾಲಂ ಮುದ್ರಣ ಹರಿವು (PDF — sone arathi ಶೈಲಿ; ಪರದೆಯಲ್ಲಿ ಮರೆ) ===== */
   .print-flow{ display:none; }
+  .phone-flow{ display:none; }   /* ದೂರವಾಣಿ ಸಂಗ್ರಹ ಹಾಳೆ — ಮುದ್ರಣದಲ್ಲಿ ಮಾತ್ರ */
 
   /* ಚೆಕ್‌ಬಾಕ್ಸ್ — ಗುರುತಿಸಿದರೆ ಬಾಕ್ಸ್ ಇಲ್ಲದೆ ಬರೀ ✓ ತೋರಿಸು */
   input[type=checkbox]{
@@ -300,6 +301,30 @@
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
     body.print-one .pf-mag.pf-target{ display:block; }
+
+    /* ===== ದೂರವಾಣಿ ಸಂಗ್ರಹ ಹಾಳೆ (phone-print) — ಹೆಸರು + ಖಾಲಿ ದೂರವಾಣಿ ಕಾಲಂ ===== */
+    body.phone-print .print-flow{ display:none !important; }
+    body.phone-print .phone-flow{ display:block !important; }
+    .ph-mag{ break-before:page; page-break-before:always; }
+    .ph-mag:first-of-type{ break-before:auto; page-break-before:auto; }
+    body.print-one .ph-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
+    body.print-one .ph-mag{ display:none; }
+    body.print-one .ph-mag.pf-target{ display:block; }
+    .ph-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:13.5px; color:#15224a; border:1.6px solid #23408e; border-bottom:none; padding:4px 9px; background:#eaf0fb; break-after:avoid; }
+    .ph-head .ph-mo{ font-size:11px; font-weight:700; white-space:nowrap; }
+    .ph-tbl{ width:100%; border-collapse:collapse; table-layout:fixed; }
+    .ph-tbl th, .ph-tbl td{ border:1px solid #23408e !important; padding:6px 8px; font-size:13px; color:#111; vertical-align:top; line-height:1.4; box-sizing:border-box; }
+    .ph-tbl thead{ display:table-header-group; }
+    .ph-tbl thead th{ background:#eaf0fb !important; font-weight:700; text-align:center; }
+    .ph-tbl tr{ break-inside:avoid; }
+    .ph-tbl .ph-nm{ width:62%; text-align:left; word-break:break-word; }
+    .ph-tbl thead .ph-nm{ text-align:center; }
+    .ph-tbl td.ph-nm .pf-row{ display:flex; gap:5px; align-items:baseline; }
+    .ph-tbl td.ph-nm .pf-row b{ flex:0 0 auto; font-weight:600; }
+    .ph-tbl td.ph-nm .pf-nmt{ flex:1 1 auto; min-width:0; word-break:break-word; }
+    .ph-tbl .ph-num{ width:38%; }                 /* ಖಾಲಿ — ಕೈಯಲ್ಲಿ ಬರೆಯಲು */
+    .ph-tbl td.ph-num{ height:30px; }             /* ಬರೆಯಲು ಸಾಕಷ್ಟು ಎತ್ತರ */
+
     .region-head{ padding:7px 10px; }
     /* ಬಾಕ್ಸ್ ಗಡಿ ಪೂರ್ಣ: region ಹೊದಿಕೆ ಗಡಿ ಪುಟ ಮುರಿತದಲ್ಲಿ ಬೀಳುತ್ತದೆ — ಬದಲಿಗೆ ತಲೆಗೇ ಸ್ವಂತ ಗಡಿ + ಟೇಬಲ್ ಸೆಲ್ ಗಡಿ */
     .region{ border:none !important; margin-right:3px; }
@@ -624,6 +649,7 @@
         <button class="tb primary" id="btnPdf" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb" id="btnPrint" onclick="window.print()">🖨 ಮುದ್ರಣ</button>
         <button class="tb" id="btnBlank" onclick="downloadBlankPDF(this)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>
+        <button class="tb" id="btnPhone" onclick="downloadPhonePDF(this)">📞 ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF</button>
         <button class="tb" id="btnData" onclick="downloadYearData(this)">⬇ ಡೇಟಾ ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb edit-only" id="btnRates" onclick="openRates()">⚙ ಸೇವಾ ದರಗಳು</button>
         <button class="tb edit-only" onclick="addRegion()">＋ ಮಾಗಣೆ</button>
@@ -988,6 +1014,21 @@
     pf += `</div>`;
     html += pf;
 
+    /* ===== ದೂರವಾಣಿ ಸಂಗ್ರಹ ಹಾಳೆ (ಮುದ್ರಣ-ಮಾತ್ರ) — ಹೆಸರು + ಖಾಲಿ ದೂರವಾಣಿ ಕಾಲಂ; ಸೇವೆ/ಪೂಜೆ ಇಲ್ಲ.
+       ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟದಲ್ಲಿ. ಹಾಳೆ ಮುದ್ರಿಸಿ ಕೈಯಲ್ಲಿ ದೂರವಾಣಿ ಬರೆದು ಸಂಗ್ರಹಿಸಲು. */
+    let phf = `<div class="phone-flow">`;
+    state.regions.forEach((r,ri)=>{
+      phf += `<section class="ph-mag" data-r="${ri}" id="ph-${ri}">
+        <div class="ph-head"><span>${esc(r.no)}. ${esc(r.name)}</span><span class="ph-mo">ಮೊ.: ${esc(r.phone)}</span></div>
+        <table class="ph-tbl"><thead><tr><th class="ph-nm">ಹೆಸರು</th><th class="ph-num">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</th></tr></thead><tbody>`;
+      r.families.forEach((f,fi)=>{
+        phf += `<tr><td class="ph-nm"><span class="pf-row"><b>${fi+1}.</b><span class="pf-nmt">${esc(f.n)}</span></span></td><td class="ph-num"></td></tr>`;
+      });
+      phf += `</tbody></table></section>`;
+    });
+    phf += `</div>`;
+    html += phf;
+
     document.getElementById('sheet').innerHTML = html;
     buildJump();
     updateYearUI();
@@ -1001,6 +1042,7 @@
     const bp=document.getElementById('btnPdf');     if(bp) bp.textContent="📄 PDF ಡೌನ್‌ಲೋಡ್ ("+currentYear+")";
     const bpr=document.getElementById('btnPrint');  if(bpr) bpr.textContent="🖨 ಮುದ್ರಣ ("+currentYear+")";
     const bb=document.getElementById('btnBlank');   if(bb) bb.textContent="📝 ಖಾಲಿ ಅರ್ಜಿ PDF ("+currentYear+")";
+    const bph=document.getElementById('btnPhone');  if(bph) bph.textContent="📞 ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF ("+currentYear+")";
     const br=document.getElementById('btnRates');   if(br) br.textContent="⚙ ಸೇವಾ ದರಗಳು ("+currentYear+")";
     document.title = "ಉಪ್ರಳ್ಳಿ ಸೇವೆ — " + currentYear;
   }
@@ -1019,7 +1061,8 @@
     const m=document.getElementById('rmenu');
     m.innerHTML =
       `<button onclick="closeRMenu();shareRegion(${ri})">📄 PDF ಡೌನ್‌ಲೋಡ್</button>`+
-      `<button onclick="closeRMenu();shareRegion(${ri},true)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>`;
+      `<button onclick="closeRMenu();shareRegion(${ri},true)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>`+
+      `<button onclick="closeRMenu();shareRegion(${ri},false,true)">📞 ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF</button>`;
     const r=ev.currentTarget.getBoundingClientRect();
     m.style.top=(r.bottom+5)+'px';
     m.style.left=Math.max(8, Math.min(r.right-200, window.innerWidth-208))+'px';
@@ -1031,16 +1074,18 @@
     if(m && m.classList.contains('open') && !m.contains(e.target) && !(e.target.classList&&e.target.classList.contains('rmenu-btn'))) closeRMenu();
   });
   /* ಒಂದೇ ಮಾಗಣೆಯನ್ನು PDF ಆಗಿ ಮುದ್ರಿಸಿ (ಬೇರೆ ಮಾಗಣೆ ಮರೆ). blank=true → ✓ ಇಲ್ಲದ ಖಾಲಿ ಅರ್ಜಿ */
-  function shareRegion(ri, blank){
+  function shareRegion(ri, blank, phone){
     const target=document.getElementById('reg-'+ri);
     if(!target) return;
     if(!openRegions.has(ri)) toggleRegion(ri);     // ಮುಚ್ಚಿದ್ದರೆ ತೆರೆ
     target.classList.add('print-target');
-    const pfChunks=document.querySelectorAll('.pf-mag[data-r="'+ri+'"]');   // ಗುರಿ ಮಾಗಣೆಯ ಎಲ್ಲ ಬಾಕ್ಸ್‌ಗಳು
+    // ಗುರಿ ಮಾಗಣೆಯ ಎಲ್ಲ ಬಾಕ್ಸ್‌ಗಳು (ಡೇಟಾ/ಖಾಲಿ pf-mag + ದೂರವಾಣಿ ph-mag)
+    const pfChunks=document.querySelectorAll('.pf-mag[data-r="'+ri+'"], .ph-mag[data-r="'+ri+'"]');
     pfChunks.forEach(el=>el.classList.add('pf-target'));
     document.body.classList.add('print-one');
     if(blank) document.body.classList.add('blank-print');
-    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); window.removeEventListener('afterprint',cleanup); };
+    if(phone) document.body.classList.add('phone-print');
+    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print','phone-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); window.removeEventListener('afterprint',cleanup); };
     window.addEventListener('afterprint', cleanup);
     const go=()=>window.print();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
@@ -1439,6 +1484,22 @@
       uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message, "ದೋಷ");
     }finally{
       document.body.classList.remove('exporting','blank-print');
+      btn.disabled=false; btn.textContent=old;
+    }
+  }
+
+  /* ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF — ಹೆಸರು + ಖಾಲಿ ದೂರವಾಣಿ ಕಾಲಂ (ಸೇವೆ/ಪೂಜೆ ಇಲ್ಲ). ಮುದ್ರಿಸಿ ಕೈಯಲ್ಲಿ ಬರೆಯಲು */
+  async function downloadPhonePDF(btn){
+    btn.disabled=true; const old=btn.textContent; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…";
+    try{
+      if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+      document.body.classList.add('exporting','phone-print');
+      if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      window.print();
+    }catch(err){
+      uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message, "ದೋಷ");
+    }finally{
+      document.body.classList.remove('exporting','phone-print');
       btn.disabled=false; btn.textContent=old;
     }
   }

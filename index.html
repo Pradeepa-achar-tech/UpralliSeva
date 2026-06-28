@@ -232,7 +232,7 @@
   /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
      A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
   @media print and (max-width:170mm){
-    .print-flow{ column-count:1 !important; column-gap:0 !important; }
+    .pf-mag{ column-count:1 !important; column-gap:0 !important; }
   }
   @media print{
     html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
@@ -257,32 +257,38 @@
     .dash, .collect, .legend, .region, .doc-title, .temple-head{ display:none !important; }
     /* column-gap → ಎರಡು ಪ್ರತ್ಯೇಕ ಬಾಕ್ಸ್ (ಮಧ್ಯದ ಗೆರೆ ಅಲ್ಲ); column-rule ಇಲ್ಲ */
     /* column-fill:auto → ಕಾಲಂ ಮೇಲಿಂದ ಕೆಳಗೆ ತುಂಬು (balance ಇಲ್ಲ) → ಕೆಳಗೆ ಖಾಲಿ ಜಾಗ/ತೂಗು ಗೆರೆ ಇಲ್ಲ */
-    .print-flow{ display:block !important; column-count:2; column-gap:16px; column-fill:auto; }
+    .print-flow{ display:block !important; }
     .pf-temple{ display:none; }
-    body.blank-print .pf-temple{ display:block; column-span:all; text-align:center; margin:0 0 8px; }
-    .pf-title{ column-span:all; text-align:center; font-weight:800; font-size:15px; margin:0 0 8px; padding:0 0 6px; border-bottom:2px solid #000; }
+    body.blank-print .pf-temple{ display:none; }   /* ತಲೆಬರಹ ಈಗ ಪ್ರತಿ ಮಾಗಣೆಯೊಳಗೆ (pf-mtemple) */
+    .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #23408e; color:#15224a; }
     body.blank-print .pf-title{ display:none; }
-    .pf-mag{ break-inside:auto; margin:0 0 10px; }   /* ನಿರಂತರ ಹರಿವು (ಮಾಗಣೆ ಕಾಲಂ ದಾಟಿ ಮುಂದುವರಿಯಬಹುದು) */
-    /* ಮಾಗಣೆ ಶೀರ್ಷಿಕೆ ಪಟ್ಟಿ — ಟೇಬಲ್ ಮೇಲೆ (ಮುಂದುವರಿದ ಕಾಲಂನಲ್ಲಿ ಪುನರಾವರ್ತನೆ ಇಲ್ಲ) */
-    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:700; font-size:13px; color:#222; border:1px solid #9a9a9a; border-bottom:none; padding:3px 7px; background:#f2f2f2; break-after:avoid; }
-    .pf-head .pf-ph{ font-size:11px; font-weight:600; white-space:nowrap; }
-    /* ಟೇಬಲ್ ಗಡಿ ಇಲ್ಲ — ಬದಿ ಗೆರೆಗಳು ಸೆಲ್‌ನಿಂದ (ಖಾಲಿ ಜಾಗಕ್ಕೆ ತೂಗದಂತೆ); ಮೇಲೆ thead, ಕೆಳಗೆ tfoot */
+    /* ===== ಪ್ರತಿ ಮಾಗಣೆ → ಸ್ವಂತ ಪುಟ; ಒಳಗೆ 2 ಕಾಲಂ ಹರಿವು (ಮೊದಲ ಪೆಟ್ಟಿಗೆ ತುಂಬಿದರೆ → ಎರಡನೇ ಪೆಟ್ಟಿಗೆ) ===== */
+    .pf-mag{ column-count:2; column-gap:14px; column-fill:auto; break-before:page; page-break-before:always; break-inside:auto; }
+    .pf-mag:first-of-type{ break-before:auto; page-break-before:auto; }
+    body.print-one .pf-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಪುಟದಲ್ಲಿ ದೇವಸ್ಥಾನ ತಲೆಬರಹ (ಎರಡೂ ಕಾಲಂ ದಾಟಿ) */
+    .pf-mtemple{ display:none; }
+    body.blank-print .pf-mtemple{ display:block; column-span:all; text-align:center; margin:0 0 8px; }
+    /* ಮಾಗಣೆ ಶೀರ್ಷಿಕೆ ಪಟ್ಟಿ — ಮೊದಲ ಪೆಟ್ಟಿಗೆಯೊಳಗೆ ಮಾತ್ರ (ಹೆಸರು + ಮೊಬೈಲ್ ಒಂದೇ ಪೆಟ್ಟಿಗೆಯಲ್ಲಿ) */
+    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:13.5px; color:#15224a; border:1.6px solid #23408e; border-bottom:none; padding:4px 9px; background:#eaf0fb; break-after:avoid; }
+    .pf-head .pf-ph{ font-size:11px; font-weight:700; white-space:nowrap; }
+    /* ಟೇಬಲ್ — ಲಂಬ ಗೆರೆ + ಹೊರ ಪೆಟ್ಟಿಗೆ ಮಾತ್ರ; ಸಾಲುಗಳ ನಡುವೆ ಅಡ್ಡಗೆರೆ ಇಲ್ಲ (ಚಿತ್ರದಂತೆ) — ನೀಲಿ ಶಾಯಿ */
     .pf-tbl{ width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
-    /* ಜಾಗತಿಕ th,td ಗಡಿ ರದ್ದು; ನಂತರ ತೆಳು ಲಂಬ ಗೆರೆ ಮಾತ್ರ */
-    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:1px solid #c2c2c2 !important; padding:4px 7px; font-size:13px; font-weight:300; color:#222; vertical-align:top; overflow:hidden; box-sizing:border-box; line-height:1.55; }
-    .pf-tbl tr > :last-child{ border-right:1px solid #9a9a9a !important; }   /* ಬಾಕ್ಸ್ ಬಲ ಅಂಚು */
-    .pf-tbl thead{ display:table-header-group; }                              /* ಮೇಲ್ ಶೀರ್ಷಿಕೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
-    .pf-tbl thead th{ border-top:1px solid #9a9a9a !important; border-bottom:1px solid #9a9a9a !important; font-weight:600; }   /* ಬಾಕ್ಸ್ ಮೇಲ್ ಗೆರೆ + ಶೀರ್ಷಿಕೆ ಕೆಳ ಗೆರೆ */
+    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:1.4px solid #23408e !important; padding:4px 7px; font-size:13px; font-weight:400; color:#111; vertical-align:top; overflow:hidden; box-sizing:border-box; line-height:1.6; }
+    .pf-tbl tr > :last-child{ border-right:1.6px solid #23408e !important; }   /* ಪೆಟ್ಟಿಗೆ ಬಲ ಅಂಚು */
+    .pf-tbl thead{ display:table-header-group; }                              /* ಶೀರ್ಷಿಕೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
+    .pf-tbl thead th{ border-top:1.6px solid #23408e !important; border-bottom:1.6px solid #23408e !important; font-weight:700; background:#eaf0fb !important; }   /* ಪೆಟ್ಟಿಗೆ ಮೇಲ್ ಗೆರೆ + ಶೀರ್ಷಿಕೆ ಕೆಳ ಗೆರೆ */
     .pf-tbl tfoot{ display:table-footer-group; }                             /* ಕೆಳ ಗೆರೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
-    .pf-tbl tfoot td{ border:0 !important; border-top:1px solid #9a9a9a !important; padding:0 !important; height:0; line-height:0; font-size:0; }
+    .pf-tbl tfoot td{ border:0 !important; border-top:1.6px solid #23408e !important; padding:0 !important; height:0; line-height:0; font-size:0; }
     .pf-tbl tr{ break-inside:avoid; }
-    .pf-tbl .pf-no{ width:20px; text-align:right; white-space:nowrap; border-left:1px solid #9a9a9a !important; padding-left:2px; padding-right:3px; }   /* ಬಾಕ್ಸ್ ಎಡ ಅಂಚು */
-    .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.5; }
+    /* ಕ್ರಮ ಸಂಖ್ಯೆ + ಹೆಸರು ಒಂದೇ ಸೆಲ್ (ಮಧ್ಯೆ ಗೆರೆ ಇಲ್ಲ — ಚಿತ್ರದಂತೆ); ಪೆಟ್ಟಿಗೆ ಎಡ ಅಂಚು */
+    .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.6; border-left:1.6px solid #23408e !important; }
     .pf-tbl thead .pf-nm{ text-align:center; }
-    /* ಚೆಕ್ ಕಾಲಂ — ಶೀರ್ಷಿಕೆ ಒಂದೇ ಸಾಲಿನಲ್ಲಿ ಪೂರ್ತಿ ಕಾಣಲು ಸಾಕಷ್ಟು ಅಗಲ */
+    .pf-tbl .pf-nm b{ font-weight:600; }   /* ಕ್ರಮ ಸಂಖ್ಯೆ */
+    /* ಚೆಕ್ ಕಾಲಂ — ಶೀರ್ಷಿಕೆ ಪೂರ್ತಿ ಕಾಣಲು ಸಾಕಷ್ಟು ಅಗಲ */
     .pf-tbl .pf-c{ width:32px; text-align:center; padding-left:1px; padding-right:1px; }
-    .pf-tbl thead .pf-c{ font-size:8px; line-height:1.1; padding:2px 1px; white-space:nowrap; }
-    .pf-tbl .pf-c i{ font-style:normal; font-weight:400; color:#333; }
+    .pf-tbl thead .pf-c{ font-size:9px; line-height:1.15; padding:2px 1px; white-space:normal; word-break:break-word; }
+    .pf-tbl .pf-c i{ font-style:normal; font-weight:600; color:#23408e; }
     body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
@@ -298,8 +304,8 @@
     /* ಡೇಟಾ PDF: ಮೇಲ್ಭಾಗದಲ್ಲಿ ಒಮ್ಮೆ ವರ್ಷದ ಶೀರ್ಷಿಕೆ (caption) — ದೇವಸ್ಥಾನ ಹೆಸರು ಇಲ್ಲ */
     body:not(.blank-print) .doc-title.doc-level{ display:block; }
     body:not(.blank-print) .temple-head{ display:none !important; }
-    /* ಖಾಲಿ ಅರ್ಜಿ: ಪ್ರತಿ ಮಾಗಣೆ ಪುಟದಲ್ಲಿ ದೇವಸ್ಥಾನ ತಲೆಬರಹ; ಮೇಲಿನ ಶೀರ್ಷಿಕೆ ಮರೆ */
-    body.blank-print .temple-head.reg-level{ display:block; }
+    /* ಖಾಲಿ ಅರ್ಜಿ: ತಲೆಬರಹ ಈಗ pf-mtemple ಮೂಲಕ ಪ್ರತಿ ಮಾಗಣೆ ಪುಟದಲ್ಲಿ; ಮೇಲಿನ ಶೀರ್ಷಿಕೆ ಮರೆ */
+    body.blank-print .temple-head.reg-level{ display:none !important; }
     body.blank-print .doc-title{ display:none !important; }
     td.c-del, th.c-del{ display:none !important; }
     .no-print{ display:none !important; }
@@ -612,6 +618,7 @@
         <button class="tb primary" id="btnPdf" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb" id="btnPrint" onclick="window.print()">🖨 ಮುದ್ರಣ</button>
         <button class="tb" id="btnBlank" onclick="downloadBlankPDF(this)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>
+        <button class="tb" id="btnData" onclick="downloadYearData(this)">⬇ ಡೇಟಾ ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb edit-only" id="btnRates" onclick="openRates()">⚙ ಸೇವಾ ದರಗಳು</button>
         <button class="tb edit-only" onclick="addRegion()">＋ ಮಾಗಣೆ</button>
         <button class="tb warn edit-only" onclick="deleteYear()">🗑 ಈ ವರ್ಷ ಅಳಿಸಿ</button>
@@ -934,11 +941,12 @@
       <div class="pf-title">${esc(state.title)}</div>`;
     state.regions.forEach((r,ri)=>{
       pf += `<section class="pf-mag" data-r="${ri}" id="pf-${ri}">
+        <div class="pf-mtemple">${TEMPLE_HEAD}</div>
         <div class="pf-head"><span>${esc(r.no)}. ${esc(r.name)}</span><span class="pf-ph">ಮೊ.: ${esc(r.phone)}</span></div>
-        <table class="pf-tbl"><thead><tr><th class="pf-no"></th><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+2}"></td></tr></tfoot><tbody>`;
+        <table class="pf-tbl"><thead><tr><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+1}"></td></tr></tfoot><tbody>`;
       r.families.forEach((f,fi)=>{
         const k=checks(f.c);
-        pf += `<tr><td class="pf-no">${fi+1}.</td><td class="pf-nm">${esc(f.n)}</td>${k.map(on=>`<td class="pf-c"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;
+        pf += `<tr><td class="pf-nm"><b>${fi+1}.</b> ${esc(f.n)}</td>${k.map(on=>`<td class="pf-c"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;
       });
       pf += `</tbody></table></section>`;
     });
@@ -1391,6 +1399,38 @@
       uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message, "ದೋಷ");
     }finally{
       document.body.classList.remove('exporting','blank-print');
+      btn.disabled=false; btn.textContent=old;
+    }
+  }
+
+  /* ===================== ಡೇಟಾ ಡೌನ್‌ಲೋಡ್ (ಆಯ್ದ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ → JSON) =====================
+     Firestore pooja/<year> ದಾಖಲೆಯನ್ನು ನೇರವಾಗಿ ಎಳೆದು JSON ಫೈಲ್ ಆಗಿ ಉಳಿಸುತ್ತದೆ. */
+  async function downloadYearData(btn){
+    const year = currentYear;
+    btn.disabled=true; const old=btn.textContent; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…";
+    try{
+      let data;
+      if(CLOUD && db){
+        const snap = await db.collection("pooja").doc(String(year)).get();
+        if(!snap.exists){
+          await uiAlert("ಕ್ಲೌಡ್‌ನಲ್ಲಿ "+year+" ವರ್ಷದ ದಾಖಲೆ ಇಲ್ಲ. ಸ್ಥಳೀಯ ಪ್ರತಿ ಡೌನ್‌ಲೋಡ್ ಆಗುತ್ತದೆ.", "ಗಮನಿಸಿ");
+          data = toDoc();
+        } else {
+          data = snap.data();
+        }
+      } else {
+        data = toDoc();   // ಕ್ಲೌಡ್ ಇಲ್ಲ — ಸ್ಥಳೀಯ ಪ್ರತಿ
+      }
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type:"application/json" });
+      const url  = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "upralli-seve-"+year+".json";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
+      toast("⬇ "+year+" ವರ್ಷದ ಡೇಟಾ ಡೌನ್‌ಲೋಡ್ ಆಗಿದೆ", "ok");
+    }catch(err){
+      uiAlert("ಡೇಟಾ ಡೌನ್‌ಲೋಡ್ ಆಗಲಿಲ್ಲ:\n"+err.message, "ದೋಷ");
+    }finally{
       btn.disabled=false; btn.textContent=old;
     }
   }

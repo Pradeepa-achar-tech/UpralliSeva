@@ -1022,7 +1022,7 @@
         <div class="ph-head"><span>${esc(r.no)}. ${esc(r.name)}</span><span class="ph-mo">ಮೊ.: ${esc(r.phone)}</span></div>
         <table class="ph-tbl"><thead><tr><th class="ph-nm">ಹೆಸರು</th><th class="ph-num">ದೂರವಾಣಿ ಸಂಖ್ಯೆ</th></tr></thead><tbody>`;
       r.families.forEach((f,fi)=>{
-        phf += `<tr><td class="ph-nm"><span class="pf-row"><b>${fi+1}.</b><span class="pf-nmt">${esc(f.n)}</span></span></td><td class="ph-num"></td></tr>`;
+        phf += `<tr><td class="ph-nm"><span class="pf-row"><b>${fi+1}.</b><span class="pf-nmt">${esc(f.n)}</span></span></td><td class="ph-num">${esc(f.p||"")}</td></tr>`;
       });
       phf += `</tbody></table></section>`;
     });

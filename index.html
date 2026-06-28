@@ -294,10 +294,7 @@
     .pf-tbl thead .pf-c{ font-size:9px; line-height:1.15; padding:2px 1px; white-space:normal; word-break:break-word; }
     .pf-tbl .pf-c i{ font-style:normal; font-weight:600; color:#23408e; }
     body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
-    /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ): ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ; ಡೇಟಾ PDF ನಲ್ಲಿ 0-ಅಗಲಕ್ಕೆ ಕುಗ್ಗಿಸು
-       (display:none ಅಲ್ಲ — ಆಗ ಪೆಟ್ಟಿಗೆ ಬಲ ಗೆರೆ ಮಾಯವಾಗುತ್ತದೆ; ಆದ್ದರಿಂದ ಡೇಟಾ PDF ಬದಲಾಗದು) */
-    body:not(.blank-print) .pf-tbl .pf-c-bo{ width:0 !important; padding-left:0 !important; padding-right:0 !important; border-left:0 !important; overflow:hidden; font-size:0 !important; }
-    body:not(.blank-print) .pf-tbl .pf-c-bo *{ font-size:0 !important; visibility:hidden; }
+    /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
     body.print-one .pf-mag.pf-target{ display:block; }

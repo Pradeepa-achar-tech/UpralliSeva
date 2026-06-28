@@ -258,9 +258,8 @@
     /* column-gap → ಎರಡು ಪ್ರತ್ಯೇಕ ಬಾಕ್ಸ್ (ಮಧ್ಯದ ಗೆರೆ ಅಲ್ಲ); column-rule ಇಲ್ಲ */
     /* column-fill:auto → ಕಾಲಂ ಮೇಲಿಂದ ಕೆಳಗೆ ತುಂಬು (balance ಇಲ್ಲ) → ಕೆಳಗೆ ಖಾಲಿ ಜಾಗ/ತೂಗು ಗೆರೆ ಇಲ್ಲ */
     .print-flow{ display:block !important; }
-    /* ದೇವಸ್ಥಾನ ತಲೆಬರಹ — ಡೇಟಾ PDF ನ ಮೊದಲ ಪುಟದ ಮೇಲ್ಭಾಗದಲ್ಲಿ ಒಮ್ಮೆ ಮಾತ್ರ (ಬೇರೆ ಪುಟಗಳಲ್ಲಿ ಇಲ್ಲ) */
+    /* ಡೇಟಾ/ವರ್ಷ PDF — ದೇವಸ್ಥಾನ ತಲೆಬರಹ ಇಲ್ಲ (ವರ್ಷ ಶೀರ್ಷಿಕೆ ಮಾತ್ರ); ತಲೆಬರಹ ಖಾಲಿ ಅರ್ಜಿಗೆ ಮಾತ್ರ (pf-mtemple) */
     .pf-temple{ display:none; }
-    body:not(.blank-print) .pf-temple{ display:block; text-align:center; margin:0 0 8px; }
     .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #23408e; color:#15224a; }
     body.blank-print .pf-title{ display:none; }
     /* ===== ಪ್ರತಿ ಮಾಗಣೆ → ಸ್ವಂತ ಪುಟ; ಒಳಗೆ 2 ಕಾಲಂ ಹರಿವು (ಮೊದಲ ಪೆಟ್ಟಿಗೆ ತುಂಬಿದರೆ → ಎರಡನೇ ಪೆಟ್ಟಿಗೆ) ===== */

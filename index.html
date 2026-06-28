@@ -1363,7 +1363,8 @@
     if(!(await uiConfirm(`“${state.regions[ri].name}” ಮಾಗಣೆಯನ್ನು ಅಳಿಸಬೇಕೆ?`, "ಮಾಗಣೆ ಅಳಿಸಿ"))) return;
     state.regions.splice(ri,1); notifyAction("🗑 ಮಾಗಣೆ ತೆಗೆಯಲಾಗಿದೆ","warn"); save(); render();
   }
-  function addRegion(){
+  async function addRegion(){
+    if(!(await uiConfirm("ಹೊಸ ಮಾಗಣೆ ಸೇರಿಸಬೇಕೆ?", "ಹೊಸ ಮಾಗಣೆ"))) return;
     const no = state.regions.length? (parseInt(state.regions[state.regions.length-1].no)||state.regions.length)+1 : 1;
     state.regions.push({no:no, name:"ಹೊಸ ಮಾಗಣೆ", phone:"", families:[]});
     notifyAction("➕ ಹೊಸ ಮಾಗಣೆ ಸೇರಿಸಲಾಗಿದೆ","ok");

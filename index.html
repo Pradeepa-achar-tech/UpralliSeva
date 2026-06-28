@@ -294,6 +294,8 @@
     .pf-tbl thead .pf-c{ font-size:9px; line-height:1.15; padding:2px 1px; white-space:normal; word-break:break-word; }
     .pf-tbl .pf-c i{ font-style:normal; font-weight:600; color:#23408e; }
     body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಸಾಲಿಗೆ ಅಡ್ಡಗೆರೆ (ಕೈಯಲ್ಲಿ ಬರೆಯಲು); ಡೇಟಾ PDF ನಲ್ಲಿ ಇಲ್ಲ */
+    body.blank-print .pf-tbl tbody td{ border-bottom:1px solid #23408e !important; }
     /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }

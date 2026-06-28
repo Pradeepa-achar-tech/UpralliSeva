@@ -378,9 +378,8 @@
   @media print{
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಉಳಿದವು ಮರೆ (ಹಳೆಯ ಟೇಬಲ್; ಈಗ ಹರಿವು ಬಳಸುತ್ತೇವೆ) */
     body.print-one .region:not(.print-target){ display:none !important; }
-    /* ಒಂದೇ ಮಾಗಣೆ — ಗುರಿ ಮಾಗಣೆಯ ತಲೆಬರಹ ಮಾತ್ರ (ಉಳಿದ ತಲೆಬರಹ ಮರೆ) */
+    /* ಒಂದೇ ಮಾಗಣೆ — ತಲೆಬರಹ ಈಗ pf-mtemple ಮೂಲಕ (ಹಳೆಯ reg-level ತಲೆಬರಹ ಸಂಪೂರ್ಣ ಮರೆ — ನಕಲು ತಡೆ) */
     body.print-one .temple-head.reg-level{ display:none !important; }
-    body.print-one.blank-print .temple-head.reg-level:has(+ .region.print-target){ display:block !important; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಎಲ್ಲ ✓ ಗುರುತು ಮರೆ (ಖಾಲಿ ಪೆಟ್ಟಿಗೆಗಳು) */
     body.blank-print input[type=checkbox]:checked::after{ content:"" !important; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಮೊದಲನೆಯ ಹೊರತು ಪ್ರತಿ ಮಾಗಣೆ ಹೊಸ ಪುಟದಲ್ಲಿ ಆರಂಭ (ತಲೆಬರಹದಿಂದ)

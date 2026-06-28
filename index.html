@@ -693,6 +693,7 @@
   let docExists = undefined;      // ಆಯ್ದ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಇದೆಯೇ
   let lastRemoteJSON = null;      // ನಮ್ಮದೇ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಬಿಟ್ಟುಬಿಡಲು
   let dirty = false;              // ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ ಇದೆಯೇ (ರಿಮೋಟ್ ಮೇಲ್ಬರಹ ತಡೆಯಲು)
+  let cloudReady = false;         // ಈ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಲೋಡ್ ಆಗಿದೆಯೇ — ಆಗದಿದ್ದರೆ seed/ಸ್ಟೇಲ್ ಡೇಟಾ ಕ್ಲೌಡ್‌ಗೆ ಬರೆಯಬಾರದು
   let openRegions = new Set([0]); // ತೆರೆದಿರುವ ಮಾಗಣೆಗಳು (ಮೊದಲನೆಯದು ಪೂರ್ವನಿಯೋಜಿತ)
   let state = loadLocalYear() || yearTemplate(currentYear);
 
@@ -761,6 +762,14 @@
 
   function pushNow(){
     if(!(CLOUD && auth && auth.currentUser && DOC)) return;
+    /* 🔒 ಡೇಟಾ ರಕ್ಷಣೆ: ಈ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಇನ್ನೂ ಲೋಡ್ ಆಗಿಲ್ಲದಿದ್ದರೆ, ಪ್ರಸ್ತುತ state
+       seed/ಸ್ಟೇಲ್ ಆಗಿರಬಹುದು — ಅದನ್ನು ಕ್ಲೌಡ್‌ಗೆ ಬರೆದರೆ ಡೇಟಾಬೇಸ್ ಮೇಲ್ಬರೆಯಾಗುತ್ತದೆ. ಬರೆಯಬೇಡ. */
+    if(!cloudReady){
+      saveLocalYear();
+      flash("⚠ ಕ್ಲೌಡ್ ಇನ್ನೂ ಲೋಡ್ ಆಗಿಲ್ಲ — ಸ್ಥಳೀಯವಾಗಿ ಮಾತ್ರ ಉಳಿಸಲಾಗಿದೆ (ಕ್ಲೌಡ್ ಮೇಲ್ಬರೆಯದಂತೆ)");
+      saveResult(false);
+      return;
+    }
     const doc = toDoc();
     /* ⚠ ದರ ರಕ್ಷಣೆ: ಈ ಬರಹ regions/ಹೆಸರು ಬದಲಾವಣೆಗೆ. doc.rates ಯಾವಾಗಲೂ ಸೇರಿರುತ್ತದೆ —
        merge:true ಆದರೂ ಸ್ಪಷ್ಟ rates ಕ್ಷೇತ್ರ ಕ್ಲೌಡ್‌ನ ದರವನ್ನು ಮೇಲ್ಬರೆಯುತ್ತದೆ.
@@ -1188,11 +1197,14 @@
     saveLocalYear();
     render();   // ಕಾಲಂ ಮೊತ್ತಗಳು ತಕ್ಷಣ ನವೀಕರಿಸು
     // ರೇಟ್ ಅನ್ನು ತಕ್ಷಣ + merge ಮೂಲಕ ಬರೆ (regions ಮುಟ್ಟದೆ — ಬೇರೆ ಬರಹದಿಂದ ಅಳಿಸಲ್ಪಡದು)
-    if(CLOUD && canEdit && auth && auth.currentUser && DOC){
+    if(CLOUD && canEdit && auth && auth.currentUser && DOC && cloudReady){
       lastRemoteJSON = sigOf(toDoc());   // ಪ್ರತಿಧ್ವನಿ ಗುರುತಿಸಲು (regions ಬದಲಾಗಿಲ್ಲ + ಹೊಸ ದರ)
       DOC.set({ rates: rates, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge:true })
         .then(()=>{ flash("✓ ದರಗಳು ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ("+currentYear+")"); saveResult(true); })
         .catch(err=>{ flash("⚠ ದರ ಉಳಿಯಲಿಲ್ಲ: "+(err.code||err.message)); saveResult(false); });
+    } else if(CLOUD && canEdit && !cloudReady){
+      flash("⚠ ಕ್ಲೌಡ್ ಇನ್ನೂ ಲೋಡ್ ಆಗಿಲ್ಲ — ದರ ಸ್ಥಳೀಯವಾಗಿ ಮಾತ್ರ ಉಳಿಸಲಾಗಿದೆ");
+      saveResult(false);
     } else {
       saveResult(true);
     }
@@ -1507,6 +1519,7 @@
     }
     saveLocalYear();
     render();
+    cloudReady = true;                // ಈ ವರ್ಷ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇಲ್ಲ ಎಂದು ದೃಢಪಡಿಸಲಾಗಿದೆ — ಹೊಸದಾಗಿ ರಚಿಸಲು ಸುರಕ್ಷಿತ
     pushNow();                        // ಕ್ಲೌಡ್‌ನಲ್ಲಿ ತಕ್ಷಣ ರಚಿಸು — ಎಲ್ಲ ಬಳಕೆದಾರರಿಗೆ ಗೋಚರ
     toast("📅 ವರ್ಷ "+year+" ರಚಿಸಲಾಗಿದೆ (ಹಿಂದಿನ ವರ್ಷದ ಪಟ್ಟಿ, ಖಾಲಿ ಆಯ್ಕೆ)", "ok");
   }
@@ -1573,21 +1586,28 @@
     if(!CLOUD) return;
     if(unsub){ unsub(); unsub=null; }
     docExists = undefined;
+    cloudReady = false;                                       // ಹೊಸ ವರ್ಷ — ಕ್ಲೌಡ್ ಲೋಡ್ ಆಗುವವರೆಗೆ ಬರೆಯಬೇಡ
     DOC = db.collection("pooja").doc(String(currentYear));   // pooja/2025, pooja/2026, ...
 
     unsub = DOC.onSnapshot(snap=>{
       docExists = snap.exists;
+      const firstLoad = !cloudReady;          // ಈ ಚಂದಾದ ಮೊದಲ ಸ್ನ್ಯಾಪ್‌ಶಾಟ್
+      cloudReady = true;                      // ಕ್ಲೌಡ್ ಸ್ಥಿತಿ ಈಗ ತಿಳಿದಿದೆ — ಬರೆಯಲು ಸುರಕ್ಷಿತ
       if(!snap.exists){
         // ಆ ವರ್ಷ ಇನ್ನೂ ಇಲ್ಲ — ಪೂರ್ವಭರ್ತಿ ಟೆಂಪ್ಲೇಟ್ ತೋರಿಸು (ಸ್ಥಳೀಯ ಮಾತ್ರ).
         // ಸ್ವಯಂ ರಚಿಸುವುದಿಲ್ಲ — ಬಳಕೆದಾರ ಬದಲಾವಣೆ ಮಾಡಿದಾಗಷ್ಟೇ ಕ್ಲೌಡ್‌ಗೆ ಉಳಿಯುತ್ತದೆ.
-        state = loadLocalYear() || yearTemplate(currentYear);
-        saveLocalYear();
-        render();
+        if(firstLoad || !(dirty || isEditingNow())){
+          state = loadLocalYear() || yearTemplate(currentYear);
+          saveLocalYear();
+          render();
+        }
         return;
       }
-      // ನಮ್ಮಲ್ಲಿ ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ (dirty) ಇದ್ದರೆ — ರಿಮೋಟ್ ದತ್ತಾಂಶ ತರಬೇಡ
-      // (ಇಲ್ಲದಿದ್ದರೆ ಬರೆಯುತ್ತಿರುವ ಹೆಸರು ಮೇಲೆ ಬರೆಯಲ್ಪಡುತ್ತದೆ).
-      if(dirty || isEditingNow()) return;
+      // ಮೊದಲ ಲೋಡ್‌ನಲ್ಲಿ ಕ್ಲೌಡ್ ಅಧಿಕೃತ — ಲೋಡ್ ಆಗುವ ಮುನ್ನ ಮಾಡಿದ ಸ್ಥಳೀಯ (seed/ಸ್ಟೇಲ್)
+      // ಬದಲಾವಣೆ ಕ್ಲೌಡ್ ಮೇಲೆ ಬರೆಯಬಾರದು — ಆದ್ದರಿಂದ dirty ಆದರೂ ಕ್ಲೌಡ್ ತನ್ನಿ.
+      // ಮೊದಲ ಲೋಡ್ ಆದ ಮೇಲೆ ಮಾತ್ರ — ಸಕ್ರಿಯ ತಿದ್ದುಪಡಿ ಮೇಲೆ ಬರೆಯಬೇಡ.
+      if(!firstLoad && (dirty || isEditingNow())) return;
+      if(firstLoad) dirty = false;            // ಲೋಡ್‌ಗೆ ಮುನ್ನದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ ತ್ಯಜಿಸು
       const raw = snap.data();
       const incoming = fromDoc(raw);                // ರಚನಾತ್ಮಕ ದಾಖಲೆ → state
       // ಹಳೆಯ ಕ್ಲೈಂಟ್ ದರ ಕ್ಷೇತ್ರವಿಲ್ಲದೆ ಬರೆದಿದ್ದರೆ — ಸ್ಥಳೀಯ ದರ ಉಳಿಸಿಕೋ (ಅಳಿಸಬೇಡ)
@@ -1595,7 +1615,7 @@
         incoming.rates = state.rates;
       }
       const sig = sigOf(incoming);
-      if(sig !== lastRemoteJSON){
+      if(firstLoad || sig !== lastRemoteJSON){
         lastRemoteJSON = sig;
         state = incoming;
         saveLocalYear();

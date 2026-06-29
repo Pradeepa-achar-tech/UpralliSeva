@@ -891,7 +891,7 @@
   const BLANK_ONLY = new Set();   // ಡೇಟಾ PDF ನಲ್ಲಿ ಮರೆಮಾಡುವ ಕಾಲಂಗಳು (ಈಗ ಯಾವುದೂ ಇಲ್ಲ)
   /* ಕಾಲಂಗಳ ಅಂತಿಮ ಕ್ರಮ. ಕಾಲಂ ಮರುಜೋಡಿಸಿದಾಗ ಪ್ರತಿ ಕುಟುಂಬದ ಗುರುತುಗಳನ್ನು (f.c)
      ಹೆಸರಿನ ಆಧಾರದಲ್ಲಿ ಮರುಜೋಡಿಸಲಾಗುತ್ತದೆ — ಗುರುತು ಸರಿಯಾದ ಸೇವೆಯ ಕೆಳಗೇ ಉಳಿಯುತ್ತದೆ. */
-  const COLUMN_ORDER = ["ಹೂ.ಪೂ.", "ವಿ.ಪೂ.", "ನ.ಪೂ.", "ವ.ಕಾ.", "ಕಾ.ಕಾ.", "ಗು.ಕಾ."];
+  const COLUMN_ORDER = ["ಹೂ.ಪೂ.", "ವಿ.ಪೂ.", "ನ.ಪೂ.", "ಕಾ.ಕಾ.", "ಗು.ಕಾ.", "ವ.ಕಾ."];
   function ensureColumns(){
     if(!Array.isArray(state.columns)) state.columns = [];
     const cur = state.columns.slice();

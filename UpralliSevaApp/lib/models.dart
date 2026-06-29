@@ -20,7 +20,8 @@ class Family {
   bool isOn(int i) => i < c.length && c[i] == '1';
 
   void setOn(int i, bool v) {
-    final list = c.padRight(5, '0').split('');
+    final n = (i + 1) > c.length ? (i + 1) : c.length; // ಡೈನಾಮಿಕ್ ಉದ್ದ (6 ಕಾಲಂ ಬೆಂಬಲ)
+    final list = c.padRight(n, '0').split('');
     if (i >= 0 && i < list.length) list[i] = v ? '1' : '0';
     c = list.join();
   }
@@ -76,17 +77,45 @@ class PoojaData {
     this.rates = const [],
   });
 
-  factory PoojaData.fromDoc(Map m, int year) => PoojaData(
-        title: (m['title'] ?? '').toString(),
-        columns: ((m['columns'] as List?) ?? []).map((e) => e.toString()).toList(),
-        year: (m['year'] is int) ? m['year'] as int : year,
-        regions: ((m['regions'] as List?) ?? [])
-            .map((r) => Region.fromMap(r as Map))
-            .toList(),
-        rates: ((m['rates'] as List?) ?? [])
-            .map((x) => PoojaRate.fromMap(x as Map))
-            .toList(),
-      );
+  /// ಸೇವಾ ಕಾಲಂಗಳ ಅಂತಿಮ ಕ್ರಮ — ವೆಬ್ ಆ್ಯಪ್‌ನ COLUMN_ORDER ಗೆ ಹೊಂದುತ್ತದೆ (ಗು.ಕಾ ಸೇರಿದೆ).
+  static const List<String> kColumnOrder = [
+    'ಹೂ.ಪೂ.', 'ವಿ.ಪೂ.', 'ನ.ಪೂ.', 'ಕಾ.ಕಾ.', 'ಗು.ಕಾ.', 'ವ.ಕಾ.'
+  ];
+
+  factory PoojaData.fromDoc(Map m, int year) {
+    final cur =
+        ((m['columns'] as List?) ?? []).map((e) => e.toString()).toList();
+    final regions = ((m['regions'] as List?) ?? [])
+        .map((r) => Region.fromMap(r as Map))
+        .toList();
+    // ಕಾಲಂ ಕ್ರಮ ಸಾಮಾನ್ಯೀಕರಣ + ಗುರುತುಗಳ ಮರುಜೋಡಣೆ (ಹೆಸರಿನ ಆಧಾರದಲ್ಲಿ) —
+    // ವೆಬ್‌ನ ensureColumns ಗೆ ಹೊಂದುತ್ತದೆ; ಹಳೆಯ 5-ಕಾಲಂ ದಾಖಲೆಯೂ ಸರಿಯಾಗಿ ಮೂಡುತ್ತದೆ.
+    final extras = cur.where((c) => !kColumnOrder.contains(c)).toList();
+    final desired = [...kColumnOrder, ...extras];
+    final same = cur.length == desired.length &&
+        List.generate(cur.length, (i) => cur[i] == desired[i])
+            .every((b) => b);
+    if (!same) {
+      for (final r in regions) {
+        for (final f in r.families) {
+          final s = f.c.padRight(cur.length, '0');
+          f.c = desired.map((name) {
+            final idx = cur.indexOf(name);
+            return (idx >= 0 && idx < s.length && s[idx] == '1') ? '1' : '0';
+          }).join();
+        }
+      }
+    }
+    return PoojaData(
+      title: (m['title'] ?? '').toString(),
+      columns: desired,
+      year: (m['year'] is int) ? m['year'] as int : year,
+      regions: regions,
+      rates: ((m['rates'] as List?) ?? [])
+          .map((x) => PoojaRate.fromMap(x as Map))
+          .toList(),
+    );
+  }
 
   Map<String, dynamic> toMap() => {
         'title': title,
@@ -126,7 +155,8 @@ class PoojaData {
                   name: r.name,
                   phone: r.phone,
                   families: r.families
-                      .map((f) => Family(n: f.n, c: '00000', p: f.p))
+                      .map((f) => Family(
+                          n: f.n, c: ''.padRight(columns.length, '0'), p: f.p))
                       .toList(),
                 ))
             .toList(),

@@ -104,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Future<void> _sharePdf() async {
+  Future<void> _sharePdf({bool blank = false, bool phone = false}) async {
     _snack('PDF ತಯಾರಿಸಲಾಗುತ್ತಿದೆ…');
     try {
       final data = await firestoreService.getYearOnce(_year);
@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _snack('$_year ವರ್ಷದ ದತ್ತಾಂಶ ಇಲ್ಲ');
         return;
       }
-      await PdfService.share(data);
+      await PdfService.share(data, blank: blank, phone: phone);
     } catch (e) {
       _snack('ಹಂಚಿಕೆ ವಿಫಲ: $e');
     }
@@ -164,6 +164,8 @@ class _HomeScreenState extends State<HomeScreen> {
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
             onSelected: (v) {
+              if (v == 'blank') _sharePdf(blank: true);
+              if (v == 'phone') _sharePdf(phone: true);
               if (v == 'rates') {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (_) => RatesScreen(year: _year)));
@@ -173,6 +175,8 @@ class _HomeScreenState extends State<HomeScreen> {
               if (v == 'logout') authService.signOut();
             },
             itemBuilder: (_) => const [
+              PopupMenuItem(value: 'blank', child: ListTile(leading: Icon(Icons.description_outlined), title: Text('ಖಾಲಿ ಅರ್ಜಿ PDF'))),
+              PopupMenuItem(value: 'phone', child: ListTile(leading: Icon(Icons.phone), title: Text('ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF'))),
               PopupMenuItem(value: 'rates', child: ListTile(leading: Icon(Icons.tune), title: Text('ಸೇವಾ ದರಗಳು'))),
               PopupMenuItem(value: 'new', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('ಹೊಸ ವರ್ಷ'))),
               PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete_outline, color: Colors.red), title: Text('ಈ ವರ್ಷ ಅಳಿಸಿ'))),

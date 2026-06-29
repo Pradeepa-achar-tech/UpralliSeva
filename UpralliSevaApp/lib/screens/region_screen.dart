@@ -196,6 +196,7 @@ class _RegionScreenState extends State<RegionScreen> {
               try {
                 if (v == 'pdf') await PdfService.share(single);
                 if (v == 'blank') await PdfService.share(single, blank: true);
+                if (v == 'phone') await PdfService.share(single, phone: true);
               } catch (e) {
                 _snack('ಹಂಚಿಕೆ ವಿಫಲ: $e', false);
               }
@@ -207,6 +208,9 @@ class _RegionScreenState extends State<RegionScreen> {
               PopupMenuItem(
                   value: 'blank',
                   child: ListTile(leading: Icon(Icons.description_outlined), title: Text('ಖಾಲಿ ಅರ್ಜಿ PDF'))),
+              PopupMenuItem(
+                  value: 'phone',
+                  child: ListTile(leading: Icon(Icons.phone), title: Text('ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF'))),
             ],
           ),
         ],

@@ -195,8 +195,8 @@ class _RegionScreenState extends State<RegionScreen> {
               );
               try {
                 if (v == 'pdf') await PdfService.share(single);
-                if (v == 'blank') await PdfService.share(single, blank: true);
-                if (v == 'phone') await PdfService.share(single, phone: true);
+                if (v == 'blank') await PdfService.share(single, blank: true, fill: true);
+                if (v == 'phone') await PdfService.share(single, phone: true, fill: true);
               } catch (e) {
                 _snack('ಹಂಚಿಕೆ ವಿಫಲ: $e', false);
               }

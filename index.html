@@ -297,6 +297,13 @@
     body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
     /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಸಾಲಿಗೆ ಅಡ್ಡಗೆರೆ (ಕೈಯಲ್ಲಿ ಬರೆಯಲು); ಡೇಟಾ PDF ನಲ್ಲಿ ಇಲ್ಲ */
     body.blank-print .pf-tbl tbody td{ border-bottom:1px solid #23408e !important; }
+    /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ (ವೈಯಕ್ತಿಕ) ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ.
+       ಡೇಟಾ PDF ಮತ್ತು ಎಲ್ಲ-ಮಾಗಣೆ ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮರೆ. */
+    .pf-tbl tr.pf-fill{ display:none !important; }
+    body.print-one.blank-print .pf-tbl tr.pf-fill{ display:table-row !important; }
+    /* ದೂರವಾಣಿ ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ ದೂರವಾಣಿ ಹಾಳೆಯಲ್ಲಿ */
+    .ph-tbl tr.ph-fill{ display:none !important; }
+    body.print-one.phone-print .ph-tbl tr.ph-fill{ display:table-row !important; }
     /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
@@ -1085,7 +1092,35 @@
     document.body.classList.add('print-one');
     if(blank) document.body.classList.add('blank-print');
     if(phone) document.body.classList.add('phone-print');
-    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print','phone-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); window.removeEventListener('afterprint',cleanup); };
+    // ವೈಯಕ್ತಿಕ ಖಾಲಿ/ದೂರವಾಣಿ ಹಾಳೆ — ಪುಟ ತುಂಬಲು ಖಾಲಿ ಸಾಲುಗಳು ಸೇರಿಸು (ಮುದ್ರಣದ ನಂತರ ತೆಗೆ).
+    // ಎಲ್ಲ-ಮಾಗಣೆ ಡೌನ್‌ಲೋಡ್‌ನಲ್ಲಿ ಇವು ಇಲ್ಲ — DOM ಉಬ್ಬರ ತಪ್ಪಿಸಲು ಇಲ್ಲಿ ಮಾತ್ರ ಸೇರಿಸುತ್ತೇವೆ.
+    const injected=[];
+    const _reg=state.regions[ri];
+    const _n=_reg?_reg.families.length:0;
+    const _fill=(n,per)=>Math.max(8, Math.max(per, Math.ceil(n/per)*per)-n);
+    if(blank){
+      const tb=document.querySelector('.pf-mag[data-r="'+ri+'"] .pf-tbl tbody');
+      if(tb){
+        const cn=state.columns.length;
+        const cells='<td class="pf-c"><i></i></td>'.repeat(cn);
+        for(let j=0,m=_fill(_n,90);j<m;j++){
+          const tr=document.createElement('tr'); tr.className='pf-fill';
+          tr.innerHTML='<td class="pf-nm"><span class="pf-row"><b></b><span class="pf-nmt">&nbsp;</span></span></td>'+cells;
+          tb.appendChild(tr); injected.push(tr);
+        }
+      }
+    }
+    if(phone){
+      const tb=document.querySelector('.ph-mag[data-r="'+ri+'"] .ph-tbl tbody');
+      if(tb){
+        for(let j=0,m=_fill(_n,18);j<m;j++){
+          const tr=document.createElement('tr'); tr.className='ph-fill';
+          tr.innerHTML='<td class="ph-nm">&nbsp;</td><td class="ph-num"></td>';
+          tb.appendChild(tr); injected.push(tr);
+        }
+      }
+    }
+    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print','phone-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); injected.forEach(tr=>tr.remove()); window.removeEventListener('afterprint',cleanup); };
     window.addEventListener('afterprint', cleanup);
     const go=()=>window.print();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();

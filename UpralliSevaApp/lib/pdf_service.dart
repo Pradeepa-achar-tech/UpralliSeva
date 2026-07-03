@@ -19,8 +19,19 @@ class PdfService {
   static String _esc(String s) =>
       s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
+  // ಖಾಲಿ ಅರ್ಜಿ/ದೂರವಾಣಿ ಹಾಳೆ — ಪುಟದ ಕೊನೆಯವರೆಗೆ ಖಾಲಿ ಸಾಲುಗಳು (ವೈಯಕ್ತಿಕ ಮಾಗಣೆಗೆ ಮಾತ್ರ)
+  static const int _fillBlank = 90; // A4 ~ಪೂರ್ಣ ಪುಟ (2 ಕಾಲಂ)
+  static const int _fillPhone = 18; // A4 ~ಪೂರ್ಣ ಪುಟ (1 ಕಾಲಂ)
+  static const int _minFill = 8; // ಯಾವಾಗಲೂ ಕನಿಷ್ಠ ಇಷ್ಟು ಖಾಲಿ ಸಾಲು
+  static int _pad(int n, int per) {
+    final target = n <= per ? per : ((n + per - 1) ~/ per) * per;
+    final p = target - n;
+    return p < _minFill ? _minFill : p;
+  }
+
   /// mode: 'data' | 'blank' | 'phone'
-  static String _html(PoojaData data, String mode) {
+  /// fill: ವೈಯಕ್ತಿಕ ಮಾಗಣೆ — ಪುಟ ತುಂಬಲು ಖಾಲಿ ಸಾಲುಗಳು (ಎಲ್ಲ-ಮಾಗಣೆಗೆ ಇಲ್ಲ)
+  static String _html(PoojaData data, String mode, {bool fill = false}) {
     final cols = data.columns;
     final blank = mode == 'blank';
     final phone = mode == 'phone';
@@ -43,6 +54,13 @@ class PdfService {
           sb.write('<tr><td class="ph-nm"><span class="row"><b>${i + 1}.</b>'
               '<span class="nm">${_esc(f.n)}</span></span></td>'
               '<td class="ph-num">${_esc(f.p)}</td></tr>');
+        }
+        // ಪುಟದ ಕೊನೆಯವರೆಗೆ ಖಾಲಿ ಸಾಲುಗಳು (ವೈಯಕ್ತಿಕ ಮಾಗಣೆಗೆ ಮಾತ್ರ)
+        if (fill) {
+          final np = _pad(r.families.length, _fillPhone);
+          for (var j = 0; j < np; j++) {
+            sb.write('<tr><td class="ph-nm">&nbsp;</td><td class="ph-num"></td></tr>');
+          }
         }
         sb.write('</tbody></table></section>');
       }
@@ -72,6 +90,18 @@ class PdfService {
           sb.write('<td class="pf-c"><i>$mark</i></td>');
         }
         sb.write('</tr>');
+      }
+      // ಖಾಲಿ ಅರ್ಜಿ — ಪುಟದ ಕೊನೆಯವರೆಗೆ ಖಾಲಿ ಸಾಲುಗಳು (ವೈಯಕ್ತಿಕ ಮಾಗಣೆಗೆ ಮಾತ್ರ)
+      if (blank && fill) {
+        final nb = _pad(r.families.length, _fillBlank);
+        for (var j = 0; j < nb; j++) {
+          sb.write('<tr class="pf-fill"><td class="pf-nm"><span class="row">'
+              '<b></b><span class="nm">&nbsp;</span></span></td>');
+          for (var ci = 0; ci < cols.length; ci++) {
+            sb.write('<td class="pf-c"><i></i></td>');
+          }
+          sb.write('</tr>');
+        }
       }
       sb.write('</tbody></table></section>');
     }
@@ -130,10 +160,11 @@ class PdfService {
     .ph-tbl td.ph-num{height:30px;}
   ''';
 
-  static Future<Uint8List> build(PoojaData data, {String mode = 'data'}) async {
+  static Future<Uint8List> build(PoojaData data,
+      {String mode = 'data', bool fill = false}) async {
     return Printing.convertHtml(
       format: PdfPageFormat.a4,
-      html: _html(data, mode),
+      html: _html(data, mode, fill: fill),
     );
   }
 
@@ -141,17 +172,19 @@ class PdfService {
       phone ? 'phone' : (blank ? 'blank' : 'data');
 
   /// ಸಾಮಾನ್ಯ ಹಂಚಿಕೆ / ಉಳಿಸುವಿಕೆ (ಆ್ಯಂಡ್ರಾಯ್ಡ್ share sheet).
+  /// fill=true → ವೈಯಕ್ತಿಕ ಮಾಗಣೆ (ಪುಟ ತುಂಬಲು ಖಾಲಿ ಸಾಲುಗಳು).
   static Future<void> share(PoojaData data,
-      {bool blank = false, bool phone = false}) async {
+      {bool blank = false, bool phone = false, bool fill = false}) async {
     final mode = _mode(blank: blank, phone: phone);
-    final bytes = await build(data, mode: mode);
+    final bytes = await build(data, mode: mode, fill: fill);
     await Printing.sharePdf(
         bytes: bytes, filename: 'upralli-seva-${data.year}-$mode.pdf');
   }
 
   static Future<void> printDoc(PoojaData data,
-      {bool blank = false, bool phone = false}) async {
+      {bool blank = false, bool phone = false, bool fill = false}) async {
     final mode = _mode(blank: blank, phone: phone);
-    await Printing.layoutPdf(onLayout: (_) async => build(data, mode: mode));
+    await Printing.layoutPdf(
+        onLayout: (_) async => build(data, mode: mode, fill: fill));
   }
 }

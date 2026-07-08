@@ -238,11 +238,13 @@
   /* A3 (ಲಂಬ ~297mm / ಅಡ್ಡ ~420mm) — ದೊಡ್ಡ ಕಾಗದ → ಹೆಚ್ಚು ಕಾಲಂ (ಖಾಲಿ ಅರ್ಜಿ A3 ಬೆಂಬಲ).
      A4 (210mm) ಗಿಂತ ದೊಡ್ಡದಾದಾಗ ಮಾತ್ರ — ಕಾಗದ/ವಿಷಯ ಅಗಲ ಎರಡಕ್ಕೂ ಸರಿಹೊಂದುವ ಮಿತಿ. */
   @media print and (min-width:240mm){
-    .pf-mag{ column-count:3 !important; }
-    .ph-mag{ column-count:2; column-gap:14px; column-fill:auto; }   /* ದೂರವಾಣಿ ಹಾಳೆಯೂ 2 ಕಾಲಂ */
+    body:not(.blank-print) .print-flow{ column-count:3 !important; }   /* ಡೇಟಾ — ನಿರಂತರ 3 ಕಾಲಂ */
+    body.blank-print .pf-mag{ column-count:3 !important; }             /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ 3 ಕಾಲಂ */
+    .ph-mag{ column-count:2; column-gap:14px; column-fill:auto; }      /* ದೂರವಾಣಿ ಹಾಳೆಯೂ 2 ಕಾಲಂ */
   }
   @media print and (min-width:380mm){
-    .pf-mag{ column-count:4 !important; }
+    body:not(.blank-print) .print-flow{ column-count:4 !important; }
+    body.blank-print .pf-mag{ column-count:4 !important; }
     .ph-mag{ column-count:3 !important; }
   }
   @media print{
@@ -269,17 +271,20 @@
     /* column-gap → ಎರಡು ಪ್ರತ್ಯೇಕ ಬಾಕ್ಸ್ (ಮಧ್ಯದ ಗೆರೆ ಅಲ್ಲ); column-rule ಇಲ್ಲ */
     /* column-fill:auto → ಕಾಲಂ ಮೇಲಿಂದ ಕೆಳಗೆ ತುಂಬು (balance ಇಲ್ಲ) → ಕೆಳಗೆ ಖಾಲಿ ಜಾಗ/ತೂಗು ಗೆರೆ ಇಲ್ಲ */
     .print-flow{ display:block !important; }
+    /* ಡೇಟಾ/ಸೇರಿಸಿದ PDF — ಇಡೀ ಹರಿವು ಒಂದೇ 2-ಕಾಲಂ (ಎಡ ಕಾಲಂ ತುಂಬಿ → ಬಲ ಕಾಲಂ → ಮುಂದಿನ ಪುಟ);
+       ಮಾಗಣೆಗಳು ನಿರಂತರ — ಎರಡೂ ಕಾಲಂ ಬಳಕೆ, ಜಾಗ ವ್ಯರ್ಥವಿಲ್ಲ. */
+    body:not(.blank-print) .print-flow{ column-count:2; column-gap:16px; column-fill:auto; }
     /* ಡೇಟಾ/ವರ್ಷ PDF — ದೇವಸ್ಥಾನ ತಲೆಬರಹ ಇಲ್ಲ (ವರ್ಷ ಶೀರ್ಷಿಕೆ ಮಾತ್ರ); ತಲೆಬರಹ ಖಾಲಿ ಅರ್ಜಿಗೆ ಮಾತ್ರ (pf-mtemple) */
     .pf-temple{ display:none; }
     .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #23408e; color:#15224a; }
+    body:not(.blank-print) .pf-title{ column-span:all; }   /* ಶೀರ್ಷಿಕೆ ಎರಡೂ ಕಾಲಂ ದಾಟಿ */
     body.blank-print .pf-title{ display:none; }
-    /* ಮಾಗಣೆ — ಒಳಗೆ 2 ಕಾಲಂ ಹರಿವು */
-    .pf-mag{ column-count:2; column-gap:14px; break-inside:auto; margin:0 0 8px; }
-    /* ಡೇಟಾ/ಸೇರಿಸಿದ PDF — ನಿರಂತರ ಹರಿವು: ಮಾಗಣೆಗಳು ಒಂದರ ನಂತರ ಒಂದು, ಜಾಗ ವ್ಯರ್ಥವಿಲ್ಲ.
-       (ಪ್ರತಿ ಮಾಗಣೆ 2 ಕಾಲಂನಲ್ಲಿ ಸಮತೋಲನ; ಹೊಸ ಪುಟ ಬಲವಂತವಿಲ್ಲ) */
-    body:not(.blank-print) .pf-mag{ column-fill:balance; }
-    /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟ (ಸಂಗ್ರಹ ಹಾಳೆ) */
-    body.blank-print .pf-mag{ column-fill:auto; break-before:page; page-break-before:always; }
+    /* ಮಾಗಣೆ ಬ್ಲಾಕ್ */
+    .pf-mag{ break-inside:auto; margin:0 0 8px; }
+    /* ಡೇಟಾ — ಮಾಗಣೆ ಹರಿವಿನ ಭಾಗ (ಸ್ವಂತ ಮಲ್ಟಿಕಾಲಂ ಅಲ್ಲ; print-flow ನ 2 ಕಾಲಂನಲ್ಲಿ ಹರಿಯುತ್ತದೆ) */
+    body:not(.blank-print) .pf-mag{ column-count:1; }
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟ, ಒಳಗೆ 2 ಕಾಲಂ (ಸಂಗ್ರಹ ಹಾಳೆ) */
+    body.blank-print .pf-mag{ column-count:2; column-gap:14px; column-fill:auto; break-before:page; page-break-before:always; }
     body.blank-print .pf-mag:first-of-type{ break-before:auto; page-break-before:auto; }
     body.print-one.blank-print .pf-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಪುಟದಲ್ಲಿ ದೇವಸ್ಥಾನ ತಲೆಬರಹ (ಎರಡೂ ಕಾಲಂ ದಾಟಿ) */

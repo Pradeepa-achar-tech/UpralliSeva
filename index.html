@@ -233,12 +233,12 @@
   /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
      A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
   @media print and (max-width:170mm){
-    @page{ margin:4mm 8mm 2mm; }                                      /* A5 — ಮೇಲೆ 4, ಬದಿ 8, ಕೆಳಗೆ 2mm (ಟೇಬಲ್ ಪುಟದ ಕೆಳಗಿನವರೆಗೆ) */
+    @page{ margin:3mm 8mm 2mm; }                                      /* A5 — ಮೇಲೆ 3, ಬದಿ 8, ಕೆಳಗೆ 2mm (ಟೇಬಲ್ ಪುಟದ ಕೆಳಗಿನವರೆಗೆ) */
     body:not(.blank-print) .print-flow{ column-count:1 !important; }   /* ಡೇಟಾ — A5 ಒಂದೇ ಕಾಲಂ */
     body.blank-print .pf-mag{ column-count:1 !important; column-gap:0 !important; }
     /* ಡೇಟಾ A5 — ಮೇಲಿನ ಶೀರ್ಷಿಕೆ ಜಾಗ + ಸಾಲಿನ ಎತ್ತರ ಕಡಿಮೆ (ಹೆಚ್ಚು ಸಾಲು ಹೊಂದಲು) */
     body:not(.blank-print) .pf-title{ margin:0 0 4px !important; padding-bottom:3px !important; font-size:12.5px !important; }
-    body:not(.blank-print) .pf-tbl th, body:not(.blank-print) .pf-tbl td{ padding:1.5px 6px !important; line-height:1.25 !important; }
+    body:not(.blank-print) .pf-tbl th, body:not(.blank-print) .pf-tbl td{ padding:1px 6px !important; line-height:1.2 !important; }
   }
   /* A3 (ಲಂಬ ~297mm / ಅಡ್ಡ ~420mm) — ದೊಡ್ಡ ಕಾಗದ → ಹೆಚ್ಚು ಕಾಲಂ (ಖಾಲಿ ಅರ್ಜಿ A3 ಬೆಂಬಲ).
      A4 (210mm) ಗಿಂತ ದೊಡ್ಡದಾದಾಗ ಮಾತ್ರ — ಕಾಗದ/ವಿಷಯ ಅಗಲ ಎರಡಕ್ಕೂ ಸರಿಹೊಂದುವ ಮಿತಿ. */

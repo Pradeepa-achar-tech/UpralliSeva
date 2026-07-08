@@ -238,15 +238,14 @@
   }
   /* A3 (ಲಂಬ ~297mm / ಅಡ್ಡ ~420mm) — ದೊಡ್ಡ ಕಾಗದ → ಹೆಚ್ಚು ಕಾಲಂ (ಖಾಲಿ ಅರ್ಜಿ A3 ಬೆಂಬಲ).
      A4 (210mm) ಗಿಂತ ದೊಡ್ಡದಾದಾಗ ಮಾತ್ರ — ಕಾಗದ/ವಿಷಯ ಅಗಲ ಎರಡಕ್ಕೂ ಸರಿಹೊಂದುವ ಮಿತಿ. */
+  /* A3 — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟದಲ್ಲಿ, ಒಂದೇ ಪೂರ್ಣ-ಅಗಲ ಬಾಕ್ಸ್ (ಪಕ್ಕಪಕ್ಕ ಕಾಲಂ ಇಲ್ಲ) */
   @media print and (min-width:240mm){
-    body:not(.blank-print) .print-flow{ column-count:3 !important; }   /* ಡೇಟಾ — ನಿರಂತರ 3 ಕಾಲಂ */
-    body.blank-print .pf-mag{ column-count:3 !important; }             /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ 3 ಕಾಲಂ */
-    .ph-mag{ column-count:2; column-gap:14px; column-fill:auto; }      /* ದೂರವಾಣಿ ಹಾಳೆಯೂ 2 ಕಾಲಂ */
-  }
-  @media print and (min-width:380mm){
-    body:not(.blank-print) .print-flow{ column-count:4 !important; }
-    body.blank-print .pf-mag{ column-count:4 !important; }
-    .ph-mag{ column-count:3 !important; }
+    body:not(.blank-print) .print-flow{ column-count:1 !important; }
+    .pf-mag{ column-count:1 !important; break-before:page !important; page-break-before:always !important; }
+    .pf-mag:first-of-type{ break-before:auto !important; page-break-before:auto !important; }
+    body.print-one .pf-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
+    body.print-sel .pf-mag.pf-first{ break-before:auto !important; page-break-before:auto !important; }
+    .ph-mag{ column-count:1 !important; }
   }
   @media print{
     html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }

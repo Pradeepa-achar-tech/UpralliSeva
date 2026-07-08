@@ -16,13 +16,6 @@
 <link href="assets/kannada-font.css" rel="stylesheet">
 
 <style>
-  /* ಸ್ವಂತ-ಹೋಸ್ಟ್ ಕನ್ನಡ ಫಾಂಟ್ — ಎಲ್ಲ ಸಾಧನಗಳಲ್ಲಿ ಒಂದೇ ರೀತಿ (Google ಫಾಂಟ್ ಲೋಡ್ ಆಗದಿದ್ದರೂ
-     ಸಿಸ್ಟಮ್ ಫಾಂಟ್‌ಗೆ ಬೀಳದೆ — ಬೇರೆ ಲ್ಯಾಪ್‌ಟಾಪ್‌ನಲ್ಲಿ ಸಾಲುಗಳ ನಡುವೆ ಜಾಗ ಬರದಂತೆ) */
-  @font-face{
-    font-family:"UpralliKn";
-    src:url("NotoSansKannada-Regular.ttf") format("truetype");
-    font-weight:300 900; font-style:normal; font-display:swap;
-  }
   :root{
     --ink:#1f2430; --line:#000; --muted:#6b7280;
     --accent:#e9730c; --accent-dark:#c25e00; --accent-soft:#fff3e8;
@@ -32,7 +25,7 @@
   *{ box-sizing:border-box; }
   html,body{ margin:0; }
   body{
-    font-family:"UpralliKn", "Noto Sans Kannada", "Nirmala UI", "Tunga", "Kedage", system-ui, sans-serif;
+    font-family:"Noto Sans Kannada", "Nirmala UI", "Tunga", "Kedage", system-ui, sans-serif;
     color:var(--ink); background:var(--bg);
     font-size:13px; line-height:1.35;
   }
@@ -91,8 +84,8 @@
     width:210mm; min-height:297mm;
     margin:0 auto; padding:12mm 10mm;
     background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12); border-radius:14px;
-    /* ದಾಖಲೆ/PDF — ಸ್ವಂತ-ಹೋಸ್ಟ್ ಫಾಂಟ್ ಮೊದಲು (ಎಲ್ಲ ಸಾಧನಗಳಲ್ಲಿ ಒಂದೇ ರೀತಿ, ಜಾಗ ಬರದಂತೆ) */
-    font-family:"UpralliKn", "Noto Sans Kannada", "Noto Serif Kannada", "Tunga", "Nirmala UI", "Kedage", sans-serif;
+    /* ದಾಖಲೆ/PDF — ಸುಂದರ ಸಾಂಪ್ರದಾಯಿಕ ಸೆರಿಫ್ ಫಾಂಟ್ (ಎಲ್ಲ PDF ಸ್ವಚ್ಛ, ಅಚ್ಚುಕಟ್ಟಾಗಿ) */
+    font-family:"Noto Serif Kannada", "Tunga", "Nirmala UI", "Kedage", serif;
     color:#111;
   }
   /* ---------- ದೇವಸ್ಥಾನ ತಲೆಬರಹ (PDF ಮಾತ್ರ) ---------- */

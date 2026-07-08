@@ -233,7 +233,7 @@
   /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
      A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
   @media print and (max-width:170mm){
-    @page{ margin:3mm 8mm 2mm; }                                      /* A5 — ಮೇಲೆ 3, ಬದಿ 8, ಕೆಳಗೆ 2mm (ಟೇಬಲ್ ಪುಟದ ಕೆಳಗಿನವರೆಗೆ) */
+    @page{ margin:3mm 8mm 0; }                                        /* A5 — ಕೆಳಗೆ 0 (ಟೇಬಲ್ ಗೆರೆ ಪುಟದ ಅಂಚಿಗೆ ತಾಗುತ್ತದೆ) */
     body:not(.blank-print) .print-flow{ column-count:1 !important; }   /* ಡೇಟಾ — A5 ಒಂದೇ ಕಾಲಂ */
     body.blank-print .pf-mag{ column-count:1 !important; column-gap:0 !important; }
     /* ಡೇಟಾ A5 — ಮೇಲಿನ ಶೀರ್ಷಿಕೆ ಜಾಗ + ಸಾಲಿನ ಎತ್ತರ ಕಡಿಮೆ (ಹೆಚ್ಚು ಸಾಲು ಹೊಂದಲು) */

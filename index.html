@@ -273,10 +273,15 @@
     .pf-temple{ display:none; }
     .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #23408e; color:#15224a; }
     body.blank-print .pf-title{ display:none; }
-    /* ===== ಪ್ರತಿ ಮಾಗಣೆ → ಸ್ವಂತ ಪುಟ; ಒಳಗೆ 2 ಕಾಲಂ ಹರಿವು (ಮೊದಲ ಪೆಟ್ಟಿಗೆ ತುಂಬಿದರೆ → ಎರಡನೇ ಪೆಟ್ಟಿಗೆ) ===== */
-    .pf-mag{ column-count:2; column-gap:14px; column-fill:auto; break-before:page; page-break-before:always; break-inside:auto; }
-    .pf-mag:first-of-type{ break-before:auto; page-break-before:auto; }
-    body.print-one .pf-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
+    /* ಮಾಗಣೆ — ಒಳಗೆ 2 ಕಾಲಂ ಹರಿವು */
+    .pf-mag{ column-count:2; column-gap:14px; break-inside:auto; margin:0 0 8px; }
+    /* ಡೇಟಾ/ಸೇರಿಸಿದ PDF — ನಿರಂತರ ಹರಿವು: ಮಾಗಣೆಗಳು ಒಂದರ ನಂತರ ಒಂದು, ಜಾಗ ವ್ಯರ್ಥವಿಲ್ಲ.
+       (ಪ್ರತಿ ಮಾಗಣೆ 2 ಕಾಲಂನಲ್ಲಿ ಸಮತೋಲನ; ಹೊಸ ಪುಟ ಬಲವಂತವಿಲ್ಲ) */
+    body:not(.blank-print) .pf-mag{ column-fill:balance; }
+    /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟ (ಸಂಗ್ರಹ ಹಾಳೆ) */
+    body.blank-print .pf-mag{ column-fill:auto; break-before:page; page-break-before:always; }
+    body.blank-print .pf-mag:first-of-type{ break-before:auto; page-break-before:auto; }
+    body.print-one.blank-print .pf-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಪುಟದಲ್ಲಿ ದೇವಸ್ಥಾನ ತಲೆಬರಹ (ಎರಡೂ ಕಾಲಂ ದಾಟಿ) */
     .pf-mtemple{ display:none; }
     body.blank-print .pf-mtemple{ display:block; column-span:all; text-align:center; margin:0 0 8px; }

@@ -246,6 +246,16 @@
     body.print-one .pf-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
     body.print-sel .pf-mag.pf-first{ break-before:auto !important; page-break-before:auto !important; }
     .ph-mag{ column-count:1 !important; }
+    /* A3 — ದೊಡ್ಡ ಪುಟಕ್ಕೆ ದೊಡ್ಡ ಫಾಂಟ್ + ಅಗಲ ಚೆಕ್ ಕಾಲಂ (ಸ್ಪಷ್ಟ, ಪುಟ ತುಂಬಿ) */
+    .pf-tbl th, .pf-tbl td{ font-size:17px !important; padding:8px 10px !important; line-height:1.45 !important; }
+    .pf-tbl .pf-c{ width:56px !important; }
+    .pf-tbl thead .pf-c{ font-size:12px !important; }
+    .pf-title{ font-size:21px !important; }
+    .pf-head{ font-size:18px !important; }
+    .pf-head .pf-ph, .pf-head .pf-mo{ font-size:14px !important; }
+    .th1{ font-size:16px !important; } .th2{ font-size:22px !important; } .th3{ font-size:14px !important; }
+    .ph-tbl th, .ph-tbl td{ font-size:17px !important; padding:10px 12px !important; }
+    .ph-tbl td.ph-num{ height:42px !important; }
   }
   @media print{
     html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }

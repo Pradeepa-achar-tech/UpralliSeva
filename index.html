@@ -233,7 +233,8 @@
   /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
      A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
   @media print and (max-width:170mm){
-    .pf-mag{ column-count:1 !important; column-gap:0 !important; }
+    body:not(.blank-print) .print-flow{ column-count:1 !important; }   /* ಡೇಟಾ — A5 ಒಂದೇ ಕಾಲಂ */
+    body.blank-print .pf-mag{ column-count:1 !important; column-gap:0 !important; }
   }
   /* A3 (ಲಂಬ ~297mm / ಅಡ್ಡ ~420mm) — ದೊಡ್ಡ ಕಾಗದ → ಹೆಚ್ಚು ಕಾಲಂ (ಖಾಲಿ ಅರ್ಜಿ A3 ಬೆಂಬಲ).
      A4 (210mm) ಗಿಂತ ದೊಡ್ಡದಾದಾಗ ಮಾತ್ರ — ಕಾಗದ/ವಿಷಯ ಅಗಲ ಎರಡಕ್ಕೂ ಸರಿಹೊಂದುವ ಮಿತಿ. */
@@ -279,10 +280,8 @@
     .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #23408e; color:#15224a; }
     body:not(.blank-print) .pf-title{ column-span:all; }   /* ಶೀರ್ಷಿಕೆ ಎರಡೂ ಕಾಲಂ ದಾಟಿ */
     body.blank-print .pf-title{ display:none; }
-    /* ಮಾಗಣೆ ಬ್ಲಾಕ್ */
+    /* ಡೇಟಾ — ಮಾಗಣೆ ಸಾಮಾನ್ಯ ಬ್ಲಾಕ್ (ಸ್ವಂತ ಮಲ್ಟಿಕಾಲಂ ಅಲ್ಲ); print-flow ನ 2 ಕಾಲಂನಲ್ಲಿ ಹರಿಯುತ್ತದೆ */
     .pf-mag{ break-inside:auto; margin:0 0 8px; }
-    /* ಡೇಟಾ — ಮಾಗಣೆ ಹರಿವಿನ ಭಾಗ (ಸ್ವಂತ ಮಲ್ಟಿಕಾಲಂ ಅಲ್ಲ; print-flow ನ 2 ಕಾಲಂನಲ್ಲಿ ಹರಿಯುತ್ತದೆ) */
-    body:not(.blank-print) .pf-mag{ column-count:1; }
     /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟ, ಒಳಗೆ 2 ಕಾಲಂ (ಸಂಗ್ರಹ ಹಾಳೆ) */
     body.blank-print .pf-mag{ column-count:2; column-gap:14px; column-fill:auto; break-before:page; page-break-before:always; }
     body.blank-print .pf-mag:first-of-type{ break-before:auto; page-break-before:auto; }

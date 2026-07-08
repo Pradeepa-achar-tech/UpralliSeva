@@ -233,7 +233,7 @@
   /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
      A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
   @media print and (max-width:170mm){
-    @page{ margin:4mm 8mm; }                                          /* A5 — ಮೇಲೆ/ಕೆಳಗೆ ಕನಿಷ್ಠ ಅಂಚು → ಹೆಚ್ಚು ಸಾಲು */
+    @page{ margin:4mm 8mm 2mm; }                                      /* A5 — ಮೇಲೆ 4, ಬದಿ 8, ಕೆಳಗೆ 2mm (ಟೇಬಲ್ ಪುಟದ ಕೆಳಗಿನವರೆಗೆ) */
     body:not(.blank-print) .print-flow{ column-count:1 !important; }   /* ಡೇಟಾ — A5 ಒಂದೇ ಕಾಲಂ */
     body.blank-print .pf-mag{ column-count:1 !important; column-gap:0 !important; }
     /* ಡೇಟಾ A5 — ಮೇಲಿನ ಶೀರ್ಷಿಕೆ ಜಾಗ + ಸಾಲಿನ ಎತ್ತರ ಕಡಿಮೆ (ಹೆಚ್ಚು ಸಾಲು ಹೊಂದಲು) */
@@ -303,8 +303,8 @@
     .pf-mtemple{ display:none; }
     body.blank-print .pf-mtemple{ display:block; column-span:all; text-align:center; margin:0 0 8px; }
     /* ಮಾಗಣೆ ಶೀರ್ಷಿಕೆ ಪಟ್ಟಿ — ಮೊದಲ ಪೆಟ್ಟಿಗೆಯೊಳಗೆ ಮಾತ್ರ (ಹೆಸರು + ಮೊಬೈಲ್ ಒಂದೇ ಪೆಟ್ಟಿಗೆಯಲ್ಲಿ) */
-    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:13.5px; color:#15224a; border:1.6px solid #23408e; border-bottom:none; padding:4px 9px; background:#eaf0fb; break-after:avoid; }
-    .pf-head .pf-ph{ font-size:11px; font-weight:700; white-space:nowrap; }
+    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:900; font-size:15.5px; color:#15224a; border:1.6px solid #23408e; border-bottom:none; padding:5px 9px; background:#eaf0fb; break-after:avoid; }
+    .pf-head .pf-ph{ font-size:13.5px; font-weight:800; white-space:nowrap; }
     /* ಟೇಬಲ್ — ಲಂಬ ಗೆರೆ + ಹೊರ ಪೆಟ್ಟಿಗೆ ಮಾತ್ರ; ಸಾಲುಗಳ ನಡುವೆ ಅಡ್ಡಗೆರೆ ಇಲ್ಲ (ಚಿತ್ರದಂತೆ) — ನೀಲಿ ಶಾಯಿ */
     .pf-tbl{ width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
     .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:1.4px solid #23408e !important; padding:2px 7px; font-size:13px; font-weight:400; color:#111; vertical-align:top; overflow:hidden; box-sizing:border-box; line-height:1.3; }
@@ -316,7 +316,7 @@
     .pf-tbl tr{ break-inside:avoid; }
     /* ಕ್ರಮ ಸಂಖ್ಯೆ + ಹೆಸರು ಒಂದೇ ಸೆಲ್ (ಮಧ್ಯೆ ಗೆರೆ ಇಲ್ಲ — ಚಿತ್ರದಂತೆ); ಪೆಟ್ಟಿಗೆ ಎಡ ಅಂಚು */
     .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.3; border-left:1.6px solid #23408e !important; }
-    .pf-tbl thead .pf-nm{ text-align:center; }
+    .pf-tbl thead .pf-nm{ text-align:left; padding-left:9px; }   /* ಹೆಸರು ಶೀರ್ಷಿಕೆ ಎಡಕ್ಕೆ */
     /* ಕ್ರಮ ಸಂಖ್ಯೆ + ಹೆಸರು — flex; ಮುಂದುವರಿದ ಸಾಲು ಸಂಖ್ಯೆ ಕೆಳಗೆ ಬಾರದೆ ಹೆಸರಿನ ಮೊದಲ ಸಾಲಿಗೆ ಹೊಂದಿಕೆ */
     .pf-tbl td.pf-nm .pf-row{ display:flex; gap:5px; align-items:baseline; }
     .pf-tbl td.pf-nm .pf-row b{ flex:0 0 auto; font-weight:600; }   /* ಕ್ರಮ ಸಂಖ್ಯೆ — ಸ್ಥಿರ */
@@ -353,8 +353,8 @@
     body.print-one .ph-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
     body.print-one .ph-mag{ display:none; }
     body.print-one .ph-mag.pf-target{ display:block; }
-    .ph-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:13.5px; color:#15224a; border:1.6px solid #23408e; border-bottom:none; padding:4px 9px; background:#eaf0fb; break-after:avoid; }
-    .ph-head .ph-mo{ font-size:11px; font-weight:700; white-space:nowrap; }
+    .ph-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:900; font-size:15.5px; color:#15224a; border:1.6px solid #23408e; border-bottom:none; padding:5px 9px; background:#eaf0fb; break-after:avoid; }
+    .ph-head .ph-mo{ font-size:13.5px; font-weight:800; white-space:nowrap; }
     .ph-tbl{ width:100%; border-collapse:collapse; table-layout:fixed; }
     .ph-tbl th, .ph-tbl td{ border:1px solid #23408e !important; padding:6px 8px; font-size:13px; color:#111; vertical-align:top; line-height:1.4; box-sizing:border-box; }
     .ph-tbl thead{ display:table-header-group; }

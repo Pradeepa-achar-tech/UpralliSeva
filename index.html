@@ -308,6 +308,10 @@
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
     body.print-one .pf-mag.pf-target{ display:block; }
+    /* ಆಯ್ದ ಮಾಗಣೆ (ಸೇರಿಸಿ) — ಆಯ್ದವು ಮಾತ್ರ; ಮೊದಲನೆಯದು ಶೀರ್ಷಿಕೆಯೊಂದಿಗೆ ಇರಲಿ */
+    body.print-sel .pf-mag{ display:none !important; }
+    body.print-sel .pf-mag.pf-sel{ display:block !important; }
+    body.print-sel .pf-mag.pf-sel.pf-first{ break-before:auto !important; page-break-before:auto !important; }
 
     /* ===== ದೂರವಾಣಿ ಸಂಗ್ರಹ ಹಾಳೆ (phone-print) — ಹೆಸರು + ಖಾಲಿ ದೂರವಾಣಿ ಕಾಲಂ ===== */
     body.phone-print .print-flow{ display:none !important; }
@@ -509,6 +513,17 @@
   @keyframes modalpop{ from{ transform:scale(.95); opacity:0 } to{ transform:scale(1); opacity:1 } }
   .modal-title{ font-weight:700; font-size:16px; margin-bottom:6px; }
   .modal-title:empty{ display:none; }
+  .modal-x{ float:right; border:none; background:transparent; cursor:pointer; font-size:16px; line-height:1; color:#8b93a1; padding:2px 4px; margin:-2px -2px 0 0; }
+  .modal-x:hover{ color:#c0392b; }
+  /* ಆಯ್ದ ಮಾಗಣೆ ಪಟ್ಟಿ */
+  .magani-sel-list{ max-height:54vh; overflow:auto; margin:0 -4px; border-top:1px solid var(--card-line); }
+  .magani-sel-item{ display:flex; align-items:center; gap:10px; padding:9px 8px; border-bottom:1px solid var(--card-line); cursor:pointer; font-size:14px; color:var(--ink); }
+  .magani-sel-item:hover{ background:var(--accent-soft); }
+  .magani-sel-item span{ flex:1; }
+  .magani-sel-item .magani-sel-count{ flex:none; font-size:11px; font-weight:700; color:#56607a; background:#eef0f4; padding:1px 8px; border-radius:9px; }
+  .magani-sel-all{ background:#fafbfc; font-weight:700; }
+  .magani-sel-item input[type=checkbox]{ -webkit-appearance:auto; appearance:auto; width:18px; height:18px; accent-color:var(--accent); cursor:pointer; flex:none; }
+  .magani-sel-item input[type=checkbox]::after{ content:none !important; }
   .modal-body{ font-size:13.5px; color:#333; line-height:1.55; white-space:pre-line; }
   .modal-input{
     width:100%; margin-top:14px; font-family:inherit; font-size:16px;
@@ -626,6 +641,31 @@
     </div>
   </div>
 
+  <!-- ===== PDF ಡೌನ್‌ಲೋಡ್ ಆಯ್ಕೆ (ಎಲ್ಲ / ಆಯ್ದ ಮಾಗಣೆ) ===== -->
+  <div id="pdfChooseModal" class="modal-wrap no-print" onclick="if(event.target===this)closePdfChoose()">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:380px">
+      <div class="modal-title">PDF ಡೌನ್‌ಲೋಡ್<button class="modal-x" title="ಮುಚ್ಚಿ" onclick="closePdfChoose()">✕</button></div>
+      <div style="font-size:12.5px;color:var(--muted);margin:0 0 14px">ಯಾವ ರೀತಿ ಡೌನ್‌ಲೋಡ್ ಮಾಡಬೇಕು?</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <button class="tb primary" style="justify-content:center" onclick="closePdfChoose();downloadPDF()">📄 ಎಲ್ಲ ಮಾಗಣೆ ಡೌನ್‌ಲೋಡ್</button>
+        <button class="tb" style="justify-content:center" onclick="openMaganiSelect()">🗂 ಮಾಗಣೆ ಸೇರಿಸಿ (ಆಯ್ದ ಮಾಗಣೆ)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ಆಯ್ದ ಮಾಗಣೆ ಸೇರಿಸಿ — ಒಂದೇ PDF ===== -->
+  <div id="maganiSelModal" class="modal-wrap no-print" onclick="if(event.target===this)closeMaganiSelect()">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:420px">
+      <div class="modal-title">ಮಾಗಣೆ ಆಯ್ಕೆಮಾಡಿ<button class="modal-x" title="ಮುಚ್ಚಿ" onclick="closeMaganiSelect()">✕</button></div>
+      <div style="font-size:12px;color:var(--muted);margin:0 0 10px">ಆಯ್ದ ಮಾಗಣೆಗಳು ಒಂದೇ PDF ನಲ್ಲಿ (ಪ್ರತಿ ಮಾಗಣೆ ಪ್ರತ್ಯೇಕ ಪುಟ)</div>
+      <div id="maganiSelList" class="magani-sel-list"></div>
+      <div class="modal-actions">
+        <button class="tb" onclick="closeMaganiSelect()">ರದ್ದು</button>
+        <button class="tb primary" onclick="downloadCombined()">⬇ ಡೌನ್‌ಲೋಡ್</button>
+      </div>
+    </div>
+  </div>
+
   <div id="app">
     <!-- ===== ಎಡ ಸೈಡ್‌ಬಾರ್ (admin dashboard) ===== -->
     <aside id="sidebar" class="no-print">
@@ -653,7 +693,7 @@
 
       <div class="side-group side-actions">
         <label class="side-label">ಕ್ರಿಯೆಗಳು</label>
-        <button class="tb primary" id="btnPdf" onclick="downloadPDF(this)">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
+        <button class="tb primary" id="btnPdf" onclick="openPdfChoose()">📄 PDF ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb" id="btnPrint" onclick="window.print()">🖨 ಮುದ್ರಣ</button>
         <button class="tb" id="btnBlank" onclick="downloadBlankPDF(this)">📝 ಖಾಲಿ ಅರ್ಜಿ PDF</button>
         <button class="tb" id="btnPhone" onclick="downloadPhonePDF(this)">📞 ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF</button>
@@ -1491,7 +1531,8 @@
      ಮತ್ತು ಯಾವುದೇ ಲೈಬ್ರರಿ/ಇಂಟರ್ನೆಟ್ ಬೇಕಿಲ್ಲ. ಮುದ್ರಣ ಸಂವಾದದಲ್ಲಿ
      "Save as PDF" / "PDF ಆಗಿ ಉಳಿಸಿ" ಆಯ್ಕೆ ಮಾಡಿ. */
   async function downloadPDF(btn){
-    btn.disabled=true; const old=btn.textContent; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…";
+    const old = btn ? btn.textContent : null;
+    if(btn){ btn.disabled=true; btn.textContent="ತಯಾರಿಸುತ್ತಿದೆ…"; }
     try{
       // ಮುದ್ರಿಸುವ ಮುನ್ನ ಫಾಂಟ್ ಲೋಡ್ ಆಗುವವರೆಗೆ ಕಾಯಿ (ಕನ್ನಡ ಸರಿಯಾಗಿ ಬರಲು)
       if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
@@ -1503,8 +1544,43 @@
       uiAlert("ಮುದ್ರಣ ತೆರೆಯಲಾಗಲಿಲ್ಲ:\n"+err.message+"\n\nಪರ್ಯಾಯ: Ctrl+P → \"Save as PDF\" ಬಳಸಿ.", "ದೋಷ");
     }finally{
       document.body.classList.remove('exporting');
-      btn.disabled=false; btn.textContent=old;
+      if(btn){ btn.disabled=false; btn.textContent=old; }
     }
+  }
+
+  /* ===== PDF ಡೌನ್‌ಲೋಡ್ ಆಯ್ಕೆ: ಎಲ್ಲ ಮಾಗಣೆ / ಆಯ್ದ ಮಾಗಣೆ ಸೇರಿಸಿ ===== */
+  function openPdfChoose(){ document.getElementById('pdfChooseModal').classList.add('open'); }
+  function closePdfChoose(){ document.getElementById('pdfChooseModal').classList.remove('open'); }
+  function openMaganiSelect(){
+    closePdfChoose();
+    const box=document.getElementById('maganiSelList');
+    box.innerHTML =
+      `<label class="magani-sel-item magani-sel-all"><input type="checkbox" id="maganiSelAll" onchange="toggleAllMagani(this)"><span><b>ಎಲ್ಲ ಆಯ್ಕೆ</b></span></label>`+
+      state.regions.map((r,i)=>
+        `<label class="magani-sel-item"><input type="checkbox" class="magani-sel-cb" value="${i}"><span>${esc(r.no)}. ${esc(r.name)}</span> <span class="magani-sel-count">${r.families.length}</span></label>`).join("");
+    document.getElementById('maganiSelModal').classList.add('open');
+  }
+  function closeMaganiSelect(){ document.getElementById('maganiSelModal').classList.remove('open'); }
+  function toggleAllMagani(cb){
+    document.querySelectorAll('#maganiSelList .magani-sel-cb').forEach(x=>{ x.checked=cb.checked; });
+  }
+  async function downloadCombined(){
+    const sel=[...document.querySelectorAll('#maganiSelList .magani-sel-cb:checked')].map(c=>+c.value);
+    if(sel.length===0){ toast("ಕನಿಷ್ಠ ಒಂದು ಮಾಗಣೆ ಆಯ್ಕೆಮಾಡಿ","warn"); return; }
+    closeMaganiSelect();
+    if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+    const sorted=[...sel].sort((a,b)=>a-b);
+    const marked=[];
+    document.body.classList.add('exporting','print-sel');
+    sorted.forEach((ri,idx)=>{
+      document.querySelectorAll('.pf-mag[data-r="'+ri+'"]').forEach(m=>{
+        m.classList.add('pf-sel'); if(idx===0) m.classList.add('pf-first'); marked.push(m);
+      });
+    });
+    const cleanup=()=>{ document.body.classList.remove('exporting','print-sel'); marked.forEach(m=>m.classList.remove('pf-sel','pf-first')); window.removeEventListener('afterprint',cleanup); };
+    window.addEventListener('afterprint', cleanup);
+    if(document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    window.print();
   }
 
   /* ಖಾಲಿ ಅರ್ಜಿ PDF — ಆ ವರ್ಷದ ಎಲ್ಲ ಹೆಸರು/ಮಾಗಣೆ, ಆದರೆ ಯಾವುದೇ ✓ ಗುರುತು ಇಲ್ಲ */

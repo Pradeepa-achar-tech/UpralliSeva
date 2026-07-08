@@ -235,6 +235,16 @@
   @media print and (max-width:170mm){
     .pf-mag{ column-count:1 !important; column-gap:0 !important; }
   }
+  /* A3 (ಲಂಬ ~297mm / ಅಡ್ಡ ~420mm) — ದೊಡ್ಡ ಕಾಗದ → ಹೆಚ್ಚು ಕಾಲಂ (ಖಾಲಿ ಅರ್ಜಿ A3 ಬೆಂಬಲ).
+     A4 (210mm) ಗಿಂತ ದೊಡ್ಡದಾದಾಗ ಮಾತ್ರ — ಕಾಗದ/ವಿಷಯ ಅಗಲ ಎರಡಕ್ಕೂ ಸರಿಹೊಂದುವ ಮಿತಿ. */
+  @media print and (min-width:240mm){
+    .pf-mag{ column-count:3 !important; }
+    .ph-mag{ column-count:2; column-gap:14px; column-fill:auto; }   /* ದೂರವಾಣಿ ಹಾಳೆಯೂ 2 ಕಾಲಂ */
+  }
+  @media print and (min-width:380mm){
+    .pf-mag{ column-count:4 !important; }
+    .ph-mag{ column-count:3 !important; }
+  }
   @media print{
     html,body{ background:#fff !important; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
     .toolbar{ display:none !important; }

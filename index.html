@@ -1174,7 +1174,7 @@
       if(tb){
         const cn=state.columns.length;
         const cells='<td class="pf-c"><i></i></td>'.repeat(cn);
-        for(let j=0,m=_fill(_n,32);j<m;j++){
+        for(let j=0,m=_fill(_n,28);j<m;j++){
           const tr=document.createElement('tr'); tr.className='pf-fill';
           tr.innerHTML='<td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+cells;
           tb.appendChild(tr); injected.push(tr);

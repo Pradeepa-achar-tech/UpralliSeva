@@ -1166,13 +1166,15 @@
     const injected=[];
     const _reg=state.regions[ri];
     const _n=_reg?_reg.families.length:0;
-    const _fill=(n,per)=>Math.max(8, Math.max(per, Math.ceil(n/per)*per)-n);
+    // ಆ ಪುಟದ ಉಳಿದ ಜಾಗ ಮಾತ್ರ ತುಂಬು — ಹೊಸ ಪುಟಕ್ಕೆ ಖಾಲಿ ಸಾಲುಗಳು ವಿಸ್ತರಿಸಬಾರದು.
+    // (per = ಒಂದು ಪುಟದ ಅಂದಾಜು ಸಾಲು ಎಣಿಕೆ; ಕೊನೆಯ ಪುಟದ ಉಳಿದ ಭಾಗ ಮಾತ್ರ ತುಂಬುತ್ತದೆ)
+    const _fill=(n,per)=>(per-(n%per))%per;
     if(blank){
       const tb=document.querySelector('.pf-mag[data-r="'+ri+'"] .pf-tbl tbody');
       if(tb){
         const cn=state.columns.length;
         const cells='<td class="pf-c"><i></i></td>'.repeat(cn);
-        for(let j=0,m=_fill(_n,90);j<m;j++){
+        for(let j=0,m=_fill(_n,32);j<m;j++){
           const tr=document.createElement('tr'); tr.className='pf-fill';
           tr.innerHTML='<td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+cells;
           tb.appendChild(tr); injected.push(tr);

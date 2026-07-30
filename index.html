@@ -283,7 +283,7 @@
     .dash, .collect, .legend, .region, .doc-title, .temple-head{ display:none !important; }
     /* column-gap → ಎರಡು ಪ್ರತ್ಯೇಕ ಬಾಕ್ಸ್ (ಮಧ್ಯದ ಗೆರೆ ಅಲ್ಲ); column-rule ಇಲ್ಲ */
     /* column-fill:auto → ಕಾಲಂ ಮೇಲಿಂದ ಕೆಳಗೆ ತುಂಬು (balance ಇಲ್ಲ) → ಕೆಳಗೆ ಖಾಲಿ ಜಾಗ/ತೂಗು ಗೆರೆ ಇಲ್ಲ */
-    .print-flow{ display:block !important; }
+    .print-flow{ display:block !important; padding:0 3mm; box-sizing:border-box; }   /* ಬಲ/ಎಡ ಗೆರೆ ಪುಟದ ಅಂಚಿನಲ್ಲಿ ಕತ್ತರಿಸದಂತೆ ಸ್ವಲ್ಪ ಒಳಕ್ಕೆ */
     /* ಡೇಟಾ/ಸೇರಿಸಿದ PDF — ಒಂದೇ ಪೂರ್ಣ-ಅಗಲ ಕಾಲಂ (ಚಿತ್ರದಂತೆ); ಮಾಗಣೆಗಳು ನಿರಂತರ, ಜಾಗ ವ್ಯರ್ಥವಿಲ್ಲ. */
     body:not(.blank-print) .print-flow{ column-count:1; }
     /* ಡೇಟಾ/ವರ್ಷ PDF — ದೇವಸ್ಥಾನ ತಲೆಬರಹ ಇಲ್ಲ (ವರ್ಷ ಶೀರ್ಷಿಕೆ ಮಾತ್ರ); ತಲೆಬರಹ ಖಾಲಿ ಅರ್ಜಿಗೆ ಮಾತ್ರ (pf-mtemple) */
@@ -331,11 +331,25 @@
     .pf-tbl tbody td{ border-bottom:0.5px solid #000 !important; }
     /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ (ವೈಯಕ್ತಿಕ) ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ.
        ಡೇಟಾ PDF ಮತ್ತು ಎಲ್ಲ-ಮಾಗಣೆ ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮರೆ. */
-    .pf-tbl tr.pf-fill{ display:none !important; }
-    body.print-one.blank-print .pf-tbl tr.pf-fill{ display:table-row !important; }
-    /* ದೂರವಾಣಿ ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ ದೂರವಾಣಿ ಹಾಳೆಯಲ್ಲಿ */
-    .ph-tbl tr.ph-fill{ display:none !important; }
-    body.print-one.phone-print .ph-tbl tr.ph-fill{ display:table-row !important; }
+    /* ಪೂರಕ ಖಾಲಿ ಜಾಗ — ಕೇವಲ ವೈಯಕ್ತಿಕ ಖಾಲಿ/ದೂರವಾಣಿ ಹಾಳೆ. ಗೆರೆ-ಬ್ಲಾಕ್ ಪ್ರಸ್ತುತ ಪುಟದ ಉಳಿದ
+       ಎತ್ತರ ಮಾತ್ರ ತುಂಬುತ್ತದೆ (flex) — ಎಂದಿಗೂ ಹೊಸ ಪುಟಕ್ಕೆ ಖಾಲಿ ಸಾಲುಗಳು ಹೋಗುವುದಿಲ್ಲ. */
+    .pf-fillbox, .ph-fillbox{ display:none; }
+    body.print-one.blank-print .pf-mag{ display:flex; flex-direction:column; min-height:268mm; }
+    body.print-one.phone-print .ph-mag{ display:flex; flex-direction:column; min-height:268mm; }
+    /* ಗೆರೆ-ಬ್ಲಾಕ್: ಉಳಿದ ಎತ್ತರ ತುಂಬುತ್ತದೆ (flex:1); ಹೆಚ್ಚಿನ ಸಾಲುಗಳು overflow:hidden ನಿಂದ
+       ಕತ್ತರಿಸಲ್ಪಡುತ್ತವೆ — ಹೊಸ ಪುಟಕ್ಕೆ ಎಂದಿಗೂ ಹೋಗುವುದಿಲ್ಲ. ಗೆರೆಗಳು border (bg ಅಲ್ಲ) → ಯಾವಾಗಲೂ ಮುದ್ರಿತ. */
+    body.print-one.blank-print .pf-fillbox,
+    body.print-one.phone-print .ph-fillbox{ display:block; flex:1 1 auto; overflow:hidden; }
+    .pf-fillbox .fr, .ph-fillbox .fr{ display:flex; height:24px; }
+    .pf-fillbox .fr .fc, .ph-fillbox .fr .fc{ border-left:0.5px solid #000; border-bottom:0.5px solid #000; box-sizing:border-box; }
+    .pf-fillbox .fr .fc:last-child, .ph-fillbox .fr .fc:last-child{ border-right:0.5px solid #000; }
+    .pf-fillbox .fc-no{ flex:0 0 56px; }
+    .pf-fillbox .fc-nm{ flex:1 1 auto; }
+    .pf-fillbox .fc-c{ flex:0 0 44px; }
+    .ph-fillbox .fc-nm{ flex:1 1 62%; }
+    .ph-fillbox .fc-num{ flex:0 0 38%; }
+    @media print and (max-width:170mm){ body.print-one.blank-print .pf-mag, body.print-one.phone-print .ph-mag{ min-height:180mm; } }
+    @media print and (min-width:240mm){ body.print-one.blank-print .pf-mag, body.print-one.phone-print .ph-mag{ min-height:395mm; } }
     /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
@@ -1166,35 +1180,29 @@
     if(phone) document.body.classList.add('phone-print');
     // ವೈಯಕ್ತಿಕ ಖಾಲಿ/ದೂರವಾಣಿ ಹಾಳೆ — ಪುಟ ತುಂಬಲು ಖಾಲಿ ಸಾಲುಗಳು ಸೇರಿಸು (ಮುದ್ರಣದ ನಂತರ ತೆಗೆ).
     // ಎಲ್ಲ-ಮಾಗಣೆ ಡೌನ್‌ಲೋಡ್‌ನಲ್ಲಿ ಇವು ಇಲ್ಲ — DOM ಉಬ್ಬರ ತಪ್ಪಿಸಲು ಇಲ್ಲಿ ಮಾತ್ರ ಸೇರಿಸುತ್ತೇವೆ.
+    // ಪ್ರಸ್ತುತ ಪುಟದ ಉಳಿದ ಜಾಗವನ್ನು ಮಾತ್ರ ತುಂಬುವ ಗೆರೆ-ಬ್ಲಾಕ್ (CSS flex) — ಎಂದಿಗೂ ಹೊಸ ಪುಟಕ್ಕೆ
+    // ಖಾಲಿ ಸಾಲುಗಳು ಹೋಗುವುದಿಲ್ಲ (ಸಾಲು ಎಣಿಕೆ ಅಲ್ಲ — ಉಳಿದ ಎತ್ತರ ತುಂಬುತ್ತದೆ).
     const injected=[];
-    const _reg=state.regions[ri];
-    const _n=_reg?_reg.families.length:0;
-    // ಆ ಪುಟದ ಉಳಿದ ಜಾಗ ಮಾತ್ರ ತುಂಬು — ಹೊಸ ಪುಟಕ್ಕೆ ಖಾಲಿ ಸಾಲುಗಳು ವಿಸ್ತರಿಸಬಾರದು.
-    // (per = ಒಂದು ಪುಟದ ಅಂದಾಜು ಸಾಲು ಎಣಿಕೆ; ಕೊನೆಯ ಪುಟದ ಉಳಿದ ಭಾಗ ಮಾತ್ರ ತುಂಬುತ್ತದೆ)
-    const _fill=(n,per)=>(per-(n%per))%per;
     if(blank){
-      const tb=document.querySelector('.pf-mag[data-r="'+ri+'"] .pf-tbl tbody');
-      if(tb){
+      const mag=document.querySelector('.pf-mag[data-r="'+ri+'"]');
+      if(mag){
         const cn=state.columns.length;
-        const cells='<td class="pf-c"><i></i></td>'.repeat(cn);
-        for(let j=0,m=_fill(_n,22);j<m;j++){
-          const tr=document.createElement('tr'); tr.className='pf-fill';
-          tr.innerHTML='<td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+cells;
-          tb.appendChild(tr); injected.push(tr);
-        }
+        const cols='<span class="fc fc-no"></span><span class="fc fc-nm"></span>'+'<span class="fc fc-c"></span>'.repeat(cn);
+        const fb=document.createElement('div'); fb.className='pf-fillbox';
+        fb.innerHTML=('<div class="fr">'+cols+'</div>').repeat(45);
+        mag.appendChild(fb); injected.push(fb);
       }
     }
     if(phone){
-      const tb=document.querySelector('.ph-mag[data-r="'+ri+'"] .ph-tbl tbody');
-      if(tb){
-        for(let j=0,m=_fill(_n,18);j<m;j++){
-          const tr=document.createElement('tr'); tr.className='ph-fill';
-          tr.innerHTML='<td class="ph-nm">&nbsp;</td><td class="ph-num"></td>';
-          tb.appendChild(tr); injected.push(tr);
-        }
+      const mag=document.querySelector('.ph-mag[data-r="'+ri+'"]');
+      if(mag){
+        const cols='<span class="fc fc-nm"></span><span class="fc fc-num"></span>';
+        const fb=document.createElement('div'); fb.className='ph-fillbox';
+        fb.innerHTML=('<div class="fr">'+cols+'</div>').repeat(35);
+        mag.appendChild(fb); injected.push(fb);
       }
     }
-    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print','phone-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); injected.forEach(tr=>tr.remove()); window.removeEventListener('afterprint',cleanup); };
+    const cleanup=()=>{ document.body.classList.remove('print-one','blank-print','phone-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); injected.forEach(el=>el.remove()); window.removeEventListener('afterprint',cleanup); };
     window.addEventListener('afterprint', cleanup);
     const go=()=>window.print();
     if(document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();

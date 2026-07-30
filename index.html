@@ -232,7 +232,7 @@
   /* ---------- ಮುದ್ರಣ / PDF ---------- */
   /* size ಸ್ಥಿರವಾಗಿ A4 ಅಲ್ಲ — ಮುದ್ರಣ ಸಂವಾದದಲ್ಲಿ ಆಯ್ದ ಕಾಗದ (A4/A5) ಅನುಸರಿಸಲಿ;
      ಇದರಿಂದ A5ಗೆ ಒಂದು-ಕಾಲಂ media query ಕೆಲಸ ಮಾಡುತ್ತದೆ */
-  @page{ margin:10mm 12mm; }
+  @page{ margin:10mm 12mm 16mm; }   /* ಕೆಳಗೆ ಹೆಚ್ಚು ಅಂಚು (ಟೇಬಲ್ ಪುಟದ ತಳವನ್ನು ತಾಗದಂತೆ) */
   /* A5 (ಅಗಲ 148mm) ಮುಂತಾದ ಚಿಕ್ಕ ಕಾಗದ → ಪ್ರತಿ ಪುಟಕ್ಕೆ ಒಂದೇ ಬಾಕ್ಸ್ (ಒಂದು ಕಾಲಂ);
      A4 (210mm) → ಎರಡು ಕಾಲಂ (ಪೂರ್ವನಿಯೋಜಿತ) */
   @media print and (max-width:170mm){
@@ -1176,7 +1176,9 @@
       if(tb){
         const cn=state.columns.length;
         const cells='<td class="pf-c"></td>'.repeat(cn);
-        for(let j=0,m=Math.max(0,42-_n);j<m;j++){   // Legal ಪುಟ ತುಂಬಲು
+        // ಪ್ರಸ್ತುತ (ಕೊನೆಯ) ಪುಟದ ಉಳಿದ ಜಾಗ ತುಂಬು — ಹೊಸ ಖಾಲಿ ಪುಟ ಬರದಂತೆ (CAP ~ Legal ಪುಟದ ಸಾಲುಗಳು)
+        let m=36-(_n%36); if(m===36&&_n>0) m=0;
+        for(let j=0;j<m;j++){
           const tr=document.createElement('tr'); tr.className='pf-fill';
           tr.innerHTML='<td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+cells;
           tb.appendChild(tr); injected.push(tr);
@@ -1186,7 +1188,8 @@
     if(phone){
       const tb=document.querySelector('.ph-mag[data-r="'+ri+'"] .ph-tbl tbody');
       if(tb){
-        for(let j=0,m=Math.max(0,28-_n);j<m;j++){   // Legal ಪುಟ ತುಂಬಲು
+        let m=24-(_n%24); if(m===24&&_n>0) m=0;
+        for(let j=0;j<m;j++){
           const tr=document.createElement('tr'); tr.className='ph-fill';
           tr.innerHTML='<td class="ph-nm">&nbsp;</td><td class="ph-num"></td>';
           tb.appendChild(tr); injected.push(tr);

@@ -339,15 +339,10 @@
     /* ಗೆರೆ-ಬ್ಲಾಕ್: ಉಳಿದ ಎತ್ತರ ತುಂಬುತ್ತದೆ (flex:1); ಹೆಚ್ಚಿನ ಸಾಲುಗಳು overflow:hidden ನಿಂದ
        ಕತ್ತರಿಸಲ್ಪಡುತ್ತವೆ — ಹೊಸ ಪುಟಕ್ಕೆ ಎಂದಿಗೂ ಹೋಗುವುದಿಲ್ಲ. ಗೆರೆಗಳು border (bg ಅಲ್ಲ) → ಯಾವಾಗಲೂ ಮುದ್ರಿತ. */
     body.print-one.blank-print .pf-fillbox,
-    body.print-one.phone-print .ph-fillbox{ display:block; flex:1 1 auto; overflow:hidden; }
-    .pf-fillbox .fr, .ph-fillbox .fr{ display:flex; height:24px; }
-    .pf-fillbox .fr .fc, .ph-fillbox .fr .fc{ border-left:0.5px solid #000; border-bottom:0.5px solid #000; box-sizing:border-box; }
-    .pf-fillbox .fr .fc:last-child, .ph-fillbox .fr .fc:last-child{ border-right:0.5px solid #000; }
-    .pf-fillbox .fc-no{ flex:0 0 56px; }
-    .pf-fillbox .fc-nm{ flex:1 1 auto; }
-    .pf-fillbox .fc-c{ flex:0 0 44px; }
-    .ph-fillbox .fc-nm{ flex:1 1 62%; }
-    .ph-fillbox .fc-num{ flex:0 0 38%; }
+    body.print-one.phone-print .ph-fillbox{ display:block; flex:1 1 0; min-height:0; overflow:hidden; }
+    /* ಫಿಲ್ಲರ್ ಟೇಬಲ್ — ಮುಖ್ಯ ಟೇಬಲ್‌ನ ಅದೇ pf-tbl/ph-tbl ಶೈಲಿ → ಕಾಲಂಗಳು ನಿಖರವಾಗಿ ಹೊಂದಿಕೆ */
+    .pf-filltbl td, .ph-filltbl td{ height:24px; }
+    .pf-filltbl thead, .ph-filltbl thead{ display:none; }
     @media print and (max-width:170mm){ body.print-one.blank-print .pf-mag.pf-target, body.print-one.phone-print .ph-mag.pf-target{ min-height:180mm; } }
     @media print and (min-width:240mm){ body.print-one.blank-print .pf-mag.pf-target, body.print-one.phone-print .ph-mag.pf-target{ min-height:395mm; } }
     /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
@@ -1187,18 +1182,18 @@
       const mag=document.querySelector('.pf-mag[data-r="'+ri+'"]');
       if(mag){
         const cn=state.columns.length;
-        const cols='<span class="fc fc-no"></span><span class="fc fc-nm"></span>'+'<span class="fc fc-c"></span>'.repeat(cn);
+        const row='<tr><td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+'<td class="pf-c"></td>'.repeat(cn)+'</tr>';
         const fb=document.createElement('div'); fb.className='pf-fillbox';
-        fb.innerHTML=('<div class="fr">'+cols+'</div>').repeat(45);
+        fb.innerHTML='<table class="pf-tbl pf-filltbl"><tbody>'+row.repeat(45)+'</tbody></table>';
         mag.appendChild(fb); injected.push(fb);
       }
     }
     if(phone){
       const mag=document.querySelector('.ph-mag[data-r="'+ri+'"]');
       if(mag){
-        const cols='<span class="fc fc-nm"></span><span class="fc fc-num"></span>';
+        const row='<tr><td class="ph-nm">&nbsp;</td><td class="ph-num"></td></tr>';
         const fb=document.createElement('div'); fb.className='ph-fillbox';
-        fb.innerHTML=('<div class="fr">'+cols+'</div>').repeat(35);
+        fb.innerHTML='<table class="ph-tbl ph-filltbl"><tbody>'+row.repeat(35)+'</tbody></table>';
         mag.appendChild(fb); injected.push(fb);
       }
     }

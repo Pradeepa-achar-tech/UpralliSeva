@@ -16,6 +16,9 @@
 <link href="assets/kannada-font.css" rel="stylesheet">
 
 <style>
+  /* ಸ್ವಂತ-ಹೋಸ್ಟ್ ಕನ್ನಡ ಫಾಂಟ್ (Unicode) — ಎಲ್ಲ ಸಾಧನಗಳಲ್ಲಿ ಒಂದೇ ರೀತಿ; Google/ಸಿಸ್ಟಮ್ ಫಾಂಟ್‌ಗೆ ಬೀಳದೆ */
+  @font-face{ font-family:"KnSerif"; src:url("NotoSerifKannada.ttf") format("truetype"); font-weight:100 900; font-style:normal; font-display:swap; }
+  @font-face{ font-family:"KnSans"; src:url("NotoSansKannadaVF.ttf") format("truetype"); font-weight:100 900; font-style:normal; font-display:swap; }
   :root{
     --ink:#1f2430; --line:#000; --muted:#6b7280;
     --accent:#e9730c; --accent-dark:#c25e00; --accent-soft:#fff3e8;
@@ -25,7 +28,7 @@
   *{ box-sizing:border-box; }
   html,body{ margin:0; }
   body{
-    font-family:"Noto Sans Kannada", "Nirmala UI", "Tunga", "Kedage", system-ui, sans-serif;
+    font-family:"KnSans", "Noto Sans Kannada", "Nirmala UI", "Tunga", "Kedage", system-ui, sans-serif;
     color:var(--ink); background:var(--bg);
     font-size:13px; line-height:1.35;
   }
@@ -85,7 +88,7 @@
     margin:0 auto; padding:12mm 10mm;
     background:#fff; box-shadow:0 0 12px rgba(0,0,0,.12); border-radius:14px;
     /* ದಾಖಲೆ/PDF — ಸುಂದರ ಸಾಂಪ್ರದಾಯಿಕ ಸೆರಿಫ್ ಫಾಂಟ್ (ಎಲ್ಲ PDF ಸ್ವಚ್ಛ, ಅಚ್ಚುಕಟ್ಟಾಗಿ) */
-    font-family:"Noto Serif Kannada", "Tunga", "Nirmala UI", "Kedage", serif;
+    font-family:"KnSerif", "Noto Serif Kannada", "Tunga", "Nirmala UI", "Kedage", serif;
     color:#111;
   }
   /* ---------- ದೇವಸ್ಥಾನ ತಲೆಬರಹ (PDF ಮಾತ್ರ) ---------- */

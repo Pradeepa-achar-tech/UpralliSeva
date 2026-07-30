@@ -283,7 +283,7 @@
     .dash, .collect, .legend, .region, .doc-title, .temple-head{ display:none !important; }
     /* column-gap → ಎರಡು ಪ್ರತ್ಯೇಕ ಬಾಕ್ಸ್ (ಮಧ್ಯದ ಗೆರೆ ಅಲ್ಲ); column-rule ಇಲ್ಲ */
     /* column-fill:auto → ಕಾಲಂ ಮೇಲಿಂದ ಕೆಳಗೆ ತುಂಬು (balance ಇಲ್ಲ) → ಕೆಳಗೆ ಖಾಲಿ ಜಾಗ/ತೂಗು ಗೆರೆ ಇಲ್ಲ */
-    .print-flow{ display:block !important; }
+    .print-flow{ display:block !important; max-width:172mm; margin-left:auto; margin-right:auto; }   /* ಮೂಲದಂತೆ ಕಿರಿದಾದ, ಮಧ್ಯದಲ್ಲಿ */
     /* ಡೇಟಾ/ಸೇರಿಸಿದ PDF — ಒಂದೇ ಪೂರ್ಣ-ಅಗಲ ಕಾಲಂ (ಚಿತ್ರದಂತೆ); ಮಾಗಣೆಗಳು ನಿರಂತರ, ಜಾಗ ವ್ಯರ್ಥವಿಲ್ಲ. */
     body:not(.blank-print) .print-flow{ column-count:1; }
     /* ಡೇಟಾ/ವರ್ಷ PDF — ದೇವಸ್ಥಾನ ತಲೆಬರಹ ಇಲ್ಲ (ವರ್ಷ ಶೀರ್ಷಿಕೆ ಮಾತ್ರ); ತಲೆಬರಹ ಖಾಲಿ ಅರ್ಜಿಗೆ ಮಾತ್ರ (pf-mtemple) */
@@ -305,11 +305,11 @@
     .pf-mtemple .th2{ font-size:16px; font-weight:800 !important; line-height:1.45; margin:1px 0; }   /* ಸಾಲು 1 ಮತ್ತು 2 ಒಂದೇ ಅಳತೆ (ಚಿತ್ರದಂತೆ) */
     .pf-mtemple .th3{ font-size:13px; font-weight:400; line-height:1.4; }
     /* ಮಾಗಣೆ ಶೀರ್ಷಿಕೆ ಪಟ್ಟಿ — ಮೊದಲ ಪೆಟ್ಟಿಗೆಯೊಳಗೆ ಮಾತ್ರ (ಹೆಸರು + ಮೊಬೈಲ್ ಒಂದೇ ಪೆಟ್ಟಿಗೆಯಲ್ಲಿ) */
-    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:900; font-size:17.5px; color:#000; border:1px solid #000; border-bottom:none; padding:6px 9px; background:#fff; break-after:avoid; }
+    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:15px; color:#000; border:1px solid #000; border-bottom:none; padding:5px 9px; background:#fff; break-after:avoid; }
     .pf-head .pf-ph{ font-size:13.5px; font-weight:800; white-space:nowrap; }
     /* ಟೇಬಲ್ — ಲಂಬ ಗೆರೆ + ಹೊರ ಪೆಟ್ಟಿಗೆ ಮಾತ್ರ; ಸಾಲುಗಳ ನಡುವೆ ಅಡ್ಡಗೆರೆ ಇಲ್ಲ (ಚಿತ್ರದಂತೆ) — ನೀಲಿ ಶಾಯಿ */
     .pf-tbl{ width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
-    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:1px solid #000 !important; padding:5px 7px; font-size:13px; font-weight:400; color:#000; vertical-align:middle; overflow:hidden; box-sizing:border-box; line-height:1.4; }
+    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:1px solid #000 !important; padding:4px 6px; font-size:12px; font-weight:400; color:#000; vertical-align:middle; overflow:hidden; box-sizing:border-box; line-height:1.35; }
     .pf-tbl tr > :last-child{ border-right:1px solid #000 !important; }   /* ಪೆಟ್ಟಿಗೆ ಬಲ ಅಂಚು */
     .pf-tbl thead{ display:table-header-group; }                              /* ಶೀರ್ಷಿಕೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
     .pf-tbl thead th{ border-top:1px solid #000 !important; border-bottom:1px solid #000 !important; font-weight:700; background:#fff !important; vertical-align:middle !important; }   /* ಪೆಟ್ಟಿಗೆ ಮೇಲ್ ಗೆರೆ + ಶೀರ್ಷಿಕೆ ಕೆಳ ಗೆರೆ; ಶೀರ್ಷಿಕೆ ಮಧ್ಯ ಜೋಡಣೆ */
@@ -318,7 +318,7 @@
     .pf-tbl tr{ break-inside:avoid; }
     /* ಕ್ರಮ ಸಂಖ್ಯೆ — ಪ್ರತ್ಯೇಕ ಕಾಲಂ (ಚಿತ್ರದಂತೆ); ಪೆಟ್ಟಿಗೆ ಎಡ ಅಂಚು ಇಲ್ಲಿ */
     .pf-tbl .pf-no{ width:46px; text-align:center; white-space:nowrap; border-left:1px solid #000 !important; padding-left:2px; padding-right:2px; }
-    .pf-tbl thead .pf-no{ font-size:12.5px; line-height:1.12; white-space:normal; }   /* ಕ್ರ. / ಸಂ. — 2 ಸಾಲು, ಸ್ಪಷ್ಟ ಅಳತೆ */
+    .pf-tbl thead .pf-no{ font-size:9.5px; line-height:1.12; white-space:nowrap; }   /* ಕ್ರ.ಸಂ. — ಒಂದೇ ಸಾಲಿನಲ್ಲಿ */
     /* ಹೆಸರು ಕಾಲಂ — ಎಡ ಜೋಡಣೆ (ಸಂಖ್ಯೆ ಪ್ರತ್ಯೇಕ ಕಾಲಂನಲ್ಲಿ) */
     .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.3; }
     .pf-tbl thead .pf-nm{ text-align:left; padding-left:9px; }   /* ಹೆಸರು ಶೀರ್ಷಿಕೆ ಎಡಕ್ಕೆ */
@@ -1083,7 +1083,7 @@
       pf += `<section class="pf-mag" data-r="${ri}" id="pf-${ri}">
         <div class="pf-mtemple">${TEMPLE_HEAD}</div>
         <div class="pf-head"><span>${esc(r.no)}. ${esc(r.name)}</span><span class="pf-ph">ಮೊ.: ${esc(r.phone)}</span></div>
-        <table class="pf-tbl"><thead><tr><th class="pf-no">ಕ್ರ.<br>ಸಂ.</th><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c${BLANK_ONLY.has(c)?' pf-c-bo':''}">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+2}"></td></tr></tfoot><tbody>`;
+        <table class="pf-tbl"><thead><tr><th class="pf-no">ಕ್ರ.ಸಂ.</th><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c${BLANK_ONLY.has(c)?' pf-c-bo':''}">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+2}"></td></tr></tfoot><tbody>`;
       r.families.forEach((f,fi)=>{
         const k=checks(f.c);
         pf += `<tr><td class="pf-no">${fi+1}.</td><td class="pf-nm">${esc(f.n)}</td>${k.map((on,ci)=>`<td class="pf-c${BLANK_ONLY.has(cols[ci])?' pf-c-bo':''}"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;

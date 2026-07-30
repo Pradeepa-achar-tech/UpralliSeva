@@ -331,20 +331,10 @@
     .pf-tbl tbody td{ border-bottom:0.5px solid #000 !important; }
     /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ (ವೈಯಕ್ತಿಕ) ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ.
        ಡೇಟಾ PDF ಮತ್ತು ಎಲ್ಲ-ಮಾಗಣೆ ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮರೆ. */
-    /* ಪೂರಕ ಖಾಲಿ ಜಾಗ — ಕೇವಲ ವೈಯಕ್ತಿಕ ಖಾಲಿ/ದೂರವಾಣಿ ಹಾಳೆ. ಗೆರೆ-ಬ್ಲಾಕ್ ಪ್ರಸ್ತುತ ಪುಟದ ಉಳಿದ
-       ಎತ್ತರ ಮಾತ್ರ ತುಂಬುತ್ತದೆ (flex) — ಎಂದಿಗೂ ಹೊಸ ಪುಟಕ್ಕೆ ಖಾಲಿ ಸಾಲುಗಳು ಹೋಗುವುದಿಲ್ಲ. */
-    .pf-fillbox, .ph-fillbox{ display:none; }
-    body.print-one.blank-print .pf-mag.pf-target{ display:flex; flex-direction:column; min-height:268mm; }
-    body.print-one.phone-print .ph-mag.pf-target{ display:flex; flex-direction:column; min-height:268mm; }
-    /* ಗೆರೆ-ಬ್ಲಾಕ್: ಉಳಿದ ಎತ್ತರ ತುಂಬುತ್ತದೆ (flex:1); ಹೆಚ್ಚಿನ ಸಾಲುಗಳು overflow:hidden ನಿಂದ
-       ಕತ್ತರಿಸಲ್ಪಡುತ್ತವೆ — ಹೊಸ ಪುಟಕ್ಕೆ ಎಂದಿಗೂ ಹೋಗುವುದಿಲ್ಲ. ಗೆರೆಗಳು border (bg ಅಲ್ಲ) → ಯಾವಾಗಲೂ ಮುದ್ರಿತ. */
-    body.print-one.blank-print .pf-fillbox,
-    body.print-one.phone-print .ph-fillbox{ display:block; flex:1 1 0; min-height:0; overflow:hidden; }
-    /* ಫಿಲ್ಲರ್ ಟೇಬಲ್ — ಮುಖ್ಯ ಟೇಬಲ್‌ನ ಅದೇ pf-tbl/ph-tbl ಶೈಲಿ → ಕಾಲಂಗಳು ನಿಖರವಾಗಿ ಹೊಂದಿಕೆ */
-    .pf-filltbl td, .ph-filltbl td{ height:24px; }
-    .pf-filltbl thead, .ph-filltbl thead{ display:none; }
-    @media print and (max-width:170mm){ body.print-one.blank-print .pf-mag.pf-target, body.print-one.phone-print .ph-mag.pf-target{ min-height:180mm; } }
-    @media print and (min-width:240mm){ body.print-one.blank-print .pf-mag.pf-target, body.print-one.phone-print .ph-mag.pf-target{ min-height:395mm; } }
+    /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಟೇಬಲ್‌ನೊಳಗೆ ನೇರ ಸಾಲುಗಳು (ಕಾಲಂ ಹೊಂದಿಕೆ ಖಚಿತ). ಎಣಿಕೆ JS ನಲ್ಲಿ
+       ಸೀಮಿತ — ಉದ್ದ ಮಾಗಣೆಗೆ 0, ಚಿಕ್ಕದಕ್ಕೆ ಪುಟ ತುಂಬುವಷ್ಟು — ಹೊಸ ಪುಟ ಬರದಂತೆ. */
+    body.print-one.blank-print .pf-fill td{ height:23px; }
+    body.print-one.phone-print .ph-fill td{ height:30px; }
     /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }
@@ -1177,24 +1167,30 @@
     // ಎಲ್ಲ-ಮಾಗಣೆ ಡೌನ್‌ಲೋಡ್‌ನಲ್ಲಿ ಇವು ಇಲ್ಲ — DOM ಉಬ್ಬರ ತಪ್ಪಿಸಲು ಇಲ್ಲಿ ಮಾತ್ರ ಸೇರಿಸುತ್ತೇವೆ.
     // ಪ್ರಸ್ತುತ ಪುಟದ ಉಳಿದ ಜಾಗವನ್ನು ಮಾತ್ರ ತುಂಬುವ ಗೆರೆ-ಬ್ಲಾಕ್ (CSS flex) — ಎಂದಿಗೂ ಹೊಸ ಪುಟಕ್ಕೆ
     // ಖಾಲಿ ಸಾಲುಗಳು ಹೋಗುವುದಿಲ್ಲ (ಸಾಲು ಎಣಿಕೆ ಅಲ್ಲ — ಉಳಿದ ಎತ್ತರ ತುಂಬುತ್ತದೆ).
+    // ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಚಿಕ್ಕ ಮಾಗಣೆಗೆ ಪುಟ ತುಂಬುವಷ್ಟು; ಉದ್ದ (ಬಹು-ಪುಟ) ಮಾಗಣೆಗೆ 0
+    // (ಆಗ ಹೊಸ ಪುಟದಲ್ಲಿ ಖಾಲಿ ಸಾಲುಗಳು ಬರುವುದಿಲ್ಲ).
     const injected=[];
+    const _n=(state.regions[ri]&&state.regions[ri].families.length)||0;
     if(blank){
-      const mag=document.querySelector('.pf-mag[data-r="'+ri+'"]');
-      if(mag){
+      const tb=document.querySelector('.pf-mag[data-r="'+ri+'"] .pf-tbl tbody');
+      if(tb){
         const cn=state.columns.length;
-        const row='<tr><td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+'<td class="pf-c"></td>'.repeat(cn)+'</tr>';
-        const fb=document.createElement('div'); fb.className='pf-fillbox';
-        fb.innerHTML='<table class="pf-tbl pf-filltbl"><tbody>'+row.repeat(45)+'</tbody></table>';
-        mag.appendChild(fb); injected.push(fb);
+        const cells='<td class="pf-c"></td>'.repeat(cn);
+        for(let j=0,m=Math.max(0,26-_n);j<m;j++){
+          const tr=document.createElement('tr'); tr.className='pf-fill';
+          tr.innerHTML='<td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+cells;
+          tb.appendChild(tr); injected.push(tr);
+        }
       }
     }
     if(phone){
-      const mag=document.querySelector('.ph-mag[data-r="'+ri+'"]');
-      if(mag){
-        const row='<tr><td class="ph-nm">&nbsp;</td><td class="ph-num"></td></tr>';
-        const fb=document.createElement('div'); fb.className='ph-fillbox';
-        fb.innerHTML='<table class="ph-tbl ph-filltbl"><tbody>'+row.repeat(35)+'</tbody></table>';
-        mag.appendChild(fb); injected.push(fb);
+      const tb=document.querySelector('.ph-mag[data-r="'+ri+'"] .ph-tbl tbody');
+      if(tb){
+        for(let j=0,m=Math.max(0,18-_n);j<m;j++){
+          const tr=document.createElement('tr'); tr.className='ph-fill';
+          tr.innerHTML='<td class="ph-nm">&nbsp;</td><td class="ph-num"></td>';
+          tb.appendChild(tr); injected.push(tr);
+        }
       }
     }
     const cleanup=()=>{ document.body.classList.remove('print-one','blank-print','phone-print'); target.classList.remove('print-target'); pfChunks.forEach(el=>el.classList.remove('pf-target')); injected.forEach(el=>el.remove()); window.removeEventListener('afterprint',cleanup); };

@@ -334,8 +334,8 @@
     /* ಪೂರಕ ಖಾಲಿ ಜಾಗ — ಕೇವಲ ವೈಯಕ್ತಿಕ ಖಾಲಿ/ದೂರವಾಣಿ ಹಾಳೆ. ಗೆರೆ-ಬ್ಲಾಕ್ ಪ್ರಸ್ತುತ ಪುಟದ ಉಳಿದ
        ಎತ್ತರ ಮಾತ್ರ ತುಂಬುತ್ತದೆ (flex) — ಎಂದಿಗೂ ಹೊಸ ಪುಟಕ್ಕೆ ಖಾಲಿ ಸಾಲುಗಳು ಹೋಗುವುದಿಲ್ಲ. */
     .pf-fillbox, .ph-fillbox{ display:none; }
-    body.print-one.blank-print .pf-mag{ display:flex; flex-direction:column; min-height:268mm; }
-    body.print-one.phone-print .ph-mag{ display:flex; flex-direction:column; min-height:268mm; }
+    body.print-one.blank-print .pf-mag.pf-target{ display:flex; flex-direction:column; min-height:268mm; }
+    body.print-one.phone-print .ph-mag.pf-target{ display:flex; flex-direction:column; min-height:268mm; }
     /* ಗೆರೆ-ಬ್ಲಾಕ್: ಉಳಿದ ಎತ್ತರ ತುಂಬುತ್ತದೆ (flex:1); ಹೆಚ್ಚಿನ ಸಾಲುಗಳು overflow:hidden ನಿಂದ
        ಕತ್ತರಿಸಲ್ಪಡುತ್ತವೆ — ಹೊಸ ಪುಟಕ್ಕೆ ಎಂದಿಗೂ ಹೋಗುವುದಿಲ್ಲ. ಗೆರೆಗಳು border (bg ಅಲ್ಲ) → ಯಾವಾಗಲೂ ಮುದ್ರಿತ. */
     body.print-one.blank-print .pf-fillbox,
@@ -348,8 +348,8 @@
     .pf-fillbox .fc-c{ flex:0 0 44px; }
     .ph-fillbox .fc-nm{ flex:1 1 62%; }
     .ph-fillbox .fc-num{ flex:0 0 38%; }
-    @media print and (max-width:170mm){ body.print-one.blank-print .pf-mag, body.print-one.phone-print .ph-mag{ min-height:180mm; } }
-    @media print and (min-width:240mm){ body.print-one.blank-print .pf-mag, body.print-one.phone-print .ph-mag{ min-height:395mm; } }
+    @media print and (max-width:170mm){ body.print-one.blank-print .pf-mag.pf-target, body.print-one.phone-print .ph-mag.pf-target{ min-height:180mm; } }
+    @media print and (min-width:240mm){ body.print-one.blank-print .pf-mag.pf-target, body.print-one.phone-print .ph-mag.pf-target{ min-height:395mm; } }
     /* ಹೊಸ ಸೇವಾ ಕಾಲಂ (ಗು.ಕಾ) — ಎಲ್ಲ PDF ನಲ್ಲೂ (ಡೇಟಾ + ಖಾಲಿ) ಸಾಮಾನ್ಯ ಕಾಲಂ ಆಗಿ ಕಾಣಿಸುತ್ತದೆ */
     /* ಒಂದೇ ಮಾಗಣೆ ಮುದ್ರಣ — ಗುರಿ ಮಾಗಣೆ ಮಾತ್ರ */
     body.print-one .pf-mag{ display:none; }

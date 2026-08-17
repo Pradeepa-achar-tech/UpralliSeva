@@ -229,11 +229,12 @@ class _UsersScreenState extends State<UsersScreen> {
                   ],
                 ),
               ),
-              if (u.boot)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Text(u.role == 'edit' ? 'ಸಂಪಾದನೆ' : 'ಓದು',
-                      style: const TextStyle(fontSize: 12, color: Colors.black54)),
+              if (u.sadmin)
+                // super admin — ರಕ್ಷಿತ (ಟಾಗಲ್/ಅಳಿಸು ಇಲ್ಲ)
+                const Padding(
+                  padding: EdgeInsets.only(right: 8),
+                  child: Text('ಸಂಪಾದನೆ',
+                      style: TextStyle(fontSize: 12, color: Colors.black54)),
                 )
               else ...[
                 DropdownButton<String>(
@@ -251,11 +252,13 @@ class _UsersScreenState extends State<UsersScreen> {
                   icon: Icon(u.disabled ? Icons.check_circle_outline : Icons.block,
                       color: u.disabled ? const Color(0xFF0B8A4F) : const Color(0xFFC0392B)),
                 ),
-                IconButton(
-                  tooltip: 'ತೆಗೆ',
-                  onPressed: self ? null : () => _delete(u),
-                  icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
-                ),
+                // ಬೂಟ್ (ಓದು-ಕೋಡ್) ಬಳಕೆದಾರರಿಗೆ users ದಾಖಲೆ ಇಲ್ಲ — ಅಳಿಸು ತೋರಿಸಬೇಡ
+                if (!u.boot)
+                  IconButton(
+                    tooltip: 'ತೆಗೆ',
+                    onPressed: self ? null : () => _delete(u),
+                    icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                  ),
               ],
             ],
           ),

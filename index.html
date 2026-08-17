@@ -1809,18 +1809,19 @@
   async function checkAccess(u){
     if(!u) return {allowed:false, canEdit:false, admin:false};
     const email=(u.email||"").toLowerCase();
+    // super admin — ಯಾವಾಗಲೂ ಅನುಮತಿ (Firestore ಇಲ್ಲದೆ), ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗದು
     if(ALLOWED_EDITORS.map(e=>e.toLowerCase()).includes(email)) return {allowed:true, canEdit:true, admin:true};
-    if(READONLY_USERS.map(e=>e.toLowerCase()).includes(email)) return {allowed:true, canEdit:false, admin:false};
     // ತಣ್ಣನೆ ರಿಫ್ರೆಶ್‌ನಲ್ಲಿ ಟೋಕನ್ ಸಿದ್ಧವಾಗುವ ಮುನ್ನ ಓದಿದರೆ ದೋಷ — ಮರುಪ್ರಯತ್ನ
     for(let i=0;i<4;i++){
       try{
         const d = await db.collection("users").doc(email).get();
-        if(d.exists){
+        if(d.exists){                                  // users ದಾಖಲೆ — bootstrap ಅನ್ನೂ ಮೀರಿಸುತ್ತದೆ
           const x=d.data()||{};
           if(x.disabled) return {allowed:false, canEdit:false, admin:false, disabled:true};
           const edit = x.role==="edit";
           return {allowed:true, canEdit:edit, admin:false};   // ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ ALLOWED_EDITORS ಗೆ ಮಾತ್ರ
         }
+        if(READONLY_USERS.map(e=>e.toLowerCase()).includes(email)) return {allowed:true, canEdit:false, admin:false};
         const le = await db.collection("editors").doc(email).get();   // ಹಳೆಯ whitelist
         if(le.exists) return {allowed:true, canEdit:true, admin:false};
         return {allowed:false, canEdit:false, admin:false};
@@ -1877,9 +1878,9 @@
   }
   function renderUserRows(rows){
     const box=document.getElementById('userRows');
-    // ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಬಳಕೆದಾರರನ್ನೂ (ಕೋಡ್‌ನಲ್ಲಿ) ತೋರಿಸು — ಓದಲು ಮಾತ್ರ, ಟಾಗಲ್ ಇಲ್ಲ
+    // ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್: super admin (ರಕ್ಷಿತ, ಟಾಗಲ್ ಇಲ್ಲ) + ಓದು-ಬೂಟ್ (ನಿರ್ವಹಿಸಬಹುದು — users ದಾಖಲೆ ಮೀರಿಸುತ್ತದೆ)
     const boot=[
-      ...ALLOWED_EDITORS.map(e=>({email:e.toLowerCase(), role:"edit", boot:true})),
+      ...ALLOWED_EDITORS.map(e=>({email:e.toLowerCase(), role:"edit", boot:true, sadmin:true})),
       ...READONLY_USERS.map(e=>({email:e.toLowerCase(), role:"read", boot:true})),
     ].filter(b=>!rows.some(r=>r.email===b.email));
     const all=[...boot, ...rows];
@@ -1887,18 +1888,20 @@
     box.innerHTML=all.map(r=>{
       const self = r.email===currentEmail;
       const dis = !!r.disabled;
+      const tags = `${r.boot?' <span class="user-tag">ಕೋಡ್</span>':''}${r.legacy?' <span class="user-tag">editors</span>':''}${self?' <span class="user-tag">ನೀವು</span>':''}`;
+      const roleCell = r.sadmin
+        ? `<span class="user-role-badge">ಸಂಪಾದನೆ</span>`
+        : `<select class="user-role" onchange="setUserRole('${esc(r.email)}', this.value)">
+             <option value="read"${r.role!=="edit"?" selected":""}>ಓದು</option>
+             <option value="edit"${r.role==="edit"?" selected":""}>ಸಂಪಾದನೆ</option>
+           </select>`;
+      const stateCell = r.sadmin
+        ? `<span class="user-state">—</span>`
+        : `<button class="user-toggle ${dis?'off':'on'}" ${self?'disabled title="ಸ್ವಂತ ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗದು"':''} onclick="toggleUserDisabled('${esc(r.email)}', ${dis})">${dis?"ಸಕ್ರಿಯಗೊಳಿಸಿ":"ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"}</button>`
+          + (r.boot ? '' : `<button class="user-del" title="ತೆಗೆದುಹಾಕಿ" ${self?'disabled':''} onclick="delUser('${esc(r.email)}')">✕</button>`);
       return `<div class="user-row${dis?' user-off':''}">
-        <div class="user-em">${esc(r.email)}${r.boot?' <span class="user-tag">ಕೋಡ್</span>':''}${r.legacy?' <span class="user-tag">editors</span>':''}${self?' <span class="user-tag">ನೀವು</span>':''}</div>
-        ${r.boot
-          ? `<span class="user-role-badge">${r.role==="edit"?"ಸಂಪಾದನೆ":"ಓದು"}</span>`
-          : `<select class="user-role" onchange="setUserRole('${esc(r.email)}', this.value)">
-               <option value="read"${r.role!=="edit"?" selected":""}>ಓದು</option>
-               <option value="edit"${r.role==="edit"?" selected":""}>ಸಂಪಾದನೆ</option>
-             </select>`}
-        ${r.boot
-          ? `<span class="user-state">—</span>`
-          : `<button class="user-toggle ${dis?'off':'on'}" ${self?'disabled title="ಸ್ವಂತ ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗದು"':''} onclick="toggleUserDisabled('${esc(r.email)}', ${dis})">${dis?"ಸಕ್ರಿಯಗೊಳಿಸಿ":"ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"}</button>
-             <button class="user-del" title="ತೆಗೆದುಹಾಕಿ" ${self?'disabled':''} onclick="delUser('${esc(r.email)}')">✕</button>`}
+        <div class="user-em">${esc(r.email)}${tags}</div>
+        ${roleCell}${stateCell}
       </div>`;
     }).join("");
   }

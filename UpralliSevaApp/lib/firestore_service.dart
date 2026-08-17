@@ -18,10 +18,11 @@ class AppUser {
   final String email;
   final String role; // 'edit' | 'read'
   final bool disabled;
-  final bool boot; // ಕೋಡ್‌ನಲ್ಲಿ (ಟಾಗಲ್ ಇಲ್ಲ)
+  final bool boot; // ಕೋಡ್‌ನಲ್ಲಿ
+  final bool sadmin; // super admin — ರಕ್ಷಿತ (ಟಾಗಲ್/ಅಳಿಸು ಇಲ್ಲ)
   final bool legacy; // ಹಳೆಯ "editors" ಸಂಗ್ರಹದವರು
   AppUser(this.email, this.role, this.disabled,
-      {this.boot = false, this.legacy = false});
+      {this.boot = false, this.sadmin = false, this.legacy = false});
 }
 
 /// ವೆಬ್ ಆ್ಯಪ್‌ನ ಅದೇ Firestore ದತ್ತಾಂಶ — pooja/{year}, users/{email}.
@@ -34,14 +35,12 @@ class FirestoreService {
   static const List<String> superAdmins = ['thanthrajnaani@gmail.com'];
   static const List<String> readonlyBoot = ['prabhakaracharya13799@gmail.com'];
 
-  /// ಪ್ರವೇಶ ಪರಿಶೀಲನೆ: superAdmins → readonlyBoot → users/{email} → editors → ನಿರಾಕರಣೆ
+  /// ಪ್ರವೇಶ ಪರಿಶೀಲನೆ: superAdmins → users/{email} → readonlyBoot → editors → ನಿರಾಕರಣೆ
+  /// users ದಾಖಲೆ readonlyBoot ಅನ್ನೂ ಮೀರಿಸುತ್ತದೆ (ಆದ್ದರಿಂದ ಬೂಟ್ ಬಳಕೆದಾರರನ್ನೂ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಬಹುದು).
   Future<Access> getAccess(String email) async {
     final e = email.toLowerCase();
     if (superAdmins.contains(e)) {
       return const Access(allowed: true, canEdit: true, admin: true);
-    }
-    if (readonlyBoot.contains(e)) {
-      return const Access(allowed: true, canEdit: false, admin: false);
     }
     for (var i = 0; i < 4; i++) {
       try {
@@ -53,6 +52,9 @@ class FirestoreService {
           }
           final edit = x['role'] == 'edit';
           return Access(allowed: true, canEdit: edit, admin: false);
+        }
+        if (readonlyBoot.contains(e)) {
+          return const Access(allowed: true, canEdit: false, admin: false);
         }
         final le = await _db.collection('editors').doc(e).get(); // ಹಳೆಯ whitelist
         if (le.exists) return const Access(allowed: true, canEdit: true, admin: false);
@@ -85,7 +87,7 @@ class FirestoreService {
     } catch (_) {}
     final boot = <AppUser>[
       for (final a in superAdmins)
-        if (!have.contains(a)) AppUser(a, 'edit', false, boot: true),
+        if (!have.contains(a)) AppUser(a, 'edit', false, boot: true, sadmin: true),
       for (final r in readonlyBoot)
         if (!have.contains(r)) AppUser(r, 'read', false, boot: true),
     ];

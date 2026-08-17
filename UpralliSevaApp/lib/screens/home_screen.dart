@@ -71,7 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     final src = await firestoreService.getYearOnce(sourceYear);
     if (src == null) return;
-    await firestoreService.saveYear(src.clearedForYear(picked));
+    await firestoreService.saveYear(src.copiedForYear(picked));
     await _loadYears();
     if (mounted) setState(() => _year = picked);
     _snack('ವರ್ಷ $picked ರಚಿಸಲಾಗಿದೆ');

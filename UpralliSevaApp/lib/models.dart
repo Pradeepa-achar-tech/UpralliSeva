@@ -161,6 +161,25 @@ class PoojaData {
                 ))
             .toList(),
       );
+
+  /// ಹೊಸ ವರ್ಷಕ್ಕೆ ಸಂಪೂರ್ಣ ನಕಲು — ಪೂಜಾ ಆಯ್ಕೆ (marks) + ದರಗಳೂ ಸೇರಿ.
+  PoojaData copiedForYear(int newYear) => PoojaData(
+        title:
+            '${newYear}ರಲ್ಲಿ ಹೂವಿನ ಪೂಜೆ, ವಿಶ್ವಕರ್ಮ ಪೂಜೆ, ನವರಾತ್ರಿ ಪೂಜೆ ಮಾಡಿಸಿದವರು',
+        columns: List<String>.from(columns),
+        year: newYear,
+        rates: rates.map((x) => PoojaRate(n: x.n, r: x.r)).toList(),
+        regions: regions
+            .map((r) => Region(
+                  no: r.no,
+                  name: r.name,
+                  phone: r.phone,
+                  families: r.families
+                      .map((f) => Family(n: f.n, c: f.c, p: f.p, k: f.k))
+                      .toList(),
+                ))
+            .toList(),
+      );
 }
 
 /// ಸಂಖ್ಯೆಯನ್ನು ₹ ರೂಪದಲ್ಲಿ (ಭಾರತೀಯ ಗುಂಪು).

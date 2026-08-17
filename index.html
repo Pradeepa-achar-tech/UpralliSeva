@@ -1755,15 +1755,15 @@
     switchToYear(year);
     if(exists) return;                // ಈಗಾಗಲೇ ಇದೆ — ಮೇಲ್ಬರಹ ಮಾಡಬೇಡ
     if(!(CLOUD && canEdit)){ await uiAlert("ಹೊಸ ವರ್ಷ ರಚಿಸಲು ಲಾಗಿನ್ ಆಗಿರಬೇಕು.", "ದೋಷ"); return; }
-    // ಇತ್ತೀಚಿನ ವರ್ಷದ ರಚನೆ (ಮಾಗಣೆ + ಹೆಸರುಗಳು) ನಕಲಿಸಿ — ಪೂಜಾ ಆಯ್ಕೆ ಖಾಲಿ
+    // ಇತ್ತೀಚಿನ ವರ್ಷದ ಸಂಪೂರ್ಣ ನಕಲು — ಮಾಗಣೆ + ಹೆಸರುಗಳು + ಪೂಜಾ ಆಯ್ಕೆ (marks) + ದರಗಳು
     const prev = cloudYears.filter(y=>y!==year).sort((a,b)=>b-a);
     let base=null;
     if(prev.length && db){
       try{ const d=await db.collection("pooja").doc(String(prev[0])).get(); if(d.exists) base=fromDoc(d.data()); }catch(e){}
     }
     if(base){
-      base.regions.forEach(r=>r.families.forEach(f=>{ f.c="00000"; }));   // ಆಯ್ಕೆ ಖಾಲಿ
-      base.rates = [];                                                    // ದರಗಳು ಪ್ರತಿ ವರ್ಷ ಖಾಲಿಯಾಗಿ ಆರಂಭ
+      // ಪೂಜಾ ದತ್ತಾಂಶ (f.c marks) ಮತ್ತು ದರಗಳನ್ನು ಹಿಂದಿನ ವರ್ಷದಿಂದ ಹಾಗೆಯೇ ಕೊಂಡೊಯ್ಯಿ
+      base.rates = Array.isArray(base.rates) ? base.rates : [];
       base.title = TITLE_FOR(year); base.year = year;
       state = base;
     } else {
@@ -1773,7 +1773,7 @@
     render();
     cloudReady = true;                // ಈ ವರ್ಷ ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇಲ್ಲ ಎಂದು ದೃಢಪಡಿಸಲಾಗಿದೆ — ಹೊಸದಾಗಿ ರಚಿಸಲು ಸುರಕ್ಷಿತ
     pushNow();                        // ಕ್ಲೌಡ್‌ನಲ್ಲಿ ತಕ್ಷಣ ರಚಿಸು — ಎಲ್ಲ ಬಳಕೆದಾರರಿಗೆ ಗೋಚರ
-    toast("📅 ವರ್ಷ "+year+" ರಚಿಸಲಾಗಿದೆ (ಹಿಂದಿನ ವರ್ಷದ ಪಟ್ಟಿ, ಖಾಲಿ ಆಯ್ಕೆ)", "ok");
+    toast("📅 ವರ್ಷ "+year+" ರಚಿಸಲಾಗಿದೆ (ಹಿಂದಿನ ವರ್ಷದ ಪೂರ್ಣ ನಕಲು)", "ok");
   }
 
   /* dropdown = ಕ್ಲೌಡ್‌ನಲ್ಲಿ ಇರುವ ವರ್ಷಗಳು (+ ರಚಿಸುತ್ತಿರುವ draft ವರ್ಷ).

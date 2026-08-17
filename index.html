@@ -391,6 +391,23 @@
 
   /* ಲಾಗಿನ್ ಆಗದಿದ್ದರೆ ಸಂಪಾದನಾ ನಿಯಂತ್ರಣಗಳನ್ನು ಮರೆಮಾಡು (ವೀಕ್ಷಣೆ ಮಾತ್ರ) */
   body:not(.editing) .edit-only{ display:none !important; }
+  body:not(.admin) .admin-only{ display:none !important; }
+  /* ---------- ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ ---------- */
+  .user-add{ display:flex; gap:8px; align-items:center; margin:0 0 10px; }
+  .user-role{ font-family:inherit; font-size:13px; padding:8px 8px; border:1px solid var(--card-line); border-radius:8px; background:#fff; color:var(--ink); cursor:pointer; }
+  .user-list{ max-height:52vh; overflow:auto; border-top:1px solid var(--card-line); }
+  .user-row{ display:flex; align-items:center; gap:8px; padding:9px 4px; border-bottom:1px solid var(--card-line); font-size:13.5px; }
+  .user-row.user-off{ opacity:.55; }
+  .user-em{ flex:1; min-width:0; word-break:break-all; color:var(--ink); }
+  .user-tag{ font-size:10px; font-weight:700; color:#56607a; background:#eef0f4; padding:1px 6px; border-radius:8px; }
+  .user-role-badge{ font-size:11px; font-weight:700; color:#56607a; background:#eef0f4; padding:3px 9px; border-radius:8px; }
+  .user-state{ color:var(--muted); width:24px; text-align:center; }
+  .user-toggle{ font-family:inherit; font-size:12px; cursor:pointer; border:1px solid var(--card-line); background:#fff; padding:6px 10px; border-radius:8px; white-space:nowrap; }
+  .user-toggle.on{ color:#c0392b; border-color:rgba(192,57,43,.35); }
+  .user-toggle.off{ color:#0b8a4f; border-color:rgba(11,138,79,.4); }
+  .user-toggle:disabled{ opacity:.4; cursor:not-allowed; }
+  .user-del{ border:none; background:transparent; color:#b00; cursor:pointer; font-size:14px; padding:4px 6px; }
+  .user-del:disabled{ opacity:.3; cursor:not-allowed; }
 
   /* ಲಾಗಿನ್ ಆದಾಗ — ಹೆಸರು/ಮಾಗಣೆ ಸಂಪಾದಿಸಬಹುದು ಎಂದು ತೋರಿಸಲು ಸೂಚನೆ (ಮುದ್ರಣದಲ್ಲಿ ಕಾಣಿಸದು) */
   body.editing td.c-name [contenteditable]{
@@ -672,6 +689,26 @@
     </div>
   </div>
 
+  <!-- ===== ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ ===== -->
+  <div id="usersModal" class="modal-wrap no-print" onclick="if(event.target===this)closeUsers()">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:520px">
+      <div class="modal-title">ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ<button class="modal-x" title="ಮುಚ್ಚಿ" onclick="closeUsers()">✕</button></div>
+      <div style="font-size:12px;color:var(--muted);margin:0 0 10px">ಇಮೇಲ್ ಸೇರಿಸಿ · <b>ಸಂಪಾದನೆ</b> ಅಥವಾ <b>ಓದು</b> ಪ್ರವೇಶ · ಸಕ್ರಿಯ/ನಿಷ್ಕ್ರಿಯ. (ಸ್ವಂತ ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗದು)</div>
+      <div class="user-add">
+        <input id="newUserEmail" class="modal-input" style="margin-top:0;flex:1" type="email" placeholder="ಇಮೇಲ್ ವಿಳಾಸ" onkeydown="if(event.key==='Enter')addUser()">
+        <select id="newUserRole" class="user-role">
+          <option value="read">ಓದು</option>
+          <option value="edit">ಸಂಪಾದನೆ</option>
+        </select>
+        <button class="tb primary" onclick="addUser()">＋ ಸೇರಿಸಿ</button>
+      </div>
+      <div id="userRows" class="user-list"></div>
+      <div class="modal-actions">
+        <button class="tb" onclick="closeUsers()">ಮುಚ್ಚಿ</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== PDF ಡೌನ್‌ಲೋಡ್ ಆಯ್ಕೆ (ಎಲ್ಲ / ಆಯ್ದ ಮಾಗಣೆ) ===== -->
   <div id="pdfChooseModal" class="modal-wrap no-print" onclick="if(event.target===this)closePdfChoose()">
     <div class="modal" role="dialog" aria-modal="true" style="max-width:380px">
@@ -730,6 +767,7 @@
         <button class="tb" id="btnPhone" onclick="downloadPhonePDF(this)">📞 ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF</button>
         <button class="tb" id="btnData" onclick="downloadYearData(this)">⬇ ಡೇಟಾ ಡೌನ್‌ಲೋಡ್</button>
         <button class="tb edit-only" id="btnRates" onclick="openRates()">⚙ ಸೇವಾ ದರಗಳು</button>
+        <button class="tb admin-only" onclick="openUsers()">👤 ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ</button>
         <button class="tb edit-only" onclick="addRegion()">＋ ಮಾಗಣೆ</button>
         <button class="tb warn edit-only" onclick="deleteYear()">🗑 ಈ ವರ್ಷ ಅಳಿಸಿ</button>
       </div>
@@ -778,6 +816,10 @@
   const ALLOWED_EDITORS = [
     "thanthrajnaani@gmail.com",
   ];
+  /* ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಓದು-ಮಾತ್ರ ಬಳಕೆದಾರರು (Firestore ಇಲ್ಲದೆಯೂ ಪ್ರವೇಶ). ಉಳಿದವರು "users" ಸಂಗ್ರಹದಲ್ಲಿ. */
+  const READONLY_USERS = [
+    "prabhakaracharya13799@gmail.com",
+  ];
 
   const CLOUD = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE");
   let db=null, auth=null, DOC=null, unsub=null;
@@ -794,6 +836,8 @@
 
   let currentYear = parseInt(localStorage.getItem(YEAR_KEY),10) || 2025;
   let canEdit = false;            // ಲಾಗಿನ್ + whitelist ಆದಾಗ ಮಾತ್ರ true
+  let isAdmin = false;            // ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ ಪ್ರವೇಶ (edit-ಮಟ್ಟ)
+  let currentEmail = null;        // ಪ್ರಸ್ತುತ ಲಾಗಿನ್ ಇಮೇಲ್ (ಸ್ವಯಂ-ನಿಷ್ಕ್ರಿಯ ತಡೆಗೆ)
   let docExists = undefined;      // ಆಯ್ದ ವರ್ಷದ ಕ್ಲೌಡ್ ದಾಖಲೆ ಇದೆಯೇ
   let lastRemoteJSON = null;      // ನಮ್ಮದೇ ಬರಹದ ಪ್ರತಿಧ್ವನಿ ಬಿಟ್ಟುಬಿಡಲು
   let dirty = false;              // ಉಳಿಯದ ಸ್ಥಳೀಯ ಬದಲಾವಣೆ ಇದೆಯೇ (ರಿಮೋಟ್ ಮೇಲ್ಬರಹ ತಡೆಯಲು)
@@ -1213,6 +1257,7 @@
   /* ===================== ಸಾಲು ತಿದ್ದುಪಡಿ ಪಾಪ್‌ಅಪ್ (ಆಕಸ್ಮಿಕ ಬದಲಾವಣೆ ತಡೆ) ===================== */
   let _editTarget=null;
   function editRow(ri, fi){
+    if(!canEdit) return;                 // ಓದು-ಮಾತ್ರ ಬಳಕೆದಾರ — ತಿದ್ದುಪಡಿ ಇಲ್ಲ
     const f = state.regions[ri] && state.regions[ri].families[fi];
     if(!f) return;
     _editTarget={ri, fi};
@@ -1759,16 +1804,30 @@
   /* ===================== ಲಾಗಿನ್ / ಲಾಗ್‌ಔಟ್ (Google) =====================
      whitelist ಮೂಲ: Firestore "editors" ಸಂಗ್ರಹ — ದಾಖಲೆ ID = ಇಮೇಲ್ ವಿಳಾಸ.
      (ಮೇಲಿನ ALLOWED_EDITORS ಬರೀ ಬ್ಯಾಕಪ್/bootstrap.) */
-  async function checkEditor(u){
-    if(!u) return false;
+  /* ಪ್ರವೇಶ ಪರಿಶೀಲನೆ → { allowed, canEdit, admin, disabled }
+     ಆದ್ಯತೆ: ALLOWED_EDITORS (admin) → READONLY_USERS (ಓದು) → users/{email} → ಹಳೆಯ editors → ನಿರಾಕರಣೆ */
+  async function checkAccess(u){
+    if(!u) return {allowed:false, canEdit:false, admin:false};
     const email=(u.email||"").toLowerCase();
-    if(ALLOWED_EDITORS.map(e=>e.toLowerCase()).includes(email)) return true;
-    // ತಣ್ಣನೆ ರಿಫ್ರೆಶ್‌ನಲ್ಲಿ ಟೋಕನ್ ಸಿದ್ಧವಾಗುವ ಮುನ್ನ ಓದಿದರೆ ದೋಷ ಬರಬಹುದು — ಮರುಪ್ರಯತ್ನ
+    if(ALLOWED_EDITORS.map(e=>e.toLowerCase()).includes(email)) return {allowed:true, canEdit:true, admin:true};
+    if(READONLY_USERS.map(e=>e.toLowerCase()).includes(email)) return {allowed:true, canEdit:false, admin:false};
+    // ತಣ್ಣನೆ ರಿಫ್ರೆಶ್‌ನಲ್ಲಿ ಟೋಕನ್ ಸಿದ್ಧವಾಗುವ ಮುನ್ನ ಓದಿದರೆ ದೋಷ — ಮರುಪ್ರಯತ್ನ
     for(let i=0;i<4;i++){
-      try{ const d = await db.collection("editors").doc(email).get(); return d.exists; }
+      try{
+        const d = await db.collection("users").doc(email).get();
+        if(d.exists){
+          const x=d.data()||{};
+          if(x.disabled) return {allowed:false, canEdit:false, admin:false, disabled:true};
+          const edit = x.role==="edit";
+          return {allowed:true, canEdit:edit, admin:edit};
+        }
+        const le = await db.collection("editors").doc(email).get();   // ಹಳೆಯ whitelist
+        if(le.exists) return {allowed:true, canEdit:true, admin:true};
+        return {allowed:false, canEdit:false, admin:false};
+      }
       catch(e){ await new Promise(r=>setTimeout(r, 500)); }
     }
-    return false;
+    return {allowed:false, canEdit:false, admin:false};
   }
   function setLoginMsg(err, checking){
     const e=document.getElementById('loginErr'); if(e) e.textContent=err||"";
@@ -1788,6 +1847,80 @@
     const btn=document.getElementById('authBtn');
     document.body.classList.toggle('editing', canEdit);
     if(btn) btn.textContent = u ? ("ಲಾಗ್‌ಔಟ್ ("+(u.email||"")+")") : "Google ಲಾಗಿನ್";
+  }
+
+  /* ===================== ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ (users ಸಂಗ್ರಹ) ===================== */
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  async function openUsers(){
+    if(!isAdmin){ toast("ಬಳಕೆದಾರ ನಿರ್ವಹಣೆಗೆ edit ಪ್ರವೇಶ ಬೇಕು","warn"); return; }
+    document.getElementById('usersModal').classList.add('open');
+    await loadUsers();
+  }
+  function closeUsers(){ document.getElementById('usersModal').classList.remove('open'); }
+  async function loadUsers(){
+    const box=document.getElementById('userRows');
+    box.innerHTML='<div class="empty-note" style="padding:12px">ಲೋಡ್ ಆಗುತ್ತಿದೆ…</div>';
+    try{
+      const snap=await db.collection("users").get();
+      const rows=snap.docs.map(d=>Object.assign({email:d.id}, d.data()))
+        .sort((a,b)=>(a.email||"").localeCompare(b.email||""));
+      renderUserRows(rows);
+    }catch(e){
+      box.innerHTML='<div class="empty-note" style="padding:12px;color:#c0392b">ಪಟ್ಟಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ: '+esc(e.code||e.message)+'<br>(Firestore ನಿಯಮಗಳಲ್ಲಿ "users" ಬರಹ/ಓದು ಅನುಮತಿ ಬೇಕು)</div>';
+    }
+  }
+  function renderUserRows(rows){
+    const box=document.getElementById('userRows');
+    // ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಬಳಕೆದಾರರನ್ನೂ (ಕೋಡ್‌ನಲ್ಲಿ) ತೋರಿಸು — ಓದಲು ಮಾತ್ರ, ಟಾಗಲ್ ಇಲ್ಲ
+    const boot=[
+      ...ALLOWED_EDITORS.map(e=>({email:e.toLowerCase(), role:"edit", boot:true})),
+      ...READONLY_USERS.map(e=>({email:e.toLowerCase(), role:"read", boot:true})),
+    ].filter(b=>!rows.some(r=>r.email===b.email));
+    const all=[...boot, ...rows];
+    if(!all.length){ box.innerHTML='<div class="empty-note" style="padding:12px">ಇನ್ನೂ ಬಳಕೆದಾರರಿಲ್ಲ.</div>'; return; }
+    box.innerHTML=all.map(r=>{
+      const self = r.email===currentEmail;
+      const dis = !!r.disabled;
+      return `<div class="user-row${dis?' user-off':''}">
+        <div class="user-em">${esc(r.email)}${r.boot?' <span class="user-tag">ಕೋಡ್</span>':''}${self?' <span class="user-tag">ನೀವು</span>':''}</div>
+        ${r.boot
+          ? `<span class="user-role-badge">${r.role==="edit"?"ಸಂಪಾದನೆ":"ಓದು"}</span>`
+          : `<select class="user-role" onchange="setUserRole('${esc(r.email)}', this.value)">
+               <option value="read"${r.role!=="edit"?" selected":""}>ಓದು</option>
+               <option value="edit"${r.role==="edit"?" selected":""}>ಸಂಪಾದನೆ</option>
+             </select>`}
+        ${r.boot
+          ? `<span class="user-state">—</span>`
+          : `<button class="user-toggle ${dis?'off':'on'}" ${self?'disabled title="ಸ್ವಂತ ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗದು"':''} onclick="toggleUserDisabled('${esc(r.email)}', ${dis})">${dis?"ಸಕ್ರಿಯಗೊಳಿಸಿ":"ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"}</button>
+             <button class="user-del" title="ತೆಗೆದುಹಾಕಿ" ${self?'disabled':''} onclick="delUser('${esc(r.email)}')">✕</button>`}
+      </div>`;
+    }).join("");
+  }
+  async function addUser(){
+    const em=(document.getElementById('newUserEmail').value||"").trim().toLowerCase();
+    const role=document.getElementById('newUserRole').value;
+    if(!EMAIL_RE.test(em)){ toast("ಸರಿಯಾದ ಇಮೇಲ್ ನಮೂದಿಸಿ","warn"); return; }
+    try{
+      await db.collection("users").doc(em).set({ email:em, role:role, disabled:false, updatedAt:firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+      document.getElementById('newUserEmail').value="";
+      toast("✓ ಬಳಕೆದಾರ ಸೇರಿಸಲಾಗಿದೆ","ok");
+      await loadUsers();
+    }catch(e){ uiAlert("ಸೇರಿಸಲಾಗಲಿಲ್ಲ: "+(e.code||e.message)+"\n(Firestore ನಿಯಮ ಪರಿಶೀಲಿಸಿ)","ದೋಷ"); }
+  }
+  async function setUserRole(email, role){
+    try{ await db.collection("users").doc(email).set({ role:role, updatedAt:firebase.firestore.FieldValue.serverTimestamp() }, {merge:true}); toast("✓ ಪ್ರವೇಶ ಬದಲಾಗಿದೆ","ok"); }
+    catch(e){ uiAlert("ಬದಲಾಯಿಸಲಾಗಲಿಲ್ಲ: "+(e.code||e.message),"ದೋಷ"); await loadUsers(); }
+  }
+  async function toggleUserDisabled(email, wasDisabled){
+    if(email===currentEmail){ toast("ಸ್ವಂತ ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗದು","warn"); return; }
+    try{ await db.collection("users").doc(email).set({ disabled:!wasDisabled, updatedAt:firebase.firestore.FieldValue.serverTimestamp() }, {merge:true}); toast(!wasDisabled?"ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ":"ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ","ok"); await loadUsers(); }
+    catch(e){ uiAlert("ಬದಲಾಯಿಸಲಾಗಲಿಲ್ಲ: "+(e.code||e.message),"ದೋಷ"); }
+  }
+  async function delUser(email){
+    if(email===currentEmail){ toast("ಸ್ವಂತ ಖಾತೆ ತೆಗೆಯಲಾಗದು","warn"); return; }
+    if(!(await uiConfirm("“"+email+"” ಬಳಕೆದಾರರನ್ನು ತೆಗೆದುಹಾಕಬೇಕೆ?","ಬಳಕೆದಾರ ತೆಗೆ"))) return;
+    try{ await db.collection("users").doc(email).delete(); toast("ತೆಗೆಯಲಾಗಿದೆ","warn"); await loadUsers(); }
+    catch(e){ uiAlert("ತೆಗೆಯಲಾಗಲಿಲ್ಲ: "+(e.code||e.message),"ದೋಷ"); }
   }
 
   /* ===================== ಕ್ಲೌಡ್ ಸಿಂಕ್ (ವರ್ಷವಾರು) ===================== */
@@ -1836,26 +1969,32 @@
   function startCloud(){
     if(!CLOUD){ document.body.classList.add('authed'); setLoginMsg("ಕ್ಲೌಡ್ ಸಂರಚಿಸಿಲ್ಲ.",""); return; }
     auth.onAuthStateChanged(async u=>{
-      canEdit = await checkEditor(u);
-      if(u && !canEdit){                              // ಲಾಗಿನ್ ಆಗಿದೆ ಆದರೆ whitelist ನಲ್ಲಿಲ್ಲ
-        document.body.classList.remove('authed');
-        setLoginMsg("“"+(u.email||"")+"” ಗೆ ಅನುಮತಿ ಇಲ್ಲ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.", "");
+      const acc = await checkAccess(u);
+      canEdit = acc.canEdit;
+      isAdmin = acc.admin;
+      currentEmail = u ? (u.email||"").toLowerCase() : null;
+      if(u && !acc.allowed){                          // ಲಾಗಿನ್ ಆಗಿದೆ ಆದರೆ ಅನುಮತಿ ಇಲ್ಲ / ನಿಷ್ಕ್ರಿಯ
+        document.body.classList.remove('authed','admin');
+        setLoginMsg(acc.disabled
+          ? "“"+(u.email||"")+"” ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ."
+          : "“"+(u.email||"")+"” ಗೆ ಅನುಮತಿ ಇಲ್ಲ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.", "");
         updateAuthUI(null);
         auth.signOut();
         return;
       }
-      document.body.classList.toggle('authed', canEdit);
-      const c=document.getElementById('loginChecking'); if(c) c.textContent="";   // "ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ…" ಅಳಿಸು
-      if(canEdit){
-        const e=document.getElementById('loginErr'); if(e) e.textContent="";      // ಲಾಗಿನ್ ಆದಾಗ ಮಾತ್ರ ದೋಷ ಅಳಿಸು
+      document.body.classList.toggle('authed', acc.allowed);
+      document.body.classList.toggle('admin', isAdmin);      // ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ ಬಟನ್
+      const c=document.getElementById('loginChecking'); if(c) c.textContent="";
+      if(acc.allowed){
+        const e=document.getElementById('loginErr'); if(e) e.textContent="";
       }
       updateAuthUI(u);
       render();
-      if(canEdit){
-        subscribeYear();                              // ಲಾಗಿನ್ ಆದ ಮೇಲೆ ದತ್ತಾಂಶ ಲೋಡ್ / ಆಲಿಸು
-        loadYears();                                  // ವರ್ಷಗಳ dropdown ತುಂಬಿಸು
+      if(acc.allowed){
+        subscribeYear();                              // ಓದು ಬಳಕೆದಾರರೂ ವೀಕ್ಷಿಸಬಹುದು
+        loadYears();
       } else if(unsub){
-        unsub(); unsub=null;                          // ಲಾಗ್‌ಔಟ್ — ಆಲಿಸುವಿಕೆ ನಿಲ್ಲಿಸು
+        unsub(); unsub=null;
       }
     });
   }

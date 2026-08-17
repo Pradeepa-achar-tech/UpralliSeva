@@ -1,29 +1,102 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'models.dart';
 
-/// ವೆಬ್ ಆ್ಯಪ್‌ನ ಅದೇ Firestore ದತ್ತಾಂಶ — pooja/{year}, editors/{email}.
+/// ಪ್ರವೇಶ ಮಟ್ಟ — ವೆಬ್‌ನ checkAccess ಗೆ ಹೊಂದುತ್ತದೆ.
+class Access {
+  final bool allowed; // ಲಾಗಿನ್ ಅನುಮತಿ
+  final bool canEdit; // ಸಂಪಾದನೆ ಪ್ರವೇಶ
+  final bool admin; // ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ (super admin ಮಾತ್ರ)
+  final bool disabled; // ಖಾತೆ ನಿಷ್ಕ್ರಿಯ
+  const Access(
+      {this.allowed = false,
+      this.canEdit = false,
+      this.admin = false,
+      this.disabled = false});
+}
+
+class AppUser {
+  final String email;
+  final String role; // 'edit' | 'read'
+  final bool disabled;
+  final bool boot; // ಕೋಡ್‌ನಲ್ಲಿ (ಟಾಗಲ್ ಇಲ್ಲ)
+  AppUser(this.email, this.role, this.disabled, {this.boot = false});
+}
+
+/// ವೆಬ್ ಆ್ಯಪ್‌ನ ಅದೇ Firestore ದತ್ತಾಂಶ — pooja/{year}, users/{email}.
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   CollectionReference<Map<String, dynamic>> get _pooja => _db.collection('pooja');
 
-  /// ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಸಂಪಾದಕರು (ವೆಬ್‌ನ ALLOWED_EDITORS ಗೆ ಹೊಂದುವಂತೆ)
-  static const List<String> _bootstrapEditors = ['thanthrajnaani@gmail.com'];
+  /// super admin (ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ) — ವೆಬ್‌ನ ALLOWED_EDITORS ಗೆ ಹೊಂದುವಂತೆ
+  static const List<String> superAdmins = ['thanthrajnaani@gmail.com'];
+  static const List<String> readonlyBoot = ['prabhakaracharya13799@gmail.com'];
 
-  /// whitelist ಪರಿಶೀಲನೆ — editors ಸಂಗ್ರಹದಲ್ಲಿ ಇಮೇಲ್ ದಾಖಲೆ ಇದೆಯೇ?
-  /// ತಣ್ಣನೆ ಆರಂಭದಲ್ಲಿ ಟೋಕನ್ ಸಿದ್ಧವಾಗುವ ಮುನ್ನ ಓದಿದರೆ ದೋಷ ಬರಬಹುದು — ಮರುಪ್ರಯತ್ನ.
-  Future<bool> isEditor(String email) async {
+  /// ಪ್ರವೇಶ ಪರಿಶೀಲನೆ: superAdmins → readonlyBoot → users/{email} → editors → ನಿರಾಕರಣೆ
+  Future<Access> getAccess(String email) async {
     final e = email.toLowerCase();
-    if (_bootstrapEditors.contains(e)) return true;
+    if (superAdmins.contains(e)) {
+      return const Access(allowed: true, canEdit: true, admin: true);
+    }
+    if (readonlyBoot.contains(e)) {
+      return const Access(allowed: true, canEdit: false, admin: false);
+    }
     for (var i = 0; i < 4; i++) {
       try {
-        final d = await _db.collection('editors').doc(e).get();
-        return d.exists;
+        final d = await _db.collection('users').doc(e).get();
+        if (d.exists) {
+          final x = d.data() ?? {};
+          if (x['disabled'] == true) {
+            return const Access(allowed: false, disabled: true);
+          }
+          final edit = x['role'] == 'edit';
+          return Access(allowed: true, canEdit: edit, admin: false);
+        }
+        final le = await _db.collection('editors').doc(e).get(); // ಹಳೆಯ whitelist
+        if (le.exists) return const Access(allowed: true, canEdit: true, admin: false);
+        return const Access(allowed: false);
       } catch (_) {
         await Future.delayed(const Duration(milliseconds: 500));
       }
     }
-    return false;
+    return const Access(allowed: false);
+  }
+
+  // ---------- ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ (users ಸಂಗ್ರಹ) ----------
+  Future<List<AppUser>> listUsers() async {
+    final snap = await _db.collection('users').get();
+    final rows = snap.docs
+        .map((d) => AppUser(d.id, (d.data()['role'] ?? 'read').toString(),
+            d.data()['disabled'] == true))
+        .toList();
+    final have = rows.map((r) => r.email).toSet();
+    final boot = <AppUser>[
+      for (final a in superAdmins)
+        if (!have.contains(a)) AppUser(a, 'edit', false, boot: true),
+      for (final r in readonlyBoot)
+        if (!have.contains(r)) AppUser(r, 'read', false, boot: true),
+    ];
+    final all = [...boot, ...rows]..sort((a, b) => a.email.compareTo(b.email));
+    return all;
+  }
+
+  Future<void> setUser(String email, String role) async {
+    await _db.collection('users').doc(email.toLowerCase()).set({
+      'email': email.toLowerCase(),
+      'role': role,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> setUserDisabled(String email, bool disabled) async {
+    await _db.collection('users').doc(email.toLowerCase()).set({
+      'disabled': disabled,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> deleteUser(String email) async {
+    await _db.collection('users').doc(email.toLowerCase()).delete();
   }
 
   /// ಕ್ಲೌಡ್‌ನಲ್ಲಿರುವ ಎಲ್ಲ ವರ್ಷಗಳು (ಇಳಿಕೆ ಕ್ರಮ).

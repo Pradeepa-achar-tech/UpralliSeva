@@ -39,6 +39,7 @@ class _RegionScreenState extends State<RegionScreen> {
 
   /// ಸಂಪಾದನೆ ಪಾಪ್‌ಅಪ್ — ಹೆಸರು + ಪೂಜೆಗಳು ಬದಲಾಯಿಸಿ → ನವೀಕರಿಸಿ / ರದ್ದು
   Future<bool> _editFamily(int i) async {
+    if (!gCanEdit) return false; // ಓದು-ಮಾತ್ರ ಬಳಕೆದಾರ
     final f = region.families[i];
     final nameCtrl = TextEditingController(text: f.n);
     nameCtrl.selection = const TextSelection.collapsed(offset: 0); // ಕರ್ಸರ್ ಆರಂಭದಲ್ಲಿ
@@ -111,6 +112,7 @@ class _RegionScreenState extends State<RegionScreen> {
   }
 
   Future<void> _addRow() async {
+    if (!gCanEdit) return;
     setState(() => region.families.add(Family(n: '', c: '00000')));
     final idx = region.families.length - 1;
     await _editFamily(idx);
@@ -215,12 +217,14 @@ class _RegionScreenState extends State<RegionScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addRow,
-        backgroundColor: kPrimary,
-        icon: const Icon(Icons.person_add),
-        label: const Text('ಹೆಸರು'),
-      ),
+      floatingActionButton: gCanEdit
+          ? FloatingActionButton.extended(
+              onPressed: _addRow,
+              backgroundColor: kPrimary,
+              icon: const Icon(Icons.person_add),
+              label: const Text('ಹೆಸರು'),
+            )
+          : null,
       body: Column(
         children: [
           _maganiTotal(),
@@ -272,30 +276,32 @@ class _RegionScreenState extends State<RegionScreen> {
                                   ],
                                 ),
                               ),
-                              // ✎ ತಿದ್ದು — ಪಾಪ್‌ಅಪ್‌ನಲ್ಲಿ ಮಾತ್ರ ಬದಲಾವಣೆ (ಆಕಸ್ಮಿಕ ತಿದ್ದುಪಡಿ ಇಲ್ಲ)
-                              Material(
-                                color: kPrimary.withOpacity(.10),
-                                borderRadius: BorderRadius.circular(9),
-                                child: InkWell(
+                              // ✎ ತಿದ್ದು — ಸಂಪಾದನೆ ಪ್ರವೇಶ ಇದ್ದರೆ ಮಾತ್ರ
+                              if (gCanEdit)
+                                Material(
+                                  color: kPrimary.withOpacity(.10),
                                   borderRadius: BorderRadius.circular(9),
-                                  onTap: () => _editFamily(i),
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(9),
+                                    onTap: () => _editFamily(i),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(7),
+                                      child: Icon(Icons.edit, size: 18, color: kPrimaryDark),
+                                    ),
+                                  ),
+                                ),
+                              // ⠿ ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ (ಸಂಪಾದನೆ ಮಾತ್ರ)
+                              if (gCanEdit)
+                                ReorderableDragStartListener(
+                                  index: i,
                                   child: const Padding(
-                                    padding: EdgeInsets.all(7),
-                                    child: Icon(Icons.edit, size: 18, color: kPrimaryDark),
+                                    padding: EdgeInsets.only(left: 4),
+                                    child: Padding(
+                                      padding: EdgeInsets.all(6),
+                                      child: Icon(Icons.drag_handle, size: 22, color: Colors.black38),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              // ⠿ ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ
-                              ReorderableDragStartListener(
-                                index: i,
-                                child: const Padding(
-                                  padding: EdgeInsets.only(left: 4),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(6),
-                                    child: Icon(Icons.drag_handle, size: 22, color: Colors.black38),
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
                           const SizedBox(height: 10),

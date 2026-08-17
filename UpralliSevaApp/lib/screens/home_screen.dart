@@ -4,6 +4,7 @@ import '../models.dart';
 import '../pdf_service.dart';
 import 'region_screen.dart';
 import 'rates_screen.dart';
+import 'users_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -172,15 +173,24 @@ class _HomeScreenState extends State<HomeScreen> {
               }
               if (v == 'new') _newYear();
               if (v == 'delete') _deleteYear();
+              if (v == 'users') {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const UsersScreen()));
+              }
               if (v == 'logout') authService.signOut();
             },
-            itemBuilder: (_) => const [
-              PopupMenuItem(value: 'blank', child: ListTile(leading: Icon(Icons.description_outlined), title: Text('ಖಾಲಿ ಅರ್ಜಿ PDF'))),
-              PopupMenuItem(value: 'phone', child: ListTile(leading: Icon(Icons.phone), title: Text('ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF'))),
-              PopupMenuItem(value: 'rates', child: ListTile(leading: Icon(Icons.tune), title: Text('ಸೇವಾ ದರಗಳು'))),
-              PopupMenuItem(value: 'new', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('ಹೊಸ ವರ್ಷ'))),
-              PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete_outline, color: Colors.red), title: Text('ಈ ವರ್ಷ ಅಳಿಸಿ'))),
-              PopupMenuItem(value: 'logout', child: ListTile(leading: Icon(Icons.logout), title: Text('ಲಾಗ್‌ಔಟ್'))),
+            itemBuilder: (_) => [
+              const PopupMenuItem(value: 'blank', child: ListTile(leading: Icon(Icons.description_outlined), title: Text('ಖಾಲಿ ಅರ್ಜಿ PDF'))),
+              const PopupMenuItem(value: 'phone', child: ListTile(leading: Icon(Icons.phone), title: Text('ದೂರವಾಣಿ ಸಂಗ್ರಹ PDF'))),
+              if (gCanEdit)
+                const PopupMenuItem(value: 'rates', child: ListTile(leading: Icon(Icons.tune), title: Text('ಸೇವಾ ದರಗಳು'))),
+              if (gCanEdit)
+                const PopupMenuItem(value: 'new', child: ListTile(leading: Icon(Icons.calendar_month), title: Text('ಹೊಸ ವರ್ಷ'))),
+              if (gCanEdit)
+                const PopupMenuItem(value: 'delete', child: ListTile(leading: Icon(Icons.delete_outline, color: Colors.red), title: Text('ಈ ವರ್ಷ ಅಳಿಸಿ'))),
+              if (gIsAdmin)
+                const PopupMenuItem(value: 'users', child: ListTile(leading: Icon(Icons.manage_accounts), title: Text('ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ'))),
+              const PopupMenuItem(value: 'logout', child: ListTile(leading: Icon(Icons.logout), title: Text('ಲಾಗ್‌ಔಟ್'))),
             ],
           ),
         ],
@@ -253,12 +263,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
-            TextButton.icon(
-              onPressed: _newYear,
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('ಹೊಸ'),
-              style: TextButton.styleFrom(foregroundColor: kPrimaryDark),
-            ),
+            if (gCanEdit)
+              TextButton.icon(
+                onPressed: _newYear,
+                icon: const Icon(Icons.add, size: 18),
+                label: const Text('ಹೊಸ'),
+                style: TextButton.styleFrom(foregroundColor: kPrimaryDark),
+              ),
           ],
         ),
       ),
@@ -447,7 +458,8 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: 6),
             Text(sub, textAlign: TextAlign.center, style: const TextStyle(color: Colors.black54)),
             const SizedBox(height: 18),
-            FilledButton.icon(onPressed: _newYear, icon: const Icon(Icons.add), label: const Text('ಹೊಸ ವರ್ಷ')),
+            if (gCanEdit)
+              FilledButton.icon(onPressed: _newYear, icon: const Icon(Icons.add), label: const Text('ಹೊಸ ವರ್ಷ')),
           ],
         ),
       ),

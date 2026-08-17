@@ -1819,10 +1819,10 @@
           const x=d.data()||{};
           if(x.disabled) return {allowed:false, canEdit:false, admin:false, disabled:true};
           const edit = x.role==="edit";
-          return {allowed:true, canEdit:edit, admin:edit};
+          return {allowed:true, canEdit:edit, admin:false};   // ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ ALLOWED_EDITORS ಗೆ ಮಾತ್ರ
         }
         const le = await db.collection("editors").doc(email).get();   // ಹಳೆಯ whitelist
-        if(le.exists) return {allowed:true, canEdit:true, admin:true};
+        if(le.exists) return {allowed:true, canEdit:true, admin:false};
         return {allowed:false, canEdit:false, admin:false};
       }
       catch(e){ await new Promise(r=>setTimeout(r, 500)); }

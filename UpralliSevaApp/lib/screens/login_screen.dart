@@ -3,7 +3,8 @@ import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   final String? deniedEmail;
-  const LoginScreen({super.key, this.deniedEmail});
+  final bool disabled;
+  const LoginScreen({super.key, this.deniedEmail, this.disabled = false});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -17,7 +18,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     if (widget.deniedEmail != null) {
-      _err = '“${widget.deniedEmail}” ಗೆ ಅನುಮತಿ ಇಲ್ಲ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.';
+      _err = widget.disabled
+          ? '“${widget.deniedEmail}” ಖಾತೆ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.'
+          : '“${widget.deniedEmail}” ಗೆ ಅನುಮತಿ ಇಲ್ಲ. ನಿರ್ವಾಹಕರನ್ನು ಸಂಪರ್ಕಿಸಿ.';
       // ಅನುಮತಿ ಇಲ್ಲದ ಖಾತೆಯನ್ನು ಹೊರಹಾಕು
       WidgetsBinding.instance.addPostFrameCallback((_) => authService.signOut());
     }

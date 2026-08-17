@@ -10,6 +10,11 @@ import 'screens/home_screen.dart';
 final authService = AuthService();
 final firestoreService = FirestoreService();
 
+// ಪ್ರವೇಶ ಸ್ಥಿತಿ (ಲಾಗಿನ್ ಆದ ಮೇಲೆ ಸೆಟ್) — ಸಂಪಾದನೆ/ನಿರ್ವಹಣೆ ಗೇಟ್
+bool gCanEdit = false;
+bool gIsAdmin = false;
+String gEmail = '';
+
 // ಬ್ರ್ಯಾಂಡ್ ಬಣ್ಣಗಳು — ಕೇಸರಿ ಆ್ಯಕ್ಸೆಂಟ್ + ತಟಸ್ಥ ವೃತ್ತಿಪರ ಹಿನ್ನೆಲೆ
 const kPrimary = Color(0xFFE9730C);
 const kPrimaryDark = Color(0xFFC25E00);
@@ -84,15 +89,20 @@ class AuthGate extends StatelessWidget {
         final user = snap.data;
         if (user == null) return const LoginScreen();
 
-        return FutureBuilder<bool>(
-          future: firestoreService.isEditor(user.email ?? ''),
+        return FutureBuilder<Access>(
+          future: firestoreService.getAccess(user.email ?? ''),
           builder: (context, ed) {
             if (ed.connectionState == ConnectionState.waiting) {
               return const _Loading();
             }
-            if (ed.data != true) {
-              return LoginScreen(deniedEmail: user.email);
+            final acc = ed.data;
+            if (acc == null || !acc.allowed) {
+              return LoginScreen(
+                  deniedEmail: user.email, disabled: acc?.disabled ?? false);
             }
+            gCanEdit = acc.canEdit;
+            gIsAdmin = acc.admin;
+            gEmail = (user.email ?? '').toLowerCase();
             return const HomeScreen();
           },
         );

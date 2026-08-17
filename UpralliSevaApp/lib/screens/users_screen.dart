@@ -221,8 +221,8 @@ class _UsersScreenState extends State<UsersScreen> {
                     Text(u.email,
                         style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
                     Row(children: [
-                      if (u.boot)
-                        _tag('ಕೋಡ್'),
+                      if (u.boot) _tag('ಕೋಡ್'),
+                      if (u.legacy) _tag('editors'),
                       if (self) _tag('ನೀವು'),
                       if (u.disabled) _tag('ನಿಷ್ಕ್ರಿಯ'),
                     ]),

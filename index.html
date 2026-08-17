@@ -1861,9 +1861,15 @@
     const box=document.getElementById('userRows');
     box.innerHTML='<div class="empty-note" style="padding:12px">ಲೋಡ್ ಆಗುತ್ತಿದೆ…</div>';
     try{
-      const snap=await db.collection("users").get();
-      const rows=snap.docs.map(d=>Object.assign({email:d.id}, d.data()))
-        .sort((a,b)=>(a.email||"").localeCompare(b.email||""));
+      const [usnap, esnap] = await Promise.all([
+        db.collection("users").get(),
+        db.collection("editors").get().catch(()=>({docs:[]})),
+      ]);
+      const rows=usnap.docs.map(d=>Object.assign({email:(d.id||"").toLowerCase()}, d.data()));
+      const have=new Set(rows.map(r=>r.email));
+      // ಹಳೆಯ "editors" ಸಂಗ್ರಹದವರೂ (users ನಲ್ಲಿ ಇಲ್ಲದಿದ್ದರೆ) — ಸಂಪಾದಕರಾಗಿ
+      esnap.docs.forEach(d=>{ const em=(d.id||"").toLowerCase(); if(em && !have.has(em)){ rows.push({email:em, role:"edit", legacy:true}); have.add(em); } });
+      rows.sort((a,b)=>(a.email||"").localeCompare(b.email||""));
       renderUserRows(rows);
     }catch(e){
       box.innerHTML='<div class="empty-note" style="padding:12px;color:#c0392b">ಪಟ್ಟಿ ಲೋಡ್ ಆಗಲಿಲ್ಲ: '+esc(e.code||e.message)+'<br>(Firestore ನಿಯಮಗಳಲ್ಲಿ "users" ಬರಹ/ಓದು ಅನುಮತಿ ಬೇಕು)</div>';
@@ -1882,7 +1888,7 @@
       const self = r.email===currentEmail;
       const dis = !!r.disabled;
       return `<div class="user-row${dis?' user-off':''}">
-        <div class="user-em">${esc(r.email)}${r.boot?' <span class="user-tag">ಕೋಡ್</span>':''}${self?' <span class="user-tag">ನೀವು</span>':''}</div>
+        <div class="user-em">${esc(r.email)}${r.boot?' <span class="user-tag">ಕೋಡ್</span>':''}${r.legacy?' <span class="user-tag">editors</span>':''}${self?' <span class="user-tag">ನೀವು</span>':''}</div>
         ${r.boot
           ? `<span class="user-role-badge">${r.role==="edit"?"ಸಂಪಾದನೆ":"ಓದು"}</span>`
           : `<select class="user-role" onchange="setUserRole('${esc(r.email)}', this.value)">
@@ -1919,7 +1925,11 @@
   async function delUser(email){
     if(email===currentEmail){ toast("ಸ್ವಂತ ಖಾತೆ ತೆಗೆಯಲಾಗದು","warn"); return; }
     if(!(await uiConfirm("“"+email+"” ಬಳಕೆದಾರರನ್ನು ತೆಗೆದುಹಾಕಬೇಕೆ?","ಬಳಕೆದಾರ ತೆಗೆ"))) return;
-    try{ await db.collection("users").doc(email).delete(); toast("ತೆಗೆಯಲಾಗಿದೆ","warn"); await loadUsers(); }
+    try{
+      await db.collection("users").doc(email).delete().catch(()=>{});
+      await db.collection("editors").doc(email).delete().catch(()=>{});   // ಹಳೆಯ whitelist ನಿಂದಲೂ ತೆಗೆ
+      toast("ತೆಗೆಯಲಾಗಿದೆ","warn"); await loadUsers();
+    }
     catch(e){ uiAlert("ತೆಗೆಯಲಾಗಲಿಲ್ಲ: "+(e.code||e.message),"ದೋಷ"); }
   }
 

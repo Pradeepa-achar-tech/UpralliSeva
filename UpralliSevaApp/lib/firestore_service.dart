@@ -19,7 +19,9 @@ class AppUser {
   final String role; // 'edit' | 'read'
   final bool disabled;
   final bool boot; // ಕೋಡ್‌ನಲ್ಲಿ (ಟಾಗಲ್ ಇಲ್ಲ)
-  AppUser(this.email, this.role, this.disabled, {this.boot = false});
+  final bool legacy; // ಹಳೆಯ "editors" ಸಂಗ್ರಹದವರು
+  AppUser(this.email, this.role, this.disabled,
+      {this.boot = false, this.legacy = false});
 }
 
 /// ವೆಬ್ ಆ್ಯಪ್‌ನ ಅದೇ Firestore ದತ್ತಾಂಶ — pooja/{year}, users/{email}.
@@ -66,10 +68,21 @@ class FirestoreService {
   Future<List<AppUser>> listUsers() async {
     final snap = await _db.collection('users').get();
     final rows = snap.docs
-        .map((d) => AppUser(d.id, (d.data()['role'] ?? 'read').toString(),
-            d.data()['disabled'] == true))
+        .map((d) => AppUser(d.id.toLowerCase(),
+            (d.data()['role'] ?? 'read').toString(), d.data()['disabled'] == true))
         .toList();
     final have = rows.map((r) => r.email).toSet();
+    // ಹಳೆಯ "editors" ಸಂಗ್ರಹ (users ನಲ್ಲಿ ಇಲ್ಲದಿದ್ದರೆ) — ಸಂಪಾದಕರಾಗಿ
+    try {
+      final esnap = await _db.collection('editors').get();
+      for (final d in esnap.docs) {
+        final em = d.id.toLowerCase();
+        if (em.isNotEmpty && !have.contains(em)) {
+          rows.add(AppUser(em, 'edit', false, legacy: true));
+          have.add(em);
+        }
+      }
+    } catch (_) {}
     final boot = <AppUser>[
       for (final a in superAdmins)
         if (!have.contains(a)) AppUser(a, 'edit', false, boot: true),
@@ -96,7 +109,9 @@ class FirestoreService {
   }
 
   Future<void> deleteUser(String email) async {
-    await _db.collection('users').doc(email.toLowerCase()).delete();
+    final e = email.toLowerCase();
+    try { await _db.collection('users').doc(e).delete(); } catch (_) {}
+    try { await _db.collection('editors').doc(e).delete(); } catch (_) {}
   }
 
   /// ಕ್ಲೌಡ್‌ನಲ್ಲಿರುವ ಎಲ್ಲ ವರ್ಷಗಳು (ಇಳಿಕೆ ಕ್ರಮ).

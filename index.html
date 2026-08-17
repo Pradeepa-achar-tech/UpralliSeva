@@ -335,8 +335,9 @@
     .pf-tbl thead .pf-c{ font-size:8.5px; line-height:1.12; padding:2px 0; white-space:nowrap; }   /* ಹೂ.ಪೂ. — ಚಿಕ್ಕ ಫಾಂಟ್, ಕಿರಿದಾದ ಪೆಟ್ಟಿಗೆ */
     .pf-tbl .pf-c i{ font-style:normal; font-weight:600; color:#000; font-family:"Segoe UI Symbol","DejaVu Sans","Arial Unicode MS",Arial,sans-serif; }
     body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
-    /* ಪ್ರತಿ ಸಾಲಿಗೆ ಅಡ್ಡಗೆರೆ — ಡೇಟಾ + ಖಾಲಿ ಎರಡರಲ್ಲೂ (ಚಿತ್ರದಂತೆ ಪೂರ್ಣ ಗ್ರಿಡ್) */
-    .pf-tbl tbody td{ border-bottom:0.5px solid #000 !important; }
+    /* ಅಡ್ಡಗೆರೆ (ಸಾಲುಗಳ ನಡುವೆ) — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೈಬರಹಕ್ಕೆ);
+       ಡೇಟಾ PDF ನಲ್ಲಿ ಹೆಸರುಗಳ ನಡುವೆ ಗೆರೆ ಇಲ್ಲ (ಮೂಲ ಟೆಂಪ್ಲೇಟ್‌ನಂತೆ) */
+    body.blank-print .pf-tbl tbody td{ border-bottom:0.5px solid #000 !important; }
     /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ (ವೈಯಕ್ತಿಕ) ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ.
        ಡೇಟಾ PDF ಮತ್ತು ಎಲ್ಲ-ಮಾಗಣೆ ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮರೆ. */
     /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಟೇಬಲ್‌ನೊಳಗೆ ನೇರ ಸಾಲುಗಳು (ಕಾಲಂ ಹೊಂದಿಕೆ ಖಚಿತ). ಎಣಿಕೆ JS ನಲ್ಲಿ

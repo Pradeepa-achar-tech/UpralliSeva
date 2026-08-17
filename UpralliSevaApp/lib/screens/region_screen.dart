@@ -21,6 +21,14 @@ class _RegionScreenState extends State<RegionScreen> {
   Region get region => widget.data.regions[widget.regionIndex];
   List<String> get cols => widget.data.columns;
 
+  /// ದರ ₹0/ಖಾಲಿ → ಆ ಪೂಜೆ ಆ ವರ್ಷಕ್ಕೆ ನಿಷ್ಕ್ರಿಯ (ಮಸುಕು + ಆಯ್ಕೆ ಮಾಡಲಾಗದು).
+  /// ಗುರುತು ಅಳಿಸುವುದಿಲ್ಲ — ದರ ಮತ್ತೆ >0 ಆದರೆ ಗುರುತು ಮರಳಿ ಕಾಣಿಸುತ್ತದೆ.
+  bool _masked(String col) {
+    final m = widget.data.rates.where((x) => x.n == col);
+    final v = double.tryParse((m.isEmpty ? '' : m.first.r).trim());
+    return v == null || v <= 0;
+  }
+
   void _scheduleSave() {
     _dirty = true;
     _debounce?.cancel();
@@ -79,14 +87,30 @@ class _RegionScreenState extends State<RegionScreen> {
                 Wrap(
                   spacing: 8,
                   runSpacing: 4,
-                  children: List.generate(cols.length, (ci) => FilterChip(
-                        label: Text(cols[ci]),
-                        selected: sel[ci],
-                        showCheckmark: true,
-                        selectedColor: kPrimary.withOpacity(.2),
-                        onSelected: (v) => setLocal(() => sel[ci] = v),
-                      )),
+                  children: List.generate(cols.length, (ci) {
+                    final masked = _masked(cols[ci]); // ದರ ₹0 → ಆಯ್ಕೆ ಮಾಡಲಾಗದು
+                    return FilterChip(
+                      label: Text(cols[ci],
+                          style: masked
+                              ? const TextStyle(
+                                  color: Colors.black38,
+                                  decoration: TextDecoration.lineThrough)
+                              : null),
+                      selected: sel[ci],
+                      showCheckmark: true,
+                      selectedColor: kPrimary.withOpacity(.2),
+                      disabledColor: const Color(0xFFF1F1F1),
+                      onSelected:
+                          masked ? null : (v) => setLocal(() => sel[ci] = v),
+                    );
+                  }),
                 ),
+                if (cols.any((c) => _masked(c)))
+                  const Padding(
+                    padding: EdgeInsets.only(top: 8),
+                    child: Text('ದರ ₹0 ಇರುವ ಪೂಜೆ ಈ ವರ್ಷ ನಿಷ್ಕ್ರಿಯ (ಆಯ್ಕೆ ಮಾಡಲಾಗದು)',
+                        style: TextStyle(fontSize: 11.5, color: Colors.black54)),
+                  ),
               ],
             ),
           ),
@@ -126,7 +150,23 @@ class _RegionScreenState extends State<RegionScreen> {
   }
 
   /// ಓದಲು-ಮಾತ್ರ ಪೂಜಾ ಟ್ಯಾಗ್ (ಸ್ಪರ್ಶಿಸಲಾಗದು)
-  Widget _poojaTag(String label, bool on) {
+  Widget _poojaTag(String label, bool on, {bool masked = false}) {
+    if (masked) {
+      // ದರ ₹0 — ಮಸುಕು (ಗುರುತು ತೋರಿಸಬೇಡ)
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF1F1F1),
+          border: Border.all(color: kCardLine),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(label,
+            style: const TextStyle(
+                fontSize: 12.5,
+                color: Colors.black38,
+                decoration: TextDecoration.lineThrough)),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -193,6 +233,7 @@ class _RegionScreenState extends State<RegionScreen> {
                 title: widget.data.title,
                 columns: widget.data.columns,
                 year: widget.data.year,
+                rates: widget.data.rates, // ದರ ಇಲ್ಲದಿದ್ದರೆ ಎಲ್ಲ ಪೂಜೆ ಮಸುಕಾಗುತ್ತದೆ
                 regions: [region],
               );
               try {
@@ -308,8 +349,8 @@ class _RegionScreenState extends State<RegionScreen> {
                           Wrap(
                             spacing: 8,
                             runSpacing: 6,
-                            children: List.generate(
-                                cols.length, (ci) => _poojaTag(cols[ci], f.isOn(ci))),
+                            children: List.generate(cols.length,
+                                (ci) => _poojaTag(cols[ci], f.isOn(ci), masked: _masked(cols[ci]))),
                           ),
                           const SizedBox(height: 10),
                           _moneyLine(widget.data.poojaAmount(f),

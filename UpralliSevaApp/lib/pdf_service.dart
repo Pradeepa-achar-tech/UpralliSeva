@@ -19,8 +19,14 @@ class PdfService {
   static String _esc(String s) =>
       s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
 
-  // ಖಾಲಿ ಅರ್ಜಿ/ದೂರವಾಣಿ ಹಾಳೆ — ಪುಟದ ಕೊನೆಯವರೆಗೆ ಖಾಲಿ ಸಾಲುಗಳು (ವೈಯಕ್ತಿಕ ಮಾಗಣೆಗೆ ಮಾತ್ರ)
-  static const int _fillBlank = 90; // A4 ~ಪೂರ್ಣ ಪುಟ (2 ಕಾಲಂ)
+  /// ಆ ವರ್ಷದ ಪೂಜೆ ದರ — 0/ಖಾಲಿ ಆದರೆ ಆ ಪೂಜೆ ನಿಷ್ಕ್ರಿಯ (PDF ನಲ್ಲಿ ಖಾಲಿ). ದರ>0 → ✓ ತೋರಿಸು.
+  static bool _masked(PoojaData data, String col) {
+    final m = data.rates.where((x) => x.n == col);
+    final v = double.tryParse((m.isEmpty ? '' : m.first.r).trim());
+    return v == null || v <= 0;
+  }
+
+  // ಖಾಲಿ ದೂರವಾಣಿ ಹಾಳೆ — ಪುಟದ ಕೊನೆಯವರೆಗೆ ಖಾಲಿ ಸಾಲುಗಳು (ವೈಯಕ್ತಿಕ ಮಾಗಣೆಗೆ ಮಾತ್ರ)
   static const int _fillPhone = 18; // A4 ~ಪೂರ್ಣ ಪುಟ (1 ಕಾಲಂ)
   static const int _minFill = 8; // ಯಾವಾಗಲೂ ಕನಿಷ್ಠ ಇಷ್ಟು ಖಾಲಿ ಸಾಲು
   static int _pad(int n, int per) {
@@ -75,28 +81,45 @@ class PdfService {
       if (blank) sb.write('<div class="pf-temple">$_temple</div>');
       sb.write('<div class="pf-head"><span>${_esc('${r.no ?? ''}. ${r.name}')}</span>'
           '<span class="pf-mo">ಮೊ.: ${_esc(r.phone)}</span></div>');
-      sb.write('<table class="pf-tbl"><thead><tr><th class="pf-nm">ಹೆಸರು</th>');
+      // ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತ್ಯೇಕ ಕ್ರ.ಸಂ. ಕಾಲಂ (ಶೀರ್ಷಿಕೆ + ಕೇಂದ್ರ);
+      // ಡೇಟಾ — ಸಂಖ್ಯೆ ಹೆಸರಿನೊಂದಿಗೆ ಒಳಗೆ (ಶೀರ್ಷಿಕೆ ಇಲ್ಲ)
+      sb.write('<table class="pf-tbl"><thead><tr>');
+      if (blank) sb.write('<th class="pf-no">ಕ್ರ.ಸಂ.</th>');
+      sb.write('<th class="pf-nm">ಹೆಸರು</th>');
       for (final c in cols) {
         sb.write('<th class="pf-c">${_esc(c)}</th>');
       }
+      final span = cols.length + (blank ? 2 : 1);
       sb.write('</tr></thead><tfoot><tr>'
-          '<td class="pf-foot" colspan="${cols.length + 1}"></td></tr></tfoot><tbody>');
+          '<td class="pf-foot" colspan="$span"></td></tr></tfoot><tbody>');
       for (var i = 0; i < r.families.length; i++) {
         final f = r.families[i];
-        sb.write('<tr><td class="pf-nm"><span class="row"><b>${i + 1}.</b>'
-            '<span class="nm">${_esc(f.n)}</span></span></td>');
+        sb.write('<tr>');
+        if (blank) {
+          sb.write('<td class="pf-no">${i + 1}.</td>'
+              '<td class="pf-nm">${_esc(f.n)}</td>');
+        } else {
+          sb.write('<td class="pf-nm"><span class="row"><b>${i + 1}.</b>'
+              '<span class="nm">${_esc(f.n)}</span></span></td>');
+        }
         for (var ci = 0; ci < cols.length; ci++) {
-          final mark = blank ? '' : (f.isOn(ci) ? '✓' : '–');
+          // ದರ 0 → ಖಾಲಿ (ಗುರುತು ತೋರಿಸಬೇಡ)
+          final mark = (blank || _masked(data, cols[ci]))
+              ? ''
+              : (f.isOn(ci) ? '✓' : '–');
           sb.write('<td class="pf-c"><i>$mark</i></td>');
         }
         sb.write('</tr>');
       }
-      // ಖಾಲಿ ಅರ್ಜಿ — ಪುಟದ ಕೊನೆಯವರೆಗೆ ಖಾಲಿ ಸಾಲುಗಳು (ವೈಯಕ್ತಿಕ ಮಾಗಣೆಗೆ ಮಾತ್ರ)
+      // ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರಸ್ತುತ ಪುಟ ತುಂಬಲು ಖಾಲಿ ಸಾಲುಗಳು; ಹೊಸ ಪುಟಕ್ಕೆ ಖಾಲಿ ಸಾಲು ಹೋಗದಂತೆ
+      // (ವೆಬ್‌ನಂತೆ modular — ಒಂದೇ ಕಾಲಂ, ~36 ಸಾಲು/ಪುಟ)
       if (blank && fill) {
-        final nb = _pad(r.families.length, _fillBlank);
+        final n = r.families.length;
+        var nb = 36 - (n % 36);
+        if (nb == 36 && n > 0) nb = 0;
         for (var j = 0; j < nb; j++) {
-          sb.write('<tr class="pf-fill"><td class="pf-nm"><span class="row">'
-              '<b></b><span class="nm">&nbsp;</span></span></td>');
+          sb.write('<tr class="pf-fill"><td class="pf-no"></td>'
+              '<td class="pf-nm">&nbsp;</td>');
           for (var ci = 0; ci < cols.length; ci++) {
             sb.write('<td class="pf-c"><i></i></td>');
           }
@@ -112,51 +135,55 @@ class PdfService {
   static const String _css = '''
     *{font-family:"Noto Sans Kannada","Noto Serif Kannada",sans-serif;}
     @page{margin:10mm 12mm;}
-    html,body{margin:0;color:#111;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-    .th1{font-size:12px;line-height:1.4;}
-    .th2{font-size:16px;font-weight:800;line-height:1.4;}
+    html,body{margin:0;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .th1{font-size:12px;line-height:1.45;}
+    .th2{font-size:16px;font-weight:800;line-height:1.45;}
     .th3{font-size:11px;line-height:1.4;}
     .pf-temple{text-align:center;margin:0 0 8px;}
-    .pf-title{text-align:center;font-weight:800;font-size:15px;margin:0 0 10px;padding:0 0 6px;border-bottom:2px solid #23408e;color:#15224a;}
-    /* ಪ್ರತಿ ಮಾಗಣೆ → ಸ್ವಂತ ಪುಟ; ಒಳಗೆ 2 ಕಾಲಂ ಹರಿವು */
-    .pf-mag{column-count:2;column-gap:14px;column-fill:auto;page-break-before:always;}
+    .pf-title{text-align:center;font-weight:800;font-size:15px;margin:0 0 10px;padding:0 0 6px;border-bottom:1px solid #000;color:#000;}
+    /* ಡೇಟಾ + ಖಾಲಿ — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟ, ಒಂದೇ ಕಾಲಂ (ಮೂಲ ಟೆಂಪ್ಲೇಟ್‌ನಂತೆ) */
+    .pf-mag{page-break-before:always;}
     .pf-mag:first-of-type{page-break-before:avoid;}
-    .pf-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#15224a;border:1.6px solid #23408e;border-bottom:none;padding:4px 9px;background:#eaf0fb;break-after:avoid;}
+    .pf-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#000;border:0.5px solid #000;border-bottom:none;padding:4px 9px;background:#fff;break-after:avoid;}
     .pf-head .pf-mo{font-size:11px;font-weight:700;white-space:nowrap;}
     .pf-tbl{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
-    .pf-tbl th,.pf-tbl td{border:0;border-left:1.4px solid #23408e;padding:2px 7px;font-size:13px;font-weight:400;color:#111;vertical-align:top;overflow:hidden;box-sizing:border-box;line-height:1.3;}
-    .pf-tbl tr>:last-child{border-right:1.6px solid #23408e;}
+    .pf-tbl th,.pf-tbl td{border:0;border-left:0.5px solid #000;padding:3px 7px;font-size:13px;font-weight:400;color:#000;vertical-align:middle;overflow:hidden;box-sizing:border-box;line-height:1.3;}
+    .pf-tbl tr>:last-child{border-right:0.5px solid #000;}
     .pf-tbl thead{display:table-header-group;}
-    .pf-tbl thead th{border-top:1.6px solid #23408e;border-bottom:1.6px solid #23408e;font-weight:700;background:#eaf0fb;}
+    .pf-tbl thead th{border-top:0.5px solid #000;border-bottom:0.5px solid #000;font-weight:700;background:#fff;}
     .pf-tbl tfoot{display:table-footer-group;}
-    .pf-tbl tfoot td{border:0;border-top:1.6px solid #23408e;padding:0;height:0;line-height:0;font-size:0;}
+    .pf-tbl tfoot td{border:0;border-top:0.5px solid #000;padding:0;height:0;line-height:0;font-size:0;}
     .pf-tbl tr{page-break-inside:avoid;}
-    .pf-tbl .pf-nm{text-align:left;word-break:break-word;border-left:1.6px solid #23408e;}
-    .pf-tbl thead .pf-nm{text-align:center;}
-    .pf-tbl td.pf-nm .row{display:flex;gap:5px;align-items:baseline;}
-    .pf-tbl td.pf-nm .row b{flex:0 0 auto;font-weight:600;}
+    /* ಕ್ರ.ಸಂ. ಕಾಲಂ — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೇಂದ್ರ ಜೋಡಣೆ) */
+    .pf-tbl .pf-no{width:40px;text-align:center;white-space:nowrap;padding-left:1px;padding-right:1px;}
+    .pf-tbl thead .pf-no{font-size:8px;line-height:1.12;}
+    .pf-tbl .pf-nm{text-align:left;word-break:break-word;border-left:0.5px solid #000;}
+    .pf-tbl thead .pf-nm{text-align:left;}
+    .pf-tbl td.pf-nm .row{display:flex;gap:4px;align-items:baseline;}
+    .pf-tbl td.pf-nm .row b{flex:0 0 auto;font-weight:400;}
     .pf-tbl td.pf-nm .nm{flex:1 1 auto;min-width:0;word-break:break-word;}
-    .pf-tbl .pf-c{width:32px;text-align:center;padding-left:1px;padding-right:1px;}
+    .pf-tbl .pf-c{width:34px;text-align:center;padding-left:1px;padding-right:1px;}
+    body.blank .pf-tbl .pf-c{width:46px;}   /* ಖಾಲಿ ಅರ್ಜಿ — ಅಗಲ ಪೂಜಾ ಕಾಲಂ (ಹೆಸರು ಬಲಭಾಗದ ಖಾಲಿ ಜಾಗ ಕಡಿಮೆ) */
     .pf-tbl thead .pf-c{font-size:9px;line-height:1.15;padding:2px 1px;white-space:normal;word-break:break-word;}
-    .pf-tbl .pf-c i{font-style:normal;font-weight:600;color:#23408e;}
-    /* ಖಾಲಿ ಅರ್ಜಿ — ಪ್ರತಿ ಸಾಲಿಗೆ ಅಡ್ಡಗೆರೆ (ಕೈಯಲ್ಲಿ ಬರೆಯಲು) */
-    body.blank .pf-tbl tbody td{border-bottom:1px solid #23408e;}
+    .pf-tbl .pf-c i{font-style:normal;font-weight:600;color:#000;font-family:"Segoe UI Symbol","DejaVu Sans","Arial Unicode MS",Arial,sans-serif;}
+    /* ಅಡ್ಡಗೆರೆ (ಸಾಲುಗಳ ನಡುವೆ) — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೈಬರಹಕ್ಕೆ); ಡೇಟಾದಲ್ಲಿ ಇಲ್ಲ */
+    body.blank .pf-tbl tbody td{border-bottom:0.5px solid #000;}
     /* ===== ದೂರವಾಣಿ ಸಂಗ್ರಹ ===== */
     .ph-mag{page-break-before:always;}
     .ph-mag:first-of-type{page-break-before:avoid;}
-    .ph-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#15224a;border:1.6px solid #23408e;border-bottom:none;padding:4px 9px;background:#eaf0fb;}
+    .ph-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#000;border:0.5px solid #000;border-bottom:none;padding:4px 9px;background:#fff;}
     .ph-head .ph-mo{font-size:11px;font-weight:700;white-space:nowrap;}
     .ph-tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
-    .ph-tbl th,.ph-tbl td{border:1px solid #23408e;padding:6px 8px;font-size:13px;color:#111;vertical-align:top;line-height:1.4;box-sizing:border-box;}
+    .ph-tbl th,.ph-tbl td{border:0.5px solid #000;padding:6px 8px;font-size:13px;color:#000;vertical-align:middle;line-height:1.4;box-sizing:border-box;}
     .ph-tbl thead{display:table-header-group;}
-    .ph-tbl thead th{background:#eaf0fb;font-weight:700;text-align:center;}
+    .ph-tbl thead th{background:#fff;font-weight:700;text-align:center;}
     .ph-tbl tr{page-break-inside:avoid;}
-    .ph-tbl .ph-nm{width:62%;text-align:left;word-break:break-word;}
+    .ph-tbl .ph-nm{width:74%;text-align:left;word-break:break-word;}
     .ph-tbl thead .ph-nm{text-align:center;}
     .ph-tbl td.ph-nm .row{display:flex;gap:5px;align-items:baseline;}
     .ph-tbl td.ph-nm .row b{flex:0 0 auto;font-weight:600;}
     .ph-tbl td.ph-nm .nm{flex:1 1 auto;min-width:0;word-break:break-word;}
-    .ph-tbl .ph-num{width:38%;}
+    .ph-tbl .ph-num{width:26%;}
     .ph-tbl td.ph-num{height:30px;}
   ''';
 

@@ -322,6 +322,8 @@
     /* ಹೆಸರು ಕಾಲಂ — ಎಡ ಜೋಡಣೆ (ಸಂಖ್ಯೆ ಪ್ರತ್ಯೇಕ ಕಾಲಂನಲ್ಲಿ) */
     .pf-tbl .pf-nm{ text-align:left; word-break:break-word; line-height:1.3; }
     .pf-tbl thead .pf-nm{ text-align:left; padding-left:9px; }   /* ಹೆಸರು ಶೀರ್ಷಿಕೆ ಎಡಕ್ಕೆ */
+    /* ಡೇಟಾ PDF — ಕ್ರ.ಸಂ ಮತ್ತು ಹೆಸರು ನಡುವಿನ ಲಂಬ ಗೆರೆ ಮರೆ (ಮೂಲ ಟೆಂಪ್ಲೇಟ್‌ನಂತೆ); ಸ್ಥಾನ/ಜೋಡಣೆ ಬದಲಾಗದು */
+    body:not(.blank-print) .pf-tbl .pf-nm{ border-left:0 !important; }
     /* ಚೆಕ್ ಕಾಲಂ — ಶೀರ್ಷಿಕೆ ಪೂರ್ತಿ ಕಾಣಲು ಸಾಕಷ್ಟು ಅಗಲ */
     .pf-tbl .pf-c{ width:34px; text-align:center; padding-left:0; padding-right:0; }
     .pf-tbl thead .pf-c{ font-size:8.5px; line-height:1.12; padding:2px 0; white-space:nowrap; }   /* ಹೂ.ಪೂ. — ಚಿಕ್ಕ ಫಾಂಟ್, ಕಿರಿದಾದ ಪೆಟ್ಟಿಗೆ */

@@ -64,7 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/icon/app_icon.png', width: 110, height: 110),
+                Image.asset('assets/icon/app_icon_circle.png', width: 110, height: 110),
                 const SizedBox(height: 8),
                 const Text('ಉಪ್ರಳ್ಳಿ ಸೇವೆ',
                     style:

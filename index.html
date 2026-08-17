@@ -212,6 +212,11 @@
   .pchip{ border:1px solid var(--card-line); background:#fff; border-radius:20px; padding:8px 14px; cursor:pointer; font-size:13px; font-family:inherit; color:var(--ink); }
   .pchip.on{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-dark); font-weight:700; }
   .pchip.on::before{ content:"✓ "; }
+  /* ದರ ₹0 ಇರುವ ಪೂಜೆ — ಆಯ್ಕೆ ಮಾಡಲಾಗದು (ಮಸುಕು) */
+  .pchip.masked{ opacity:.4; text-decoration:line-through; cursor:not-allowed; background:#f1f1f1; }
+  /* ದರ ₹0 ಇರುವ ಪೂಜೆ ಕಾಲಂ — ಮುಖಪುಟ ಕೋಷ್ಟಕದಲ್ಲಿ ಮಸುಕು */
+  th.c-chk.col-masked, td.c-chk.col-masked{ background:#f1f1f1; }
+  th.c-chk.col-masked{ color:#b6b6b6; text-decoration:line-through; }
 
   /* ಸೇವಾ ದರಗಳು ಪಾಪ್‌ಅಪ್ */
   .rate-rows{ display:flex; flex-direction:column; gap:9px; max-height:52vh; overflow:auto; }
@@ -1012,6 +1017,10 @@
 
   /* ಹೊಸ ಸೇವಾ ಕಾಲಂ — ಮುಖಪುಟ + ತಿದ್ದು + ಖಾಲಿ PDF ನಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ; ಡೇಟಾ (ಭರ್ತಿ) PDF ನಲ್ಲಿ ಮರೆ */
   const BLANK_ONLY = new Set();   // ಡೇಟಾ PDF ನಲ್ಲಿ ಮರೆಮಾಡುವ ಕಾಲಂಗಳು (ಈಗ ಯಾವುದೂ ಇಲ್ಲ)
+  /* ಆ ವರ್ಷದ ಪೂಜೆ ದರ — 0/ಖಾಲಿ ಆದರೆ ಆ ಪೂಜೆ ನಿಷ್ಕ್ರಿಯ (ಮಸುಕು + ಎಡಿಟ್ ಇಲ್ಲ + PDF ಖಾಲಿ).
+     ಗುರುತು (f.c) ಅಳಿಸುವುದಿಲ್ಲ — ದರ ಮತ್ತೆ >0 ಆದರೆ ಗುರುತು ಮರಳಿ ಕಾಣಿಸುತ್ತದೆ. */
+  function poojaRate(c){ const x=(state.rates||[]).find(y=>y.n===c); const v=parseFloat(x&&x.r); return isNaN(v)?0:v; }
+  function poojaMasked(c){ return poojaRate(c)<=0; }
   /* ಕಾಲಂಗಳ ಅಂತಿಮ ಕ್ರಮ. ಕಾಲಂ ಮರುಜೋಡಿಸಿದಾಗ ಪ್ರತಿ ಕುಟುಂಬದ ಗುರುತುಗಳನ್ನು (f.c)
      ಹೆಸರಿನ ಆಧಾರದಲ್ಲಿ ಮರುಜೋಡಿಸಲಾಗುತ್ತದೆ — ಗುರುತು ಸರಿಯಾದ ಸೇವೆಯ ಕೆಳಗೇ ಉಳಿಯುತ್ತದೆ. */
   const COLUMN_ORDER = ["ಹೂ.ಪೂ.", "ವಿ.ಪೂ.", "ನ.ಪೂ.", "ಕಾ.ಕಾ.", "ಗು.ಕಾ.", "ವ.ಕಾ."];
@@ -1088,7 +1097,7 @@
           <thead><tr>
             <th class="c-no">ಕ್ರ.ಸಂ.</th>
             <th class="c-name">ಹೆಸರು / ವಿಳಾಸ</th>
-            ${cols.map(c=>`<th class="c-chk">${esc(c)}</th>`).join("")}
+            ${cols.map(c=>`<th class="c-chk${poojaMasked(c)?' col-masked':''}">${esc(c)}</th>`).join("")}
             <th class="c-money mfirst no-print">ಒಟ್ಟು ₹</th>
             <th class="c-del no-print"></th>
           </tr></thead>
@@ -1103,7 +1112,7 @@
           html += `<tr class="editrow" ondragover="rowDragOver(event)" ondrop="rowDrop(event,${ri},${fi})" onclick="editRow(${ri},${fi})" title="ಬದಲಾಯಿಸಲು ಕ್ಲಿಕ್ ಮಾಡಿ">
             <td class="c-no">${fi+1}.</td>
             <td class="c-name"><div>${esc(f.n)}</div>${f.p?`<div class="rphone-sm no-print">📞 ${esc(f.p)}</div>`:""}</td>
-            ${ck.map((on,ci)=>`<td class="c-chk"><input type="checkbox" ${on?"checked":""} disabled></td>`).join("")}
+            ${ck.map((on,ci)=>{ const m=poojaMasked(cols[ci]); return `<td class="c-chk${m?' col-masked':''}">${m?'':`<input type="checkbox" ${on?"checked":""} disabled>`}</td>`; }).join("")}
             <td class="c-money mfirst no-print total">${money(tt)}</td>
             <td class="c-del no-print edit-only">
               <span class="draghandle" draggable="true" title="ಎಳೆದು ಕ್ರಮ ಬದಲಾಯಿಸಿ" ondragstart="rowDragStart(event,${ri},${fi})" ondragend="rowDragEnd(event)" onclick="event.stopPropagation()">⠿</span>
@@ -1127,10 +1136,10 @@
       pf += `<section class="pf-mag" data-r="${ri}" id="pf-${ri}">
         <div class="pf-mtemple">${TEMPLE_HEAD}</div>
         <div class="pf-head"><span>${esc(r.no)}. ${esc(r.name)}</span><span class="pf-ph">ಮೊ.: ${esc(r.phone)}</span></div>
-        <table class="pf-tbl"><thead><tr><th class="pf-no"></th><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c${BLANK_ONLY.has(c)?' pf-c-bo':''}">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+2}"></td></tr></tfoot><tbody>`;
+        <table class="pf-tbl"><thead><tr><th class="pf-no"></th><th class="pf-nm">ಹೆಸರು</th>${cols.map(c=>`<th class="pf-c${BLANK_ONLY.has(c)?' pf-c-bo':''}${poojaMasked(c)?' pf-c-masked':''}">${esc(c)}</th>`).join("")}</tr></thead><tfoot><tr><td class="pf-foot" colspan="${cols.length+2}"></td></tr></tfoot><tbody>`;
       r.families.forEach((f,fi)=>{
         const k=checks(f.c);
-        pf += `<tr><td class="pf-no">${fi+1}.</td><td class="pf-nm">${esc(f.n)}</td>${k.map((on,ci)=>`<td class="pf-c${BLANK_ONLY.has(cols[ci])?' pf-c-bo':''}"><i>${on?"✓":"–"}</i></td>`).join("")}</tr>`;
+        pf += `<tr><td class="pf-no">${fi+1}.</td><td class="pf-nm">${esc(f.n)}</td>${k.map((on,ci)=>{ const m=poojaMasked(cols[ci]); return `<td class="pf-c${BLANK_ONLY.has(cols[ci])?' pf-c-bo':''}${m?' pf-c-masked':''}"><i>${m?'':(on?"✓":"–")}</i></td>`; }).join("")}</tr>`;
       });
       pf += `</tbody></table></section>`;
     });
@@ -1265,8 +1274,12 @@
     document.getElementById('editName').value = f.n || "";
     document.getElementById('editPhone').value = f.p || "";
     const cks = checks(f.c);
-    document.getElementById('editPoojas').innerHTML = state.columns.map((c,ci)=>
-      `<button type="button" class="pchip ${cks[ci]?'on':''}" data-ci="${ci}" onclick="this.classList.toggle('on')">${esc(c)}</button>`).join("");
+    document.getElementById('editPoojas').innerHTML = state.columns.map((c,ci)=>{
+      const m=poojaMasked(c);   // ದರ 0 → ಆಯ್ಕೆ ಮಾಡಲಾಗದು (ಆದರೆ ಈಗಿನ ಗುರುತು ಉಳಿಸಿ)
+      const click = m ? '' : ` onclick="this.classList.toggle('on')"`;
+      const dis = m ? ' disabled title="ಈ ಪೂಜೆಗೆ ದರ ₹0 — ಈ ವರ್ಷ ನಿಷ್ಕ್ರಿಯ"' : '';
+      return `<button type="button" class="pchip ${cks[ci]?'on':''}${m?' masked':''}" data-ci="${ci}"${click}${dis}>${esc(c)}</button>`;
+    }).join("");
     document.getElementById('editModal').classList.add('open');
     setTimeout(()=>{ const el=document.getElementById('editName'); if(el){ el.focus(); try{ el.setSelectionRange(0,0); }catch(e){} el.scrollLeft=0; } }, 40);
   }
@@ -1514,6 +1527,7 @@
   sheet.addEventListener('change', e=>{
     if(e.target.type!=="checkbox") return;
     const ri=+e.target.dataset.r, fi=+e.target.dataset.f, ci=+e.target.dataset.c;
+    if(poojaMasked((state.columns[ci]||"").trim())){ e.target.checked=false; return; }   // ದರ ₹0 → ಬದಲಾವಣೆ ಇಲ್ಲ
     const fam=state.regions[ri].families[fi];
     const arr=checks(fam.c); arr[ci]=e.target.checked;
     fam.c=arr.map(b=>b?"1":"0").join("");

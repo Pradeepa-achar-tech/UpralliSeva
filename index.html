@@ -816,10 +816,8 @@
   const ALLOWED_EDITORS = [
     "thanthrajnaani@gmail.com",
   ];
-  /* ಬೂಟ್‌ಸ್ಟ್ರ್ಯಾಪ್ ಓದು-ಮಾತ್ರ ಬಳಕೆದಾರರು (Firestore ಇಲ್ಲದೆಯೂ ಪ್ರವೇಶ). ಉಳಿದವರು "users" ಸಂಗ್ರಹದಲ್ಲಿ. */
-  const READONLY_USERS = [
-    "prabhakaracharya13799@gmail.com",
-  ];
+  /* ಎಲ್ಲ ಬಿಳಿಪಟ್ಟಿ (whitelist) ಈಗ "users" ಸಂಗ್ರಹದಲ್ಲಿ (+ ಹಳೆಯ "editors"). ಕೋಡ್‌ನಲ್ಲಿ super admin ಮಾತ್ರ. */
+  const READONLY_USERS = [];
 
   const CLOUD = !!firebaseConfig.apiKey && !firebaseConfig.apiKey.startsWith("PASTE");
   let db=null, auth=null, DOC=null, unsub=null;

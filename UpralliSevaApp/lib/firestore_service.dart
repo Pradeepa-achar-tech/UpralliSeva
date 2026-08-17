@@ -33,7 +33,8 @@ class FirestoreService {
 
   /// super admin (ಬಳಕೆದಾರ ನಿರ್ವಹಣೆ) — ವೆಬ್‌ನ ALLOWED_EDITORS ಗೆ ಹೊಂದುವಂತೆ
   static const List<String> superAdmins = ['thanthrajnaani@gmail.com'];
-  static const List<String> readonlyBoot = ['prabhakaracharya13799@gmail.com'];
+  // ಎಲ್ಲ ಬಿಳಿಪಟ್ಟಿ ಈಗ "users" ಸಂಗ್ರಹದಲ್ಲಿ (+ ಹಳೆಯ "editors"). ಕೋಡ್‌ನಲ್ಲಿ super admin ಮಾತ್ರ.
+  static const List<String> readonlyBoot = [];
 
   /// ಪ್ರವೇಶ ಪರಿಶೀಲನೆ: superAdmins → users/{email} → readonlyBoot → editors → ನಿರಾಕರಣೆ
   /// users ದಾಖಲೆ readonlyBoot ಅನ್ನೂ ಮೀರಿಸುತ್ತದೆ (ಆದ್ದರಿಂದ ಬೂಟ್ ಬಳಕೆದಾರರನ್ನೂ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಬಹುದು).

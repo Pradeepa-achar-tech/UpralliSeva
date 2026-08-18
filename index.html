@@ -278,7 +278,7 @@
     thead{ display:table-header-group; }     /* ಪ್ರತಿ ಪುಟದಲ್ಲೂ ಶೀರ್ಷಿಕೆ ಸಾಲು */
     tr{ break-inside:avoid; page-break-inside:avoid; }
     /* ಸ್ವಚ್ಛ, ಅಚ್ಚುಕಟ್ಟಾದ ಟೇಬಲ್ — ವಿಶಾಲ ಸಾಲು, ಸ್ಪಷ್ಟ ಗಡಿ (sona Pooja list ಶೈಲಿ) */
-    th,td{ padding:7px 8px; border:0.5px solid #000; }
+    th,td{ padding:7px 8px; border:0.5px solid #999; }
     td.c-no{ font-size:14.5px; text-align:center; }
     td.c-name{ font-size:15.5px; line-height:1.5; }
     thead th{ background:#eee !important; font-size:14px; font-weight:700; padding:8px 8px; }
@@ -293,7 +293,7 @@
     body:not(.blank-print) .print-flow{ column-count:1; }
     /* ಡೇಟಾ/ವರ್ಷ PDF — ದೇವಸ್ಥಾನ ತಲೆಬರಹ ಇಲ್ಲ (ವರ್ಷ ಶೀರ್ಷಿಕೆ ಮಾತ್ರ); ತಲೆಬರಹ ಖಾಲಿ ಅರ್ಜಿಗೆ ಮಾತ್ರ (pf-mtemple) */
     .pf-temple{ display:none; }
-    .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #000; color:#000; }
+    .pf-title{ text-align:center; font-weight:800; font-size:15px; margin:0 0 10px; padding:0 0 6px; border-bottom:2px solid #999; color:#000; }
     body:not(.blank-print) .pf-title{ column-span:all; }   /* ಶೀರ್ಷಿಕೆ ಎರಡೂ ಕಾಲಂ ದಾಟಿ */
     body.blank-print .pf-title{ display:none; }
     /* ಡೇಟಾ — ಮಾಗಣೆ ಸಾಮಾನ್ಯ ಬ್ಲಾಕ್ (ಸ್ವಂತ ಮಲ್ಟಿಕಾಲಂ ಅಲ್ಲ); print-flow ನ 2 ಕಾಲಂನಲ್ಲಿ ಹರಿಯುತ್ತದೆ */
@@ -310,20 +310,20 @@
     .pf-mtemple .th2{ font-size:16px; font-weight:800 !important; line-height:1.45; margin:1px 0; }   /* ಸಾಲು 1 ಮತ್ತು 2 ಒಂದೇ ಅಳತೆ (ಚಿತ್ರದಂತೆ) */
     .pf-mtemple .th3{ font-size:13px; font-weight:400; line-height:1.4; }
     /* ಮಾಗಣೆ ಶೀರ್ಷಿಕೆ ಪಟ್ಟಿ — ಮೊದಲ ಪೆಟ್ಟಿಗೆಯೊಳಗೆ ಮಾತ್ರ (ಹೆಸರು + ಮೊಬೈಲ್ ಒಂದೇ ಪೆಟ್ಟಿಗೆಯಲ್ಲಿ) */
-    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:13px; color:#000; border:0.5px solid #000; border-bottom:none; padding:5px 9px; background:#fff; break-after:avoid; }
+    .pf-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:800; font-size:13px; color:#000; border:0.5px solid #999; border-bottom:none; padding:5px 9px; background:#fff; break-after:avoid; }
     .pf-head .pf-ph{ font-size:13.5px; font-weight:800; white-space:nowrap; }
     /* ಟೇಬಲ್ — ಲಂಬ ಗೆರೆ + ಹೊರ ಪೆಟ್ಟಿಗೆ ಮಾತ್ರ; ಸಾಲುಗಳ ನಡುವೆ ಅಡ್ಡಗೆರೆ ಇಲ್ಲ (ಚಿತ್ರದಂತೆ) — ನೀಲಿ ಶಾಯಿ */
     .pf-tbl{ width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed; }
-    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:0.5px solid #000 !important; padding:4px 6px; font-size:12px; font-weight:400; color:#000; vertical-align:middle; overflow:hidden; box-sizing:border-box; line-height:1.35; }
-    .pf-tbl tr > :last-child{ border-right:0.5px solid #000 !important; }   /* ಪೆಟ್ಟಿಗೆ ಬಲ ಅಂಚು */
+    .pf-tbl th, .pf-tbl td{ border:0 !important; border-left:0.5px solid #999 !important; padding:4px 6px; font-size:12px; font-weight:400; color:#000; vertical-align:middle; overflow:hidden; box-sizing:border-box; line-height:1.35; }
+    .pf-tbl tr > :last-child{ border-right:0.5px solid #999 !important; }   /* ಪೆಟ್ಟಿಗೆ ಬಲ ಅಂಚು */
     .pf-tbl thead{ display:table-header-group; }                              /* ಶೀರ್ಷಿಕೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
-    .pf-tbl thead th{ border-top:0.5px solid #000 !important; border-bottom:0.5px solid #000 !important; font-weight:700; background:#fff !important; vertical-align:middle !important; }   /* ಪೆಟ್ಟಿಗೆ ಮೇಲ್ ಗೆರೆ + ಶೀರ್ಷಿಕೆ ಕೆಳ ಗೆರೆ; ಶೀರ್ಷಿಕೆ ಮಧ್ಯ ಜೋಡಣೆ */
+    .pf-tbl thead th{ border-top:0.5px solid #999 !important; border-bottom:0.5px solid #999 !important; font-weight:700; background:#fff !important; vertical-align:middle !important; }   /* ಪೆಟ್ಟಿಗೆ ಮೇಲ್ ಗೆರೆ + ಶೀರ್ಷಿಕೆ ಕೆಳ ಗೆರೆ; ಶೀರ್ಷಿಕೆ ಮಧ್ಯ ಜೋಡಣೆ */
     .pf-tbl tfoot{ display:table-footer-group; }                             /* ಕೆಳ ಗೆರೆ ಪ್ರತಿ ತುಣುಕಲ್ಲೂ */
-    .pf-tbl tfoot td{ border:0 !important; border-top:0.5px solid #000 !important; padding:0 !important; height:0; line-height:0; font-size:0; }
+    .pf-tbl tfoot td{ border:0 !important; border-top:0.5px solid #999 !important; padding:0 !important; height:0; line-height:0; font-size:0; }
     .pf-tbl tr{ break-inside:avoid; }
     /* ಕ್ರಮ ಸಂಖ್ಯೆ — ಪ್ರತ್ಯೇಕ ಕಾಲಂ (ಚಿತ್ರದಂತೆ); ಪೆಟ್ಟಿಗೆ ಎಡ ಅಂಚು ಇಲ್ಲಿ */
     /* ಕ್ರಮ ಸಂಖ್ಯೆ — ಡೇಟಾ: ಬಲ ಜೋಡಣೆ, ಹೆಸರಿಗೆ ತಾಗಿ, ಶೀರ್ಷಿಕೆ ಇಲ್ಲ (ಡೇಟಾ ಟೆಂಪ್ಲೇಟ್) */
-    .pf-tbl .pf-no{ width:24px; text-align:right; white-space:nowrap; border-left:0.5px solid #000 !important; padding-left:0; padding-right:2px; }
+    .pf-tbl .pf-no{ width:24px; text-align:right; white-space:nowrap; border-left:0.5px solid #999 !important; padding-left:0; padding-right:2px; }
     .pf-tbl thead .pf-no{ font-size:8px; line-height:1.12; white-space:nowrap; overflow:visible; padding-left:0 !important; padding-right:0 !important; }
     body:not(.blank-print) .pf-tbl thead .pf-no{ font-size:0 !important; }   /* ಡೇಟಾ — ಕ್ರ.ಸಂ. ಶೀರ್ಷಿಕೆ ಮರೆ */
     /* ಖಾಲಿ ಅರ್ಜಿ — ಕ್ರ.ಸಂ. ಶೀರ್ಷಿಕೆ + ಕೇಂದ್ರ ಜೋಡಣೆ + ಅಗಲ ಪೂಜಾ ಕಾಲಂ (ಮೂಲ ಖಾಲಿ ಟೆಂಪ್ಲೇಟ್‌ನಂತೆ) */
@@ -341,7 +341,7 @@
     body.blank-print .pf-tbl .pf-c i{ visibility:hidden; }   /* ಖಾಲಿ ಅರ್ಜಿ — ಗುರುತು ಇಲ್ಲ */
     /* ಅಡ್ಡಗೆರೆ (ಸಾಲುಗಳ ನಡುವೆ) — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೈಬರಹಕ್ಕೆ);
        ಡೇಟಾ PDF ನಲ್ಲಿ ಹೆಸರುಗಳ ನಡುವೆ ಗೆರೆ ಇಲ್ಲ (ಮೂಲ ಟೆಂಪ್ಲೇಟ್‌ನಂತೆ) */
-    body.blank-print .pf-tbl tbody td{ border-bottom:0.5px solid #000 !important; }
+    body.blank-print .pf-tbl tbody td{ border-bottom:0.5px solid #999 !important; }
     /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಕೇವಲ ಒಂದೇ ಮಾಗಣೆ (ವೈಯಕ್ತಿಕ) ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ.
        ಡೇಟಾ PDF ಮತ್ತು ಎಲ್ಲ-ಮಾಗಣೆ ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮರೆ. */
     /* ಪೂರಕ ಖಾಲಿ ಸಾಲುಗಳು — ಟೇಬಲ್‌ನೊಳಗೆ ನೇರ ಸಾಲುಗಳು (ಕಾಲಂ ಹೊಂದಿಕೆ ಖಚಿತ). ಎಣಿಕೆ JS ನಲ್ಲಿ
@@ -365,10 +365,10 @@
     body.print-one .ph-mag.pf-target{ break-before:auto !important; page-break-before:auto !important; }
     body.print-one .ph-mag{ display:none; }
     body.print-one .ph-mag.pf-target{ display:block; }
-    .ph-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:900; font-size:15.5px; color:#000; border:0.5px solid #000; border-bottom:none; padding:5px 9px; background:#fff; break-after:avoid; }
+    .ph-head{ display:flex; justify-content:space-between; gap:8px; align-items:baseline; font-weight:900; font-size:15.5px; color:#000; border:0.5px solid #999; border-bottom:none; padding:5px 9px; background:#fff; break-after:avoid; }
     .ph-head .ph-mo{ font-size:13.5px; font-weight:800; white-space:nowrap; }
     .ph-tbl{ width:100%; border-collapse:collapse; table-layout:fixed; }
-    .ph-tbl th, .ph-tbl td{ border:0.5px solid #000 !important; padding:6px 8px; font-size:13px; color:#111; vertical-align:middle; line-height:1.4; box-sizing:border-box; }
+    .ph-tbl th, .ph-tbl td{ border:0.5px solid #999 !important; padding:6px 8px; font-size:13px; color:#111; vertical-align:middle; line-height:1.4; box-sizing:border-box; }
     .ph-tbl thead{ display:table-header-group; }
     .ph-tbl thead th{ background:#fff !important; font-weight:700; text-align:center; }
     .ph-tbl tr{ break-inside:avoid; }
@@ -383,7 +383,7 @@
     .region-head{ padding:7px 10px; }
     /* ಬಾಕ್ಸ್ ಗಡಿ ಪೂರ್ಣ: region ಹೊದಿಕೆ ಗಡಿ ಪುಟ ಮುರಿತದಲ್ಲಿ ಬೀಳುತ್ತದೆ — ಬದಲಿಗೆ ತಲೆಗೇ ಸ್ವಂತ ಗಡಿ + ಟೇಬಲ್ ಸೆಲ್ ಗಡಿ */
     .region{ border:none !important; margin-right:3px; }
-    .region-head{ border:0.5px solid #000; border-bottom:none; }
+    .region-head{ border:0.5px solid #999; border-bottom:none; }
     /* ಮಾಗಣೆ ಹೆಸರು ಮತ್ತು ದೂರವಾಣಿ — ಸ್ವಲ್ಪ ದೊಡ್ಡ ಮತ್ತು ದಪ್ಪ (ಎರಡೂ PDF: ಡೇಟಾ + ಖಾಲಿ) */
     .region-head .rname{ font-size:17.5px !important; font-weight:800 !important; }
     .region-head .rphone{ font-size:15px !important; font-weight:800 !important; }
@@ -1236,7 +1236,7 @@
         const cn=state.columns.length;
         const cells='<td class="pf-c"></td>'.repeat(cn);
         // ಪ್ರಸ್ತುತ (ಕೊನೆಯ) ಪುಟದ ಉಳಿದ ಜಾಗ ತುಂಬು — ಹೊಸ ಖಾಲಿ ಪುಟ ಬರದಂತೆ (CAP ~ Legal ಪುಟದ ಸಾಲುಗಳು)
-        let m=36-(_n%36); if(m===36&&_n>0) m=0;
+        let m=32-(_n%32); if(m===32&&_n>0) m=0;
         for(let j=0;j<m;j++){
           const tr=document.createElement('tr'); tr.className='pf-fill';
           tr.innerHTML='<td class="pf-no"></td><td class="pf-nm">&nbsp;</td>'+cells;

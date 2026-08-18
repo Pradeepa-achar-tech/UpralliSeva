@@ -115,8 +115,8 @@ class PdfService {
       // (ವೆಬ್‌ನಂತೆ modular — ಒಂದೇ ಕಾಲಂ, ~36 ಸಾಲು/ಪುಟ)
       if (blank && fill) {
         final n = r.families.length;
-        var nb = 36 - (n % 36);
-        if (nb == 36 && n > 0) nb = 0;
+        var nb = 32 - (n % 32);
+        if (nb == 32 && n > 0) nb = 0;
         for (var j = 0; j < nb; j++) {
           sb.write('<tr class="pf-fill"><td class="pf-no"></td>'
               '<td class="pf-nm">&nbsp;</td>');
@@ -140,24 +140,24 @@ class PdfService {
     .th2{font-size:16px;font-weight:800;line-height:1.45;}
     .th3{font-size:11px;line-height:1.4;}
     .pf-temple{text-align:center;margin:0 0 8px;}
-    .pf-title{text-align:center;font-weight:800;font-size:15px;margin:0 0 10px;padding:0 0 6px;border-bottom:1px solid #000;color:#000;}
+    .pf-title{text-align:center;font-weight:800;font-size:15px;margin:0 0 10px;padding:0 0 6px;border-bottom:1px solid #999;color:#000;}
     /* ಡೇಟಾ + ಖಾಲಿ — ಪ್ರತಿ ಮಾಗಣೆ ಸ್ವಂತ ಪುಟ, ಒಂದೇ ಕಾಲಂ (ಮೂಲ ಟೆಂಪ್ಲೇಟ್‌ನಂತೆ) */
     .pf-mag{page-break-before:always;}
     .pf-mag:first-of-type{page-break-before:avoid;}
-    .pf-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#000;border:0.5px solid #000;border-bottom:none;padding:4px 9px;background:#fff;break-after:avoid;}
+    .pf-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#000;border:0.5px solid #999;border-bottom:none;padding:4px 9px;background:#fff;break-after:avoid;}
     .pf-head .pf-mo{font-size:11px;font-weight:700;white-space:nowrap;}
     .pf-tbl{width:100%;border-collapse:separate;border-spacing:0;table-layout:fixed;}
-    .pf-tbl th,.pf-tbl td{border:0;border-left:0.5px solid #000;padding:3px 7px;font-size:13px;font-weight:400;color:#000;vertical-align:middle;overflow:hidden;box-sizing:border-box;line-height:1.3;}
-    .pf-tbl tr>:last-child{border-right:0.5px solid #000;}
+    .pf-tbl th,.pf-tbl td{border:0;border-left:0.5px solid #999;padding:3px 7px;font-size:13px;font-weight:400;color:#000;vertical-align:middle;overflow:hidden;box-sizing:border-box;line-height:1.3;}
+    .pf-tbl tr>:last-child{border-right:0.5px solid #999;}
     .pf-tbl thead{display:table-header-group;}
-    .pf-tbl thead th{border-top:0.5px solid #000;border-bottom:0.5px solid #000;font-weight:700;background:#fff;}
+    .pf-tbl thead th{border-top:0.5px solid #999;border-bottom:0.5px solid #999;font-weight:700;background:#fff;}
     .pf-tbl tfoot{display:table-footer-group;}
-    .pf-tbl tfoot td{border:0;border-top:0.5px solid #000;padding:0;height:0;line-height:0;font-size:0;}
+    .pf-tbl tfoot td{border:0;border-top:0.5px solid #999;padding:0;height:0;line-height:0;font-size:0;}
     .pf-tbl tr{page-break-inside:avoid;}
     /* ಕ್ರ.ಸಂ. ಕಾಲಂ — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೇಂದ್ರ ಜೋಡಣೆ) */
     .pf-tbl .pf-no{width:40px;text-align:center;white-space:nowrap;padding-left:1px;padding-right:1px;}
     .pf-tbl thead .pf-no{font-size:8px;line-height:1.12;}
-    .pf-tbl .pf-nm{text-align:left;word-break:break-word;border-left:0.5px solid #000;}
+    .pf-tbl .pf-nm{text-align:left;word-break:break-word;border-left:0.5px solid #999;}
     .pf-tbl thead .pf-nm{text-align:left;}
     .pf-tbl td.pf-nm .row{display:flex;gap:4px;align-items:baseline;}
     .pf-tbl td.pf-nm .row b{flex:0 0 auto;font-weight:400;}
@@ -167,14 +167,14 @@ class PdfService {
     .pf-tbl thead .pf-c{font-size:9px;line-height:1.15;padding:2px 1px;white-space:normal;word-break:break-word;}
     .pf-tbl .pf-c i{font-style:normal;font-weight:600;color:#000;font-family:"Segoe UI Symbol","DejaVu Sans","Arial Unicode MS",Arial,sans-serif;}
     /* ಅಡ್ಡಗೆರೆ (ಸಾಲುಗಳ ನಡುವೆ) — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೈಬರಹಕ್ಕೆ); ಡೇಟಾದಲ್ಲಿ ಇಲ್ಲ */
-    body.blank .pf-tbl tbody td{border-bottom:0.5px solid #000;}
+    body.blank .pf-tbl tbody td{border-bottom:0.5px solid #999;}
     /* ===== ದೂರವಾಣಿ ಸಂಗ್ರಹ ===== */
     .ph-mag{page-break-before:always;}
     .ph-mag:first-of-type{page-break-before:avoid;}
-    .ph-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#000;border:0.5px solid #000;border-bottom:none;padding:4px 9px;background:#fff;}
+    .ph-head{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:13.5px;color:#000;border:0.5px solid #999;border-bottom:none;padding:4px 9px;background:#fff;}
     .ph-head .ph-mo{font-size:11px;font-weight:700;white-space:nowrap;}
     .ph-tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
-    .ph-tbl th,.ph-tbl td{border:0.5px solid #000;padding:6px 8px;font-size:13px;color:#000;vertical-align:middle;line-height:1.4;box-sizing:border-box;}
+    .ph-tbl th,.ph-tbl td{border:0.5px solid #999;padding:6px 8px;font-size:13px;color:#000;vertical-align:middle;line-height:1.4;box-sizing:border-box;}
     .ph-tbl thead{display:table-header-group;}
     .ph-tbl thead th{background:#fff;font-weight:700;text-align:center;}
     .ph-tbl tr{page-break-inside:avoid;}

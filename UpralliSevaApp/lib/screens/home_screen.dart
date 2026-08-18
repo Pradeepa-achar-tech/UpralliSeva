@@ -5,6 +5,7 @@ import '../pdf_service.dart';
 import 'region_screen.dart';
 import 'rates_screen.dart';
 import 'users_screen.dart';
+import 'search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +16,13 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<int> _years = [];
   int _year = DateTime.now().year;
+  PoojaData? _data; // ಹುಡುಕಾಟಕ್ಕೆ ಇತ್ತೀಚಿನ ಲೋಡ್ ಆದ ವರ್ಷದ ದತ್ತಾಂಶ
+
+  void _openSearch() {
+    if (_data == null) return;
+    Navigator.push(context,
+        MaterialPageRoute(builder: (_) => SearchScreen(data: _data!)));
+  }
 
   @override
   void initState() {
@@ -161,6 +169,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
+              tooltip: 'ಹುಡುಕಿ', onPressed: _openSearch, icon: const Icon(Icons.search)),
+          IconButton(
               tooltip: 'PDF', onPressed: () => _sharePdf(), icon: const Icon(Icons.picture_as_pdf)),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
@@ -205,6 +215,7 @@ class _HomeScreenState extends State<HomeScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           final data = snap.data;
+          _data = data; // ಹುಡುಕಾಟಕ್ಕೆ ಇತ್ತೀಚಿನ ದತ್ತಾಂಶ ಉಳಿಸು
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(child: _yearBar()),

@@ -8,7 +8,12 @@ import '../pdf_service.dart';
 class RegionScreen extends StatefulWidget {
   final PoojaData data;
   final int regionIndex;
-  const RegionScreen({super.key, required this.data, required this.regionIndex});
+  final int? highlightIndex; // ಹುಡುಕಾಟದಿಂದ — ಈ ವ್ಯಕ್ತಿಗೆ ಸ್ಕ್ರಾಲ್ + ಹೈಲೈಟ್
+  const RegionScreen(
+      {super.key,
+      required this.data,
+      required this.regionIndex,
+      this.highlightIndex});
 
   @override
   State<RegionScreen> createState() => _RegionScreenState();
@@ -17,6 +22,32 @@ class RegionScreen extends StatefulWidget {
 class _RegionScreenState extends State<RegionScreen> {
   Timer? _debounce;
   bool _dirty = false;
+  final ScrollController _scrollCtrl = ScrollController();
+  int? _highlight; // ಪ್ರಸ್ತುತ ಹೈಲೈಟ್ ಆದ ಸಾಲು
+  Timer? _highlightTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    final hi = widget.highlightIndex;
+    if (hi != null && hi >= 0 && hi < region.families.length) {
+      _highlight = hi;
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _scrollToHighlight(hi));
+    }
+  }
+
+  void _scrollToHighlight(int i) {
+    if (!_scrollCtrl.hasClients) return;
+    const est = 172.0; // ಅಂದಾಜು ಕಾರ್ಡ್ ಎತ್ತರ
+    final target = (i * est).clamp(0.0, _scrollCtrl.position.maxScrollExtent);
+    _scrollCtrl.animateTo(target,
+        duration: const Duration(milliseconds: 450), curve: Curves.easeInOut);
+    _highlightTimer?.cancel();
+    _highlightTimer = Timer(const Duration(milliseconds: 2800), () {
+      if (mounted) setState(() => _highlight = null);
+    });
+  }
 
   Region get region => widget.data.regions[widget.regionIndex];
   List<String> get cols => widget.data.columns;
@@ -204,6 +235,8 @@ class _RegionScreenState extends State<RegionScreen> {
   @override
   void dispose() {
     _debounce?.cancel();
+    _highlightTimer?.cancel();
+    _scrollCtrl.dispose();
     _save(); // ಹೊರಡುವ ಮುನ್ನ ಉಳಿಸು
     super.dispose();
   }
@@ -273,16 +306,24 @@ class _RegionScreenState extends State<RegionScreen> {
             child: region.families.isEmpty
           ? const Center(child: Text('ಇನ್ನೂ ಹೆಸರು ಸೇರಿಸಿಲ್ಲ'))
           : ReorderableListView.builder(
+              scrollController: _scrollCtrl,
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 90),
               buildDefaultDragHandles: false,
               itemCount: region.families.length,
               onReorder: _reorder,
               itemBuilder: (context, i) {
                 final f = region.families[i];
+                final hl = i == _highlight; // ಹುಡುಕಾಟ ಹೈಲೈಟ್
                 return Padding(
                   key: ObjectKey(f),
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Card(
+                    color: hl ? kPrimary.withOpacity(.07) : null,
+                    shape: hl
+                        ? RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: kPrimary, width: 2.4))
+                        : null,
                     child: Padding(
                       padding: const EdgeInsets.all(12),
                       child: Column(

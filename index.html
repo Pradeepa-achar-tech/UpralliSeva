@@ -218,6 +218,19 @@
   th.c-chk.col-masked, td.c-chk.col-masked{ background:#f1f1f1; }
   th.c-chk.col-masked{ color:#b6b6b6; text-decoration:line-through; }
 
+  /* ===== ಹುಡುಕಾಟ ===== */
+  .search-input{ width:100%; box-sizing:border-box; padding:11px 13px; font-size:15px; font-family:inherit; color:var(--ink); border:1px solid var(--card-line); border-radius:10px; margin:0 0 12px; }
+  .search-input:focus{ outline:none; border-color:var(--accent); }
+  .search-results{ max-height:56vh; overflow:auto; }
+  .search-sec{ font-size:11.5px; font-weight:800; color:var(--accent-dark); letter-spacing:.3px; margin:12px 2px 4px; }
+  .search-item{ padding:8px 10px; border-radius:8px; cursor:pointer; }
+  .search-item:hover{ background:var(--accent-soft); }
+  .si-main{ font-size:14px; font-weight:600; color:var(--ink); }
+  .si-sub{ font-size:12px; color:var(--muted); margin-top:1px; }
+  .search-hint{ padding:14px 6px; color:var(--muted); font-size:13px; line-height:1.5; }
+  @keyframes rowflash{ 0%,100%{ background:transparent; } 30%,70%{ background:#ffe08a; } }
+  tr.row-flash td{ animation:rowflash 1.3s ease-in-out 2; }
+
   /* ಸೇವಾ ದರಗಳು ಪಾಪ್‌ಅಪ್ */
   .rate-rows{ display:flex; flex-direction:column; gap:9px; max-height:52vh; overflow:auto; }
   .rate-row{ display:flex; align-items:center; gap:8px; }
@@ -747,6 +760,15 @@
     </div>
   </div>
 
+  <!-- ===== ಹುಡುಕಾಟ — ಮಾಗಣೆ · ಹೆಸರು · ದೂರವಾಣಿ ===== -->
+  <div id="searchModal" class="modal-wrap no-print" onclick="if(event.target===this)closeSearch()">
+    <div class="modal" role="dialog" aria-modal="true" style="max-width:520px">
+      <div class="modal-title">ಹುಡುಕಿ<button class="modal-x" title="ಮುಚ್ಚಿ" onclick="closeSearch()">✕</button></div>
+      <input id="searchQ" class="search-input" type="text" placeholder="ಮಾಗಣೆ · ಹೆಸರು · ದೂರವಾಣಿ ಸಂಖ್ಯೆ ಹುಡುಕಿ…" oninput="runSearch()" autocomplete="off">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+  </div>
+
   <div id="app">
     <!-- ===== ಎಡ ಸೈಡ್‌ಬಾರ್ (admin dashboard) ===== -->
     <aside id="sidebar" class="no-print">
@@ -759,6 +781,11 @@
         <label class="side-label">ವರ್ಷ</label>
         <select class="jump" id="yearSel" title="ವರ್ಷ ಆಯ್ಕೆ"></select>
         <button class="tb primary" onclick="setupYear()">📅 ಹೊಸ ವರ್ಷ</button>
+      </div>
+
+      <div class="side-group">
+        <label class="side-label">ಹುಡುಕಿ</label>
+        <button class="tb" type="button" onclick="openSearch()">🔍 ಮಾಗಣೆ · ಹೆಸರು · ದೂರವಾಣಿ</button>
       </div>
 
       <div class="side-group">
@@ -1511,6 +1538,57 @@
     if(m && m.classList.contains('open') && !m.contains(e.target)) closeMpick();
   });
   window.addEventListener('resize', closeMpick);
+
+  /* ===================== ಹುಡುಕಾಟ (ಮಾಗಣೆ · ಹೆಸರು · ದೂರವಾಣಿ) ===================== */
+  function openSearch(){
+    const m=document.getElementById('searchModal'); if(!m) return;
+    m.classList.add('open');
+    const q=document.getElementById('searchQ'); if(q) q.value="";
+    runSearch();
+    setTimeout(()=>{ if(q) q.focus(); }, 40);
+  }
+  function closeSearch(){ const m=document.getElementById('searchModal'); if(m) m.classList.remove('open'); }
+  function runSearch(){
+    const box=document.getElementById('searchResults'); if(!box) return;
+    const q=(document.getElementById('searchQ').value||"").trim().toLowerCase();
+    if(!q){ box.innerHTML='<div class="search-hint">ಮಾಗಣೆ ಹೆಸರು, ವ್ಯಕ್ತಿಯ ಹೆಸರು ಅಥವಾ ದೂರವಾಣಿ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ.</div>'; return; }
+    const mag=[], ppl=[];
+    (state.regions||[]).forEach((r,ri)=>{
+      if(String(r.name||"").toLowerCase().includes(q) || String(r.phone||"").toLowerCase().includes(q)) mag.push(ri);
+      (r.families||[]).forEach((f,fi)=>{
+        if(String(f.n||"").toLowerCase().includes(q) || String(f.p||"").toLowerCase().includes(q)) ppl.push({ri,fi,f,r});
+      });
+    });
+    let html="";
+    if(mag.length){
+      html += `<div class="search-sec">ಮಾಗಣೆ (${mag.length})</div>`;
+      html += mag.map(ri=>{ const r=state.regions[ri]; return `<div class="search-item" onclick="gotoSearch(${ri},-1)"><div class="si-main">${esc(r.no)}. ${esc(r.name)}</div><div class="si-sub">${r.families.length} ಹೆಸರು${r.phone?' · 📞 '+esc(String(r.phone)):''}</div></div>`; }).join("");
+    }
+    if(ppl.length){
+      const shown=ppl.slice(0,150);
+      html += `<div class="search-sec">ವ್ಯಕ್ತಿಗಳು (${ppl.length}${ppl.length>150?' — ಮೊದಲ 150':''})</div>`;
+      html += shown.map(h=>`<div class="search-item" onclick="gotoSearch(${h.ri},${h.fi})"><div class="si-main">${esc(h.f.n||'—')}</div><div class="si-sub">${esc(h.r.name)}${h.f.p?' · 📞 '+esc(String(h.f.p)):''}</div></div>`).join("");
+    }
+    if(!mag.length && !ppl.length) html='<div class="search-hint">“'+esc(q)+'” — ಏನೂ ಸಿಗಲಿಲ್ಲ.</div>';
+    box.innerHTML=html;
+  }
+  function gotoSearch(ri, fi){
+    closeSearch();
+    if(!openRegions.has(ri)) toggleRegion(ri);
+    const el=document.getElementById('reg-'+ri);
+    if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+    if(fi>=0){
+      setTimeout(()=>{
+        const rows=document.querySelectorAll('#reg-'+ri+' tbody tr.editrow');
+        const row=rows[fi];
+        if(row){ row.scrollIntoView({behavior:"smooth",block:"center"}); row.classList.add('row-flash'); setTimeout(()=>row.classList.remove('row-flash'), 2700); }
+      }, 350);
+    }
+  }
+  document.addEventListener('keydown', e=>{
+    const m=document.getElementById('searchModal');
+    if(m && m.classList.contains('open') && e.key==='Escape') closeSearch();
+  });
 
   /* ===================== ಸಂಪಾದನೆ (events) ===================== */
   const sheet=document.getElementById('sheet');

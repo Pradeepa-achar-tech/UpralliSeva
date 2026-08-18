@@ -23,11 +23,12 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
-  void _openRegion(int ri) {
+  void _openRegion(int ri, {int? highlight}) {
     Navigator.push(
       context,
       MaterialPageRoute(
-          builder: (_) => RegionScreen(data: widget.data, regionIndex: ri)),
+          builder: (_) => RegionScreen(
+              data: widget.data, regionIndex: ri, highlightIndex: highlight)),
     );
   }
 
@@ -148,7 +149,7 @@ class _SearchScreenState extends State<SearchScreen> {
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(fontSize: 12)),
         trailing: const Icon(Icons.chevron_right, color: Colors.black38),
-        onTap: () => _openRegion(h.ri),
+        onTap: () => _openRegion(h.ri, highlight: h.fi),
       );
 
   Widget _hint() => const Center(

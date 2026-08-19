@@ -163,7 +163,7 @@ class PdfService {
     .pf-tbl td.pf-nm .row b{flex:0 0 auto;font-weight:400;}
     .pf-tbl td.pf-nm .nm{flex:1 1 auto;min-width:0;word-break:break-word;}
     .pf-tbl .pf-c{width:34px;text-align:center;padding-left:1px;padding-right:1px;}
-    body.blank .pf-tbl .pf-c{width:46px;}   /* ಖಾಲಿ ಅರ್ಜಿ — ಅಗಲ ಪೂಜಾ ಕಾಲಂ (ಹೆಸರು ಬಲಭಾಗದ ಖಾಲಿ ಜಾಗ ಕಡಿಮೆ) */
+    body.blank .pf-tbl .pf-c{width:32px;}   /* ಖಾಲಿ ಅರ್ಜಿ — ಚಿಕ್ಕ ಪೂಜಾ ಪೆಟ್ಟಿಗೆ → ಹೆಸರು ಕಾಲಂ ಅಗಲ */
     .pf-tbl thead .pf-c{font-size:9px;line-height:1.15;padding:2px 1px;white-space:normal;word-break:break-word;}
     .pf-tbl .pf-c i{font-style:normal;font-weight:600;color:#000;font-family:"Segoe UI Symbol","DejaVu Sans","Arial Unicode MS",Arial,sans-serif;}
     /* ಅಡ್ಡಗೆರೆ (ಸಾಲುಗಳ ನಡುವೆ) — ಖಾಲಿ ಅರ್ಜಿಯಲ್ಲಿ ಮಾತ್ರ (ಕೈಬರಹಕ್ಕೆ); ಡೇಟಾದಲ್ಲಿ ಇಲ್ಲ */
